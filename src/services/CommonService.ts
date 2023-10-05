@@ -1,12 +1,14 @@
 import axios from '@/axios'
-import type { ResultVO, Setting, User } from '@/types'
+import type { Invigilation, ResultVO, Setting, User } from '@/types'
 import { COLLEGE_ADMIN, SUBJECT_ADMIN, SUPER_ADMIN } from './Const'
 import { useUserStore } from '@/stores/UserStore'
 import router from '@/router'
 import { useSettingStore } from '@/stores/SettingStore'
 import { useMessageStore } from '@/stores/MessageStore'
+import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 
 const userStore = useUserStore()
+const invisStore = useInvigilationsStore()
 
 // login
 export const loginService = async (user: User) => {
@@ -52,4 +54,20 @@ export const updateSelfPassword = async (pwd: string) => {
   await axios.post('passwords', { password: pwd })
   const messageS = storeToRefs(useMessageStore()).messageS
   messageS.value = '密码更新成功'
+}
+
+export const getInviService = async (inviid: string) => {
+  const currentInvi = storeToRefs(invisStore).invigilationsDispatchS.value.find(
+    (invi) => invi.id == inviid
+  )
+  if (currentInvi) {
+    return currentInvi
+  }
+
+  const resp = await axios.get<ResultVO<{ invi: Invigilation }>>(`invis/${inviid}`)
+  const invi = resp.data.data?.invi
+
+  //
+  storeToRefs(invisStore).currentInviS.value = invi
+  return invi
 }

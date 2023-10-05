@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getSettingsService } from '@/services/UserService'
+import { getSettingsService } from '@/services/CommonService'
 import HeaderView from './header/IndexView.vue'
 import LoadingVue from '@/components/LoadingVue.vue'
 

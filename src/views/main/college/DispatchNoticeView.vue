@@ -14,7 +14,11 @@ dispatchersR.value = await listDispatchersService(props.depid)
 const noticeDispatchersF = () => {
   noticeDispatcherService(selDisR.value).then((r) => {
     const { messageS, closeF } = storeToRefs(useMessageStore())
-    messageS.value = `通知成功！task_id: ${r.task_id}`
+    if (r?.errcode != 0) {
+      messageS.value = `发送通知错误`
+      return
+    }
+    messageS.value = `发送通知成功。task_id: ${r.task_id}`
     closeF.value = () => {
       router.push('/college/imported')
     }

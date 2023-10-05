@@ -22,6 +22,7 @@ export interface Department {
   id?: string
   name?: string
   college?: string
+  inviStatus?: number
 }
 
 export interface Timetable {
@@ -92,15 +93,8 @@ export interface InviAssignUser {
 }
 
 export interface AssignUser {
-  inviId?: string
-  depId?: string
-  status?: number
   allocator?: { userId: string; userName: string; time: string }
   executor?: { userId: string; userName: string; time: string }[]
-  oldDingUserIds?: string
-  cancelMessage?: string
-  createUnionId?: string
-  calendarId?: string
 }
 
 export interface DingNoticeResponse {

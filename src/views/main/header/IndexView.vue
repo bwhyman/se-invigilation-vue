@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import { Setting, SwitchButton } from '@element-plus/icons-vue'
+import { Setting, SwitchButton, Sunrise } from '@element-plus/icons-vue'
 import { COLLEGE_ADMIN, SUBJECT_ADMIN } from '@/services/Const'
 import { useUserStore } from '@/stores/UserStore'
+import router from '@/router'
 const collegeNav = defineAsyncComponent(() => import('@/views/main/college/header/IndexView.vue'))
 const subjectNav = defineAsyncComponent(() => import('@/views/main/subject/header/IndexView.vue'))
 
@@ -11,6 +12,9 @@ const user = storeToRefs(useUserStore()).userS
 const logout = () => {
   sessionStorage.clear()
   window.location.href = '/'
+}
+const info = () => {
+  router.push('/info')
 }
 </script>
 <template>
@@ -31,15 +35,16 @@ const logout = () => {
       <subjectNav v-if="role == SUBJECT_ADMIN" />
     </el-col>
     <el-col :span="2">
-      <!-- <el-icon id="refresh" :size="32" color="red" @click="logout">
-        <Refresh />
-      </el-icon> -->
+      <el-icon id="info" :size="32" color="#409EFF" @click="info" style="margin-right: 10px">
+        <Sunrise />
+      </el-icon>
       <el-icon id="switch" :size="32" color="red" @click="logout"><SwitchButton /></el-icon>
     </el-col>
   </el-row>
 </template>
 <style scoped>
-#switch :hover {
+#switch,
+#info :hover {
   cursor: pointer;
 }
 </style>

@@ -1,16 +1,30 @@
 <script setup lang="ts">
+import router from '@/router'
 import { getInviChineseDayweek, getInviWeek } from '@/services/Utils'
 import type { Invigilation } from '@/types'
 
+// 表格全局每页显示个数
+const PAGESIZE = 40
+
 interface Props {
   invis: Invigilation[]
+  page?: { currentpage?: number; total?: number; url?: string }
 }
 const props = defineProps<Props>()
+
 const WeekC = computed(() => (date: string) => getInviWeek(date))
 const dayweekC = computed(() => (date: string) => getInviChineseDayweek(date))
+
+const changePage = (n: number) => {
+  if (n == 1) {
+    router.push(`${props.page!.url!}`)
+    return
+  }
+  router.push(`${props.page!.url!}/${n}`)
+}
 </script>
 <template>
-  <el-table :data="props.invis">
+  <el-table :data="props.invis" style="margin-bottom: 10px">
     <el-table-column type="index" label="#" width="50" />
     <el-table-column>
       <template #default="scope">
@@ -18,7 +32,7 @@ const dayweekC = computed(() => (date: string) => getInviChineseDayweek(date))
         <br />
         {{ scope.row.course.courseName }}
         <br />
-        {{ scope.row.clazz }}
+        {{ scope.row.course.clazz }}
       </template>
     </el-table-column>
     <el-table-column>
@@ -55,12 +69,6 @@ const dayweekC = computed(() => (date: string) => getInviChineseDayweek(date))
           导入：
           <el-tag>{{ scope.row.importer.userName }}</el-tag>
         </template>
-        <br />
-        <template v-if="scope.row.allocator">
-          分配：
-          <el-tag>{{ scope.row.allocator.userName }}</el-tag>
-          <br />
-        </template>
       </template>
     </el-table-column>
     <el-table-column min-width="60">
@@ -69,4 +77,22 @@ const dayweekC = computed(() => (date: string) => getInviChineseDayweek(date))
       </template>
     </el-table-column>
   </el-table>
+  <el-row>
+    <el-col :span="2">
+      <span v-if="props.page?.total != 0">
+        共
+        <el-tag>{{ props.page?.total! }}</el-tag>
+        项
+      </span>
+    </el-col>
+    <el-col :span="10">
+      <el-pagination
+        background
+        :current-page="props.page?.currentpage"
+        layout="prev, pager, next"
+        @update:current-page="changePage"
+        :default-page-size="PAGESIZE"
+        :total="props.page?.total!" />
+    </el-col>
+  </el-row>
 </template>

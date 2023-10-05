@@ -10,21 +10,26 @@ import axios from '@/axios'
 import { useDepartmentsStore } from '@/stores/DepartmentStore'
 import { useUsersStore } from '@/stores/UsersStore'
 import { useMessageStore } from '@/stores/MessageStore'
-import { useInvigilationsStore } from '@/stores/InvigilationsStore'
-import { ASSIGN, DISPATCH, IMPORT } from './Const'
 import { stringTimetables } from './Utils'
-import router from '@/router'
+import { useInvigilationsStore } from '@/stores/InvigilationsStore'
+
+const COLLEGE = 'college'
 
 const departmentsStore = useDepartmentsStore()
-const invisStore = useInvigilationsStore()
 const usersStore = useUsersStore()
 const messageStore = useMessageStore()
 //
-export const listDepartmentsService = async () => {
-  const resp = await axios.get<ResultVO<{ departments: Department[] }>>(`college/departments`)
+export const listOpenedDepartmentsService = async () => {
+  const departments = storeToRefs(departmentsStore).departments
+  if (departments.value.length > 0) {
+    return departments.value
+  }
+  const resp = await axios.get<ResultVO<{ departments: Department[] }>>(
+    `${COLLEGE}/departments/opened`
+  )
   const deps = resp.data.data && resp.data.data.departments
   //
-  storeToRefs(departmentsStore).departments.value = deps ?? []
+  departments.value = deps ?? []
   return deps ?? []
 }
 
@@ -38,28 +43,37 @@ export const addInvigilationsService = async (invis: Invigilation[]) => {
     // @ts-ignore
     i.importer = JSON.stringify(i.importer)
   })
-  const resp = await axios.post('college/invigilations', invis)
+  await axios.post(`${COLLEGE}/invigilations`, invis)
   return true
 }
 
-//
-export const listCollegeInvigilationsService = async (status: number) => {
+export const listImportedService = async () => {
   const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
-    `college/invigilations/status/${status}`
+    `${COLLEGE}/invilations/imported`
   )
   const invis = resp.data.data!.invis
+  return invis ?? []
+}
 
-  switch (status) {
-    case IMPORT:
-      storeToRefs(invisStore).invigilationsImportS.value = invis
-      break
-    case DISPATCH:
-      storeToRefs(invisStore).invigilationsDispatchS.value = invis
-      break
-    case ASSIGN:
-      storeToRefs(invisStore).invigilationsAssignS.value = invis
-      break
-  }
+export const getImportedTotalService = async () => {
+  const resp = await axios.get<ResultVO<{ total: number }>>(
+    `${COLLEGE}/invigilations/imported/total`
+  )
+  return resp.data.data?.total ?? 0
+}
+
+export const getDepatchedTotalService = async (depid: string) => {
+  const resp = await axios.get<ResultVO<{ total: number }>>(
+    `${COLLEGE}/invigilations/dispatched/${depid}/total`
+  )
+  return resp.data.data?.total ?? 0
+}
+
+export const listDepatchedsService = async (depid: string, page: number) => {
+  const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
+    `${COLLEGE}/invilations/dispatched/${depid}/${page}`
+  )
+  const invis = resp.data.data!.invis
   return invis ?? []
 }
 
@@ -72,15 +86,15 @@ export const updateInvisService = async (invis: Invigilation[]) => {
     i.department && (i.department = JSON.stringify(i.department))
   })
   const resp = await axios.patch<ResultVO<{ invis: Invigilation[] }>>(
-    'college/invigilations',
+    `${COLLEGE}/invigilations/dispatch`,
     invis
   )
-  storeToRefs(invisStore).invigilationsImportS.value = resp.data.data?.invis ?? []
+
   return true
 }
 
 export const getCollegeUsersService = async () => {
-  const resp = await axios.get<ResultVO<{ users: User[] }>>('college/users')
+  const resp = await axios.get<ResultVO<{ users: User[] }>>(`${COLLEGE}/users`)
   const users = resp.data.data?.users
   if (!users) return
   //
@@ -91,26 +105,25 @@ export const getCollegeUsersService = async () => {
 
 export const addTimetablesService = async (timetables: Timetable[]) => {
   stringTimetables(timetables)
-  const resp = await axios.post('college/timetables', timetables)
+  const resp = await axios.post(`${COLLEGE}/timetables`, timetables)
   storeToRefs(messageStore).messageS.value = '导入完成'
   return true
 }
 
 export const listDispatchersService = async (depid: string) => {
-  const resp = await axios.get<ResultVO<{ users: User[] }>>(`college/dispatchers/${depid}`)
+  const resp = await axios.get<ResultVO<{ users: User[] }>>(`${COLLEGE}/dispatchers/${depid}`)
 
   return resp.data.data?.users ?? []
 }
 
 export const noticeDispatcherService = async (users: string[]) => {
-  // const userIds = users.join(',')
-  // const resp = await axios.post<ResultVO<{ dingResp: DingNoticeResponse }>>(
-  //   'college/dispatchnotices',
-  //   userIds
-  // )
-  // const dingResp = resp.data.data?.dingResp
-
-  const dingResp: DingNoticeResponse = { task_id: '12' }
+  const userIds = users.join(',')
+  const resp = await axios.post<ResultVO<{ dingResp: DingNoticeResponse }>>(
+    `${COLLEGE}/dispatchnotices`,
+    { userIds: userIds }
+  )
+  const dingResp = resp.data.data?.dingResp
+  //const dingResp: DingNoticeResponse = { task_id: '12' }
   return dingResp
 }
 
@@ -122,6 +135,62 @@ export const addInviSerivce = async (invi: Invigilation) => {
   // @ts-ignore
   invi.time = JSON.stringify(invi.time)
 
-  const resp = await axios.post('college/invigilation', invi)
+  const resp = await axios.post(`${COLLEGE}/invigilation`, invi)
   return true
+}
+
+//
+export const addTimetableService = async (userid: string, timetables: Timetable[]) => {
+  stringTimetables(timetables)
+  const resp = await axios.post(`${COLLEGE}/timetables/${userid}`, timetables)
+
+  return true
+}
+
+//
+export const updateInviService = async (invi: Invigilation) => {
+  // @ts-ignore
+  invi.time = JSON.stringify(invi.time)
+  // @ts-ignore
+  invi.course = JSON.stringify(invi.course)
+  // @ts-ignore
+  invi.dispatcher = JSON.stringify(invi.dispatcher)
+  const resp = await axios.patch<ResultVO<{ invi: Invigilation }>>(
+    `${COLLEGE}/invigilations/edit`,
+    invi
+  )
+  const temp = resp.data.data?.invi
+  storeToRefs(useInvigilationsStore()).currentInviS.value = temp
+  return temp
+}
+
+// 删除监考
+export const delInviService = async (inviid: string) => {
+  const resp = axios.delete(`${COLLEGE}/invigilations/${inviid}`)
+  return true
+}
+
+// 重置监考为未下发状态，发送取消通知，重置信息等
+export const resetInviService = async (inviid: string) => {
+  const resp = axios.put(`${COLLEGE}/invigilations/${inviid}/status`)
+
+  return true
+}
+
+//
+export const listDepartmentsService = async () => {
+  const resp = await axios.get<ResultVO<{ departments: Department[] }>>(`${COLLEGE}/departments`)
+  const departs = resp.data.data?.departments ?? []
+  return departs
+}
+
+//
+export const updateDepartmentInviStatus = async (departs: Department[]) => {
+  const resp = await axios.patch<ResultVO<{ departments: Department[] }>>(
+    `${COLLEGE}/departments/invistatus`,
+    departs
+  )
+  const departments = resp.data.data?.departments ?? []
+  storeToRefs(useDepartmentsStore()).departments.value = []
+  return departments
 }

@@ -20,6 +20,10 @@ const routes: RouteRecordRaw[] = [
     },
     children: [
       {
+        path: 'info',
+        component: () => import('@/views/main/InfoView.vue')
+      },
+      {
         path: 'settings',
         component: () => import('@/views/main/header/UserSettingView.vue')
       },
@@ -38,11 +42,15 @@ const routes: RouteRecordRaw[] = [
         },
         children: [
           {
-            path: 'imported',
+            props: true,
+            path: 'imported/:page?',
+            alias: 'imported',
             component: () => import('@/views/main/college/ImportedListView.vue')
           },
+
           {
-            path: 'dispatched',
+            props: true,
+            path: 'dispatched/:depid?/:page?',
             component: () => import('@/views/main/college/DispatchedListView.vue')
           },
           {
@@ -61,6 +69,11 @@ const routes: RouteRecordRaw[] = [
             props: true,
             path: 'notices/:depid',
             component: () => import('@/views/main/college/DispatchNoticeView.vue')
+          },
+          {
+            props: true,
+            path: 'inviedit/:inviid',
+            component: () => import('@/views/main/college/InviEditView.vue')
           }
         ]
       },
@@ -72,11 +85,13 @@ const routes: RouteRecordRaw[] = [
         },
         children: [
           {
-            path: 'dispatched',
+            props: true,
+            path: 'dispatched/:page?',
             component: () => import('@/views/main/subject/DispatchedListView.vue')
           },
           {
-            path: 'assigned',
+            props: true,
+            path: 'assigned/:page?',
             component: () => import('@/views/main/subject/AssignedListView.vue')
           },
           {

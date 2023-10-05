@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   addAssignUsersService,
-  getInviService,
   listCountsService,
   listDateInvisService,
   listTimetablesService
@@ -15,11 +14,12 @@ import {
   stringInviTime
 } from '@/services/Utils'
 import type { Invigilation, User, InviCount, Timetable, InviAssignUser, AssignUser } from '@/types'
-import { ASSIGN, CLOSED } from '@/services/Const'
+import { CLOSED } from '@/services/Const'
 import AssignTable from './component/AssignTable.vue'
 import { useUserStore } from '@/stores/UserStore'
 import router from '@/router'
 import { useMessageStore } from '@/stores/MessageStore'
+import { getInviService } from '@/services/CommonService'
 
 const props = defineProps<{ inviid: string }>()
 
@@ -180,33 +180,22 @@ const getDisabledC = computed(() => (user: InviAssignUser) => {
 })
 
 //
-assignUsersR.value.depId = userR.value.department?.depId!
-assignUsersR.value.status = ASSIGN
-assignUsersR.value.executor = []
-assignUsersR.value.inviId = currentInvi.id
-
-if (currentInvi.calendarId) {
-  assignUsersR.value.createUnionId = currentInvi.createUnionId
-  assignUsersR.value.calendarId = currentInvi.calendarId
-  const userIds: string[] = []
-  currentInvi.executor!.forEach((ex) => {
-    const user = usersS.value.find((u) => u.id == ex.userId)
-    user && userIds.push(user.dingUserId!)
-  })
-
-  assignUsersR.value.oldDingUserIds = userIds.join(',')
-
-  assignUsersR.value.cancelMessage = `监考取消：${currentInvi.course?.courseName}; ${currentInvi.date} ${currentInvi.time?.starttime}; ${currentInvi.course?.location}`
-}
-//
 const submitUsers = () => {
+  assignUsersR.value.executor = []
+  if (currentInvi.calendarId) {
+    const userIds: string[] = []
+    currentInvi.executor!.forEach((ex) => {
+      const user = usersS.value.find((u) => u.id == ex.userId)
+      user && userIds.push(user.dingUserId!)
+    })
+  }
   assignUsersR.value.allocator = stringInviTime({ id: userR.value.id, name: userR.value.name })
 
   selectedUsers.value.forEach((us) => {
     assignUsersR.value.executor?.push(stringInviTime({ id: us.id, name: us.name }))
   })
 
-  addAssignUsersService(assignUsersR.value).then(() => {
+  addAssignUsersService(currentInvi.id!, assignUsersR.value).then(() => {
     const { messageS, closeF } = storeToRefs(useMessageStore())
     messageS.value = '分配结果已保存'
     closeF.value = () => {
@@ -297,7 +286,6 @@ const submitUsers = () => {
     </el-col>
 
     <el-tag type="danger" size="large">关闭</el-tag>
-
     <el-col>
       <el-table :data="closedUsersR">
         <el-table-column type="index" label="#" width="50" />

@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 import { Lock } from '@element-plus/icons-vue'
-import { useUserStore } from '@/stores/UserStore'
 import { useMessageStore } from '@/stores/MessageStore'
-import { updateSelfPassword } from '@/services/UserService'
+import { updateSelfPassword } from '@/services/CommonService'
 
 const showPasswordR = ref(false)
 
