@@ -56,18 +56,13 @@ export const updateSelfPassword = async (pwd: string) => {
   messageS.value = '密码更新成功'
 }
 
+//
 export const getInviService = async (inviid: string) => {
-  const currentInvi = storeToRefs(invisStore).invigilationsDispatchS.value.find(
-    (invi) => invi.id == inviid
-  )
-  if (currentInvi) {
-    return currentInvi
-  }
+  let invi = invisStore.currentInviS
+  if (invi) return invi
 
   const resp = await axios.get<ResultVO<{ invi: Invigilation }>>(`invis/${inviid}`)
-  const invi = resp.data.data?.invi
+  invi = resp.data.data?.invi
 
-  //
-  storeToRefs(invisStore).currentInviS.value = invi
   return invi
 }

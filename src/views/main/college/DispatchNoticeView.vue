@@ -2,6 +2,7 @@
 import router from '@/router'
 import { listDispatchersService, noticeDispatcherService } from '@/services/CollegeService'
 import { useMessageStore } from '@/stores/MessageStore'
+import { useSettingStore } from '@/stores/SettingStore'
 import type { User } from '@/types'
 const props = defineProps<{ depid: string }>()
 
@@ -12,7 +13,10 @@ const selDisR = ref<string[]>([])
 dispatchersR.value = await listDispatchersService(props.depid)
 
 const noticeDispatchersF = () => {
-  noticeDispatcherService(selDisR.value).then((r) => {
+  const settingStore = useSettingStore()
+  const weburl = settingStore.settingsR.find((set) => set.key == 'weburl')?.value ?? ''
+  const message = `已下发新监考信息，请及时分配。\n${weburl}`
+  noticeDispatcherService(selDisR.value, message).then((r) => {
     const { messageS, closeF } = storeToRefs(useMessageStore())
     if (r?.errcode != 0) {
       messageS.value = `发送通知错误`
@@ -40,7 +44,7 @@ const noticeDispatchersF = () => {
       </el-checkbox-group>
     </el-col>
     <el-col>
-      <el-button type="success" @click="noticeDispatchersF">提交</el-button>
+      <el-button type="success" @click="noticeDispatchersF" :disabled="!selDisR">提交</el-button>
     </el-col>
   </el-row>
 </template>

@@ -53,11 +53,16 @@ const changePage = (n: number) => {
         人
       </template>
     </el-table-column>
-    <el-table-column>
+    <el-table-column width="250">
       <template #default="scope">
         <template v-if="scope.row.department">
           部门：
           <el-tag>{{ scope.row.department.departmentName }}</el-tag>
+          <br />
+        </template>
+        <template v-if="scope.row.importer">
+          导入：
+          <el-tag>{{ scope.row.importer.userName }}</el-tag>
           <br />
         </template>
         <template v-if="scope.row.dispatcher">
@@ -65,9 +70,10 @@ const changePage = (n: number) => {
           <el-tag>{{ scope.row.dispatcher.userName }}</el-tag>
           <br />
         </template>
-        <template v-if="scope.row.importer">
-          导入：
-          <el-tag>{{ scope.row.importer.userName }}</el-tag>
+        <template v-if="scope.row.allocator">
+          分配：
+          <el-tag>{{ scope.row.allocator.userName }}</el-tag>
+          <br />
         </template>
       </template>
     </el-table-column>

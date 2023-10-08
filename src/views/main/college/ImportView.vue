@@ -13,6 +13,12 @@ const invisR = ref<Invigilation[]>([])
 const inviTypeR = ref(0)
 const userStore = useUserStore()
 
+const pageR = ref<{ currentpage?: number; total?: number; url?: string }>({
+  currentpage: 0,
+  total: 0,
+  url: ''
+})
+
 const readInvis = (event: Event) => {
   const element = event.target as HTMLInputElement
   if (!element || !element.files) {
@@ -38,16 +44,18 @@ const readInvis = (event: Event) => {
 }
 
 watch(inviTypeR, (newValue) => {
-  if (newValue == 1 && invisR.value.length > 0) {
-    invisR.value.forEach(
-      (invi) => (invi.course!.courseName = (invi.course as Course).courseName + '阶段')
-    )
+  if (invisR.value.length == 0) {
+    return
   }
-  if (newValue == 2 && invisR.value.length > 0) {
-    invisR.value.forEach(
-      (invi) => (invi.course!.courseName = (invi.course as Course).courseName?.replace('阶段', ''))
-    )
-  }
+  invisR.value.forEach((invi) => {
+    invi.course!.courseName = invi.course!.courseName?.replaceAll('阶段', '').replaceAll('期末', '')
+    if (newValue == 1) {
+      invi.course!.courseName += '阶段'
+    }
+    if (newValue == 2) {
+      invi.course!.courseName += '期末'
+    }
+  })
 })
 
 const addInvis = () => {
@@ -107,7 +115,7 @@ const addInvis = () => {
       </el-button>
     </el-col>
     <el-col>
-      <InviTable :invis="invisR" />
+      <InviTable :invis="invisR" :page="pageR" />
     </el-col>
   </el-row>
 </template>

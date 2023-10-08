@@ -28,7 +28,7 @@ watch(
 
 //
 const assignF = (invi: Invigilation) => {
-  storeToRefs(useInvigilationsStore()).currentInviS.value = invi
+  useInvigilationsStore().currentInviS = invi
   router.push(`/subject/assigns/${invi.id}`)
 }
 </script>

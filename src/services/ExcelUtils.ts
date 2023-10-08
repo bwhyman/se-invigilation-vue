@@ -1,4 +1,4 @@
-import type { Course, ImportTimetable, Invigilation, Timetable, User } from '@/types'
+import type { Course, ImportTimetable, Invigilation, Timetable, User, InviDetail } from '@/types'
 import * as XLSX from 'xlsx'
 import { IMPORT } from './Const'
 
@@ -286,11 +286,11 @@ const readInviRow = (r: any, reject: any) => {
 
   //
   if (r['考试日期']) {
-    const inviDate = r['考试日期'].replace('/', '-')
+    const inviDate = r['考试日期'].replaceAll('/', '-')
     invi.date = inviDate
 
     //
-    const inviTime = r['考试时间']
+    const inviTime = r['考试时间'].replaceAll('-', '~')
     invi.time.starttime = inviTime.split('~')[0]
     invi.time.endtime = inviTime.split('~')[1]
   }
@@ -346,4 +346,44 @@ export const readDingtalkExcel = (file: Blob) => {
     }
     reader.readAsBinaryString(file)
   })
+}
+
+//
+export const exportInvisDetails = (invis: Invigilation[], details: InviDetail[]) => {
+  let index = 0
+  const rows = invis.map((invi) => {
+    const row: any = {}
+    row['#'] = index += 1
+    row['授课教师'] = invi.course?.teacherName ?? ''
+    row['课程'] = invi.course?.courseName ?? ''
+    row['班级'] = invi.course?.clazz ?? ''
+    row['考试时间'] = `${invi.date} ${invi.time?.starttime}~${invi.time?.endtime}` ?? ''
+    row['人数'] = invi.amount ?? ''
+    row['导入'] = invi.importer?.userName ?? ''
+    row['下发'] = invi.dispatcher?.userName ?? ''
+    row['分配'] = invi.allocator?.userName ?? ''
+    let names = ''
+    invi.executor?.forEach((exec) => {
+      names += exec.userName + ';'
+    })
+    row['监考'] = names
+    return row
+  })
+  let ind = 0
+  const detailRows = details.map((detail) => {
+    const row: any = {}
+    row['#'] = ind += 1
+    row['专业'] = detail.departmentName
+    row['工号'] = detail.account
+    row['教师'] = detail.name
+    row['次数'] = detail.count
+    return row
+  })
+
+  const workBook = XLSX.utils.book_new()
+  const jsonWorkSheet = XLSX.utils.json_to_sheet(rows)
+  const jsonWorkSheet2 = XLSX.utils.json_to_sheet(detailRows)
+  XLSX.utils.book_append_sheet(workBook, jsonWorkSheet, `监考详细信息`)
+  XLSX.utils.book_append_sheet(workBook, jsonWorkSheet2, `监考统计`)
+  return XLSX.writeFile(workBook, '监考详细信息.xlsx')
 }

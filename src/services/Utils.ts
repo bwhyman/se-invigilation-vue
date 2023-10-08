@@ -20,32 +20,7 @@ export const getInviDayweek = (date: string) => {
 }
 
 export const getInviChineseDayweek = (date: string) => {
-  const dayweek = new Date(date).getDay()
-  let cd = ''
-  switch (dayweek) {
-    case 0:
-      cd = '星期日'
-      break
-    case 1:
-      cd = '星期一'
-      break
-    case 2:
-      cd = '星期二'
-      break
-    case 3:
-      cd = '星期三'
-      break
-    case 4:
-      cd = '星期四'
-      break
-    case 5:
-      cd = '星期五'
-      break
-    case 6:
-      cd = '星期六'
-      break
-  }
-  return cd
+  return new Date(date).toLocaleString('zh-cn', { weekday: 'long' })
 }
 
 export const getStatusName = (s: number) => {

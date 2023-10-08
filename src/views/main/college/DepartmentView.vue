@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { listOpenedDepartmentsService } from '@/services/CollegeService'
+import type { Department } from '@/types'
 
 const departments = await listOpenedDepartmentsService()
-const props = defineProps<{ change: (depid: string) => void }>()
+const props = defineProps<{ change: (depart: Department) => void }>()
 
 const router = useRouter()
 const depid = router.currentRoute.value.params.depid
@@ -10,10 +11,15 @@ const depidR = ref('')
 if (depid) {
   depidR.value = depid as string
 }
+
+const changeF = () => {
+  const depart = departments.find((d) => d.id == depidR.value)
+  props.change(depart!)
+}
 </script>
 <template>
   <el-radio-group
-    @change="props.change"
+    @change="changeF"
     v-model="depidR"
     class="ml-4"
     style="margin-bottom: 10px; margin-right: 10px">

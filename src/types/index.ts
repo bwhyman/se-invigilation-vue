@@ -66,11 +66,10 @@ export interface Invigilation {
 }
 
 export interface InviDetail {
-  id?: string
-  depId?: string
-  inviId?: string
-  userId?: string
-  teacherName?: string
+  name?: string
+  account?: string
+  departmentName?: string
+  count?: number
 }
 
 export interface Setting {
@@ -82,6 +81,7 @@ export interface Setting {
 export interface InviCount {
   userId?: string
   count?: number
+  name?: string
 }
 
 export interface InviAssignUser {
@@ -93,6 +93,7 @@ export interface InviAssignUser {
 }
 
 export interface AssignUser {
+  depId?: string
   allocator?: { userId: string; userName: string; time: string }
   executor?: { userId: string; userName: string; time: string }[]
 }
@@ -102,6 +103,13 @@ export interface DingNoticeResponse {
   errmsg?: string
   task_id?: string
   request_id?: string
+}
+
+export interface DingUser {
+  unionid?: string
+  userid?: string
+  name?: string
+  mobile?: string
 }
 
 export interface Notice {

@@ -5,10 +5,9 @@ import { DISPATCH } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
 import { useMessageStore } from '@/stores/MessageStore'
 import { useUserStore } from '@/stores/UserStore'
-import type { Invigilation } from '@/types'
+import type { Department, Invigilation } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 import DepartmentView from './DepartmentView.vue'
-import { useDepartmentsStore } from '@/stores/DepartmentStore'
 import { Edit } from '@element-plus/icons-vue'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 
@@ -21,9 +20,8 @@ const pageR = ref<{ currentpage?: number; total?: number; url?: string }>({
 })
 
 const userStore = useUserStore()
-const departmentsS = storeToRefs(useDepartmentsStore()).departments
 //
-const depIdR = ref('')
+const departmentR = ref<Department>()
 const selectR = ref<Invigilation[]>([])
 
 const selectF = (invi: Invigilation) => {
@@ -50,8 +48,8 @@ const updateInvis = () => {
       status: DISPATCH,
       dispatcher: stringInviTime(userStore.userS),
       department: {
-        depId: depIdR.value,
-        departmentName: departmentsS.value.find((d) => d.id == depIdR.value)?.name
+        depId: departmentR.value?.id,
+        departmentName: departmentR.value?.name
       }
     })
   })
@@ -61,19 +59,31 @@ const updateInvis = () => {
     const { messageS, closeF } = storeToRefs(useMessageStore())
     messageS.value = '下发成功!'
     closeF.value = () => {
-      router.push(`/college/notices/${depIdR.value}`)
+      router.push(`/college/notices/${departmentR.value?.id}`)
     }
   })
 }
 
-const departChange = (depid: string) => {
-  depIdR.value = depid
+const departChange = (dep: Department) => {
+  departmentR.value = dep!
 }
 
 const editF = (inviid: string) => {
   router.push(`/college/inviedit/${inviid}`)
   const invi = inviS.find((i) => i.id == inviid)
+  useInvigilationsStore().currentInviS = invi
+}
+
+const assignF = (invi: Invigilation) => {
+  if (invi.amount != 1) {
+    storeToRefs(useMessageStore()).messageS.value = '只能为监考人数为1的监考直接分配'
+    return
+  }
   storeToRefs(useInvigilationsStore()).currentInviS.value = invi
+  const depid = departmentR.value?.id
+  const name = invi.course?.teacherName
+  const inviid = invi.id
+  router.push(`/college/assigns/${inviid}/departments/${depid}/names/${name}`)
 }
 </script>
 <template>
@@ -85,7 +95,10 @@ const editF = (inviid: string) => {
     </el-row>
     <el-row class="my-row">
       <el-col style="text-align: right">
-        <el-button type="success" :disabled="!depIdR || selectR.length == 0" @click="updateInvis">
+        <el-button
+          type="success"
+          :disabled="!departmentR || selectR.length == 0"
+          @click="updateInvis">
           提交
         </el-button>
       </el-col>
@@ -93,10 +106,20 @@ const editF = (inviid: string) => {
         <InviTable :invis="inviS" :page="pageR">
           <template #action="action">
             <div style="display: flex; justify-content: space-between; align-items: center">
-              <div>
-                <el-button @click="selectF(action.invi)" :type="buttonTypeC(action.invi.id!)">
-                  下发
-                </el-button>
+              <div style="text-align: left">
+                <div>
+                  <el-button
+                    @click="selectF(action.invi)"
+                    :type="buttonTypeC(action.invi.id!)"
+                    style="margin-bottom: 5px">
+                    下发
+                  </el-button>
+                </div>
+                <div>
+                  <el-button @click="assignF(action.invi)" type="warning" :disabled="!departmentR">
+                    分配
+                  </el-button>
+                </div>
               </div>
               <el-button type="primary" :icon="Edit" circle @click="editF(action.invi.id!)" />
             </div>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getDepatchedTotalService, listDepatchedsService } from '@/services/CollegeService'
-import type { Invigilation } from '@/types'
+import type { Department, Invigilation } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 import DepartmentView from './DepartmentView.vue'
 import router from '@/router'
@@ -37,8 +37,8 @@ watch(
   { immediate: true }
 )
 
-const departChange = (depid: string) => {
-  router.push(`/college/dispatched/${depid}`)
+const departChange = (dep: Department) => {
+  router.push(`/college/dispatched/${dep.id}`)
 }
 
 const editF = (inviid: string) => {
@@ -60,9 +60,12 @@ const editF = (inviid: string) => {
           <template #action="action">
             <div style="display: flex; justify-content: space-between; align-items: center">
               <div>
-                <el-tag v-for="(invi, index) of action.invi.executor" :key="index">
-                  {{ invi.userName }}
-                </el-tag>
+                <template v-for="(invi, index) of action.invi.executor" :key="index">
+                  <el-tag>
+                    {{ invi.userName }}
+                  </el-tag>
+                  <br />
+                </template>
               </div>
               <el-button type="primary" :icon="Edit" circle @click="editF(action.invi.id!)" />
             </div>

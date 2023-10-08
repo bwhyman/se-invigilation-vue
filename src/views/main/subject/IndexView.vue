@@ -1,7 +1,4 @@
-<script setup lang="ts">
-import { listUsersService } from '@/services/SubjectService'
-await listUsersService()
-</script>
+<script setup lang="ts"></script>
 <template>
   <RouterView />
 </template>

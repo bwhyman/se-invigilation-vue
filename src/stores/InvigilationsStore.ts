@@ -3,9 +3,16 @@ import type { Invigilation } from '@/types'
 export const useInvigilationsStore = defineStore('useInvigilationsStore', () => {
   const invigilationsImportS = ref<Invigilation[]>([])
   const invigilationsDispatchS = ref<Invigilation[]>([])
-  const invigilationsAssignS = ref<Invigilation[]>([])
-
   const currentInviS = ref<Invigilation>()
+  const dateInvisMap = new Map<string, Invigilation[]>()
 
-  return { invigilationsImportS, invigilationsDispatchS, invigilationsAssignS, currentInviS }
+  const invisAllS = ref<Invigilation[]>([])
+
+  return {
+    invigilationsImportS,
+    invigilationsDispatchS,
+    currentInviS,
+    dateInvisMap,
+    invisAllS
+  }
 })

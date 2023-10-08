@@ -3,9 +3,9 @@ import {
   addAssignUsersService,
   listCountsService,
   listDateInvisService,
-  listTimetablesService
+  listTimetablesService,
+  listUsersService
 } from '@/services/SubjectService'
-import { useUsersStore } from '@/stores/UsersStore'
 import {
   confTime,
   getInviChineseDayweek,
@@ -13,7 +13,7 @@ import {
   getInviWeek,
   stringInviTime
 } from '@/services/Utils'
-import type { Invigilation, User, InviCount, Timetable, InviAssignUser, AssignUser } from '@/types'
+import type { Invigilation, User, InviAssignUser, AssignUser } from '@/types'
 import { CLOSED } from '@/services/Const'
 import AssignTable from './component/AssignTable.vue'
 import { useUserStore } from '@/stores/UserStore'
@@ -22,17 +22,14 @@ import { useMessageStore } from '@/stores/MessageStore'
 import { getInviService } from '@/services/CommonService'
 
 const props = defineProps<{ inviid: string }>()
+const messageStore = useMessageStore()
 
 const currentInvi = (await getInviService(props.inviid)) ?? {}
 //
-let inviCountsS: InviCount[] = []
-let dateInvisR: Invigilation[] = []
-let timetablesR: Timetable[] = []
-const usersS = storeToRefs(useUsersStore()).usersS
 const userR = storeToRefs(useUserStore()).userS
 const assignUsersR = ref<AssignUser>({})
 
-// 当前分配的监考
+// 当前分配的监考信息
 let week = getInviWeek(currentInvi.date!)
 let dayweek = getInviDayweek(currentInvi.date!)
 const amountR = currentInvi.amount!
@@ -44,16 +41,19 @@ const allP = await Promise.all([
   // 当天监考
   listDateInvisService(currentInvi.date!),
   // 监考数量
-  listCountsService()
+  listCountsService(),
+  // 全部教师
+  listUsersService()
 ])
 
-inviCountsS = allP[2] ?? []
-dateInvisR = allP[1] ?? []
-timetablesR = allP[0] ?? []
+const timetablesR = allP[0] ?? []
+const dateInvisR = allP[1] ?? []
+const inviCountsS = allP[2] ?? []
+const usersS = allP[3] ?? []
 
 // 分别计算渲染
 const groupUsers = ref<InviAssignUser[]>([])
-const allUsers: User[] = [...toRaw(usersS.value)]
+const allUsers: User[] = [...usersS]
 const closedUsersR = ref<User[]>([])
 const confUsersR = ref<InviAssignUser[]>([])
 
@@ -149,7 +149,6 @@ const WeekC = computed(() => (date: string) => getInviWeek(date))
 const dayweekC = computed(() => (date: string) => getInviChineseDayweek(date))
 
 //
-const countInputs: HTMLInputElement[] = []
 const selectedUsers = ref<InviAssignUser[]>([])
 
 const handleChange = (user: InviAssignUser) => {
@@ -159,10 +158,6 @@ const handleChange = (user: InviAssignUser) => {
   }
   const index = selectedUsers.value.indexOf(user)
   selectedUsers.value.splice(index, 1)
-}
-
-const setInput = (el: HTMLInputElement) => {
-  countInputs.push(el)
 }
 
 const getDisripC = computed(() => (user: InviAssignUser) => {
@@ -181,11 +176,17 @@ const getDisabledC = computed(() => (user: InviAssignUser) => {
 
 //
 const submitUsers = () => {
+  if (selectedUsers.value.length != currentInvi.amount) {
+    const { messageS } = storeToRefs(messageStore)
+    messageS.value = '分配教师数与所需监考数不匹配'
+    return
+  }
+
   assignUsersR.value.executor = []
   if (currentInvi.calendarId) {
     const userIds: string[] = []
     currentInvi.executor!.forEach((ex) => {
-      const user = usersS.value.find((u) => u.id == ex.userId)
+      const user = usersS.find((u) => u.id == ex.userId)
       user && userIds.push(user.dingUserId!)
     })
   }
@@ -196,7 +197,7 @@ const submitUsers = () => {
   })
 
   addAssignUsersService(currentInvi.id!, assignUsersR.value).then(() => {
-    const { messageS, closeF } = storeToRefs(useMessageStore())
+    const { messageS, closeF } = storeToRefs(messageStore)
     messageS.value = '分配结果已保存'
     closeF.value = () => {
       router.push(`/subject/notices/${props.inviid}`)
@@ -230,7 +231,7 @@ const submitUsers = () => {
       <br />
       重复提交，将覆盖原分配记录，并保存新记录。
       <br />
-      同一名教师可带研究生参加同一场监考，算2次监考。
+      同一名教师可带自己研究生参加同一场监考，算2次监考。
       <br />
     </el-col>
   </el-row>
@@ -241,7 +242,7 @@ const submitUsers = () => {
     </el-col>
     <el-col :span="8">
       <template v-if="currentInvi.executor?.length! > 0">
-        当前监考人员：
+        当前监考教师：
         <template v-for="(exec, index) of currentInvi.executor" :key="index">
           {{ exec.userName }};
         </template>
@@ -258,7 +259,6 @@ const submitUsers = () => {
           <el-button
             style="width: 60px"
             :type="getDisabledC(userAssign.user!).type"
-            :ref="setInput"
             :disabled="getDisabledC(userAssign.user!).disabled"
             @click="handleChange(userAssign.user!)">
             {{ getDisripC(userAssign.user!) }}
@@ -276,7 +276,6 @@ const submitUsers = () => {
           <el-button
             style="width: 60px"
             :type="getDisabledC(userAssign.user!).type"
-            :ref="setInput"
             :disabled="getDisabledC(userAssign.user!).disabled"
             @click="handleChange(userAssign.user!)">
             {{ getDisripC(userAssign.user!) }}

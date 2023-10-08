@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import CollegeViewVue from './CollegeView.vue'
+import AddCollegeView from './AddCollegeView.vue'
+import ImportUsersView from './ImportUsersView.vue'
 </script>
 <template>
-  <el-row class="my-row">
-    <el-col :span="12">
-      <CollegeViewVue />
-    </el-col>
-  </el-row>
+  <suspense>
+    <template #default>
+      <div>
+        <AddCollegeView />
+        <ImportUsersView />
+      </div>
+    </template>
+    <template #fallback>
+      <LoadingVue />
+    </template>
+  </suspense>
 </template>
