@@ -59,7 +59,7 @@ const updateInvis = () => {
     const { messageS, closeF } = storeToRefs(useMessageStore())
     messageS.value = '下发成功!'
     closeF.value = () => {
-      router.push(`/college/notices/${departmentR.value?.id}`)
+      router.push(`/college/noticedepartments/${departmentR.value?.id}`)
     }
   })
 }

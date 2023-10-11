@@ -114,6 +114,9 @@ export const listInviDetailUsersService = async (inviid: string) => {
 }
 
 export const noticeUsersService = async (notice: Notice) => {
+  // @ts-ignore
+  //notice.noticeUserIds = JSON.stringify(notice.noticeUser)
+
   const resp = await axios.post<ResultVO<{ code: string }>>(`${SUBJECT}/assignnotices`, notice)
   return resp.data.data?.code
 }

@@ -58,17 +58,7 @@ const editF = (inviid: string) => {
       <el-col style="margin-bottom: 10px">
         <InviTable :invis="inviS" :page="pageR">
           <template #action="action">
-            <div style="display: flex; justify-content: space-between; align-items: center">
-              <div>
-                <template v-for="(invi, index) of action.invi.executor" :key="index">
-                  <el-tag>
-                    {{ invi.userName }}
-                  </el-tag>
-                  <br />
-                </template>
-              </div>
-              <el-button type="primary" :icon="Edit" circle @click="editF(action.invi.id!)" />
-            </div>
+            <el-button type="primary" :icon="Edit" circle @click="editF(action.invi.id!)" />
           </template>
         </InviTable>
       </el-col>

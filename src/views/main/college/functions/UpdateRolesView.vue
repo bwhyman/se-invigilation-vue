@@ -21,10 +21,12 @@ const searchF = async () => {
 
 const update = () => {
   const u: User = {}
-  u.account = accountR.value
+  u.id = userR.value?.id
   u.role = roleR.value
   updateUserRoleService(u).then(() => {
     storeToRefs(messageStore).messageS.value = '角色更新成功'
+    userR.value = undefined
+    accountR.value = ''
   })
 }
 </script>

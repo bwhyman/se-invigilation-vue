@@ -2,7 +2,7 @@
 import InviTable from '@/views/main/component/InviTable.vue'
 import { getTotalsService, listInvisService } from '@/services/SubjectService'
 import { ASSIGN } from '@/services/Const'
-import { Edit } from '@element-plus/icons-vue'
+import { Edit, Bell } from '@element-plus/icons-vue'
 import type { Invigilation } from '@/types'
 import router from '@/router'
 
@@ -35,14 +35,7 @@ const editF = (id: string) => {
     <el-col>
       <InviTable :invis="inviS" :page="pageR">
         <template #action="action">
-          <div style="display: flex; justify-content: space-between; align-items: center">
-            <div>
-              <el-tag v-for="(invi, index) of action.invi.executor" :key="index">
-                {{ invi.userName }}
-              </el-tag>
-            </div>
-            <el-button type="primary" :icon="Edit" circle @click="editF(action.invi.id!)" />
-          </div>
+          <el-button type="primary" :icon="Edit" circle @click="editF(action.invi.id!)" />
         </template>
       </InviTable>
     </el-col>

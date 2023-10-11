@@ -40,10 +40,10 @@ export const stringInviTime = (user: User) => {
 
 //
 export const stringTimetables = (tbs: Timetable[]) => {
-  for (const timetable of tbs) {
+  tbs.forEach((tb) => {
     // @ts-ignore
-    timetable.course = JSON.stringify(timetable.course)
-  }
+    tb.course = JSON.stringify(tb.course)
+  })
   return tbs
 }
 

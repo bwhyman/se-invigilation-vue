@@ -2,6 +2,7 @@
 import router from '@/router'
 import { getInviChineseDayweek, getInviWeek } from '@/services/Utils'
 import type { Invigilation } from '@/types'
+import { Bell } from '@element-plus/icons-vue'
 
 // 表格全局每页显示个数
 const PAGESIZE = 40
@@ -22,6 +23,14 @@ const changePage = (n: number) => {
   }
   router.push(`${props.page!.url!}/${n}`)
 }
+
+const beNoticed = computed(() => (exid: string, noticeIds: string[]) => {
+  return noticeIds.indexOf(exid) != -1
+})
+
+const bellTitleC = computed(
+  () => (invi: Invigilation) => `ID: ${invi.calendarId}\n${invi.updateTime?.replace('T', ' ')}`
+)
 </script>
 <template>
   <el-table :data="props.invis" style="margin-bottom: 10px">
@@ -77,9 +86,31 @@ const changePage = (n: number) => {
         </template>
       </template>
     </el-table-column>
+    <el-table-column>
+      <template #default="scope">
+        <div v-if="scope.row.executor">
+          <template v-for="(exeUser, index) of scope.row.executor" :key="index">
+            <el-tag size="large">
+              {{ exeUser.userName }}
+            </el-tag>
+            <el-icon
+              :title="bellTitleC(scope.row)"
+              color="green"
+              size="large"
+              v-if="beNoticed(exeUser.userId, scope.row.noticeUserIds ?? [])"
+              style="vertical-align: middle">
+              <Bell />
+            </el-icon>
+            <br />
+          </template>
+        </div>
+      </template>
+    </el-table-column>
     <el-table-column min-width="60">
       <template #default="scope">
-        <slot name="action" :invi="scope.row as Invigilation"></slot>
+        <div style="text-align: right">
+          <slot name="action" :invi="scope.row as Invigilation"></slot>
+        </div>
       </template>
     </el-table-column>
   </el-table>

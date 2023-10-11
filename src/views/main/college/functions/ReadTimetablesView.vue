@@ -104,7 +104,7 @@ const addTimetable = async () => {
 </script>
 <template>
   <el-row class="my-row">
-    读取学院教师课表
+    读取学院教师课表，提交时自动删除原全部课表。
     <el-col>
       <input type="file" @change="readTimetables" style="margin-right: 10px" />
       <el-button

@@ -178,14 +178,15 @@ export const updateInviService = async (invi: Invigilation) => {
 
 // 删除监考
 export const delInviService = async (inviid: string) => {
+  storeToRefs(invisStore).invigilationsImportS.value = []
   axios.delete(`${COLLEGE}/invigilations/${inviid}`)
   return true
 }
 
 // 重置监考为未下发状态，发送取消通知，重置信息等
 export const resetInviService = async (inviid: string) => {
+  storeToRefs(invisStore).invigilationsImportS.value = []
   await axios.put(`${COLLEGE}/invigilations/${inviid}/status`)
-
   return true
 }
 
@@ -258,4 +259,28 @@ export const listCollegeCountsService = async () => {
   const resp = await axios.get<ResultVO<{ counts: InviCount[] }>>(`${COLLEGE}/invis/counts`)
 
   return resp.data.data?.counts ?? []
+}
+
+//
+export const updateUserDepartmentService = async (user: User) => {
+  // @ts-ignore
+  user.department = JSON.stringify(user.department)
+  await axios.post(`${COLLEGE}/departments/updateuser`, user)
+
+  return true
+}
+
+// 重置指定账号密码
+export const resetPasswordService = async (account: string) => {
+  const resp = await axios.put(`${COLLEGE}/passwords/${account}`)
+
+  return true
+}
+
+export const addUserService = async (user: User) => {
+  // @ts-ignore
+  user.department = JSON.stringify(user.department)
+  const resp = await axios.post(`${COLLEGE}/users`, user)
+
+  return true
 }

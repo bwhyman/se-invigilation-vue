@@ -167,7 +167,7 @@ const delInvi = () => {
       delInviService(invi!.id!).then(() => {
         setTimeout(() => {
           router.push(`/college/imported`)
-        }, 2000)
+        }, 1000)
       })
     })
     .catch(() => {

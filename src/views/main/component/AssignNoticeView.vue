@@ -21,7 +21,7 @@ const invigilationR = ref<Invigilation>()
 assignersR.value = results[0] ?? []
 invigilationR.value = results[1]
 
-const selectUsersR = ref<User[]>([])
+const selectUsersR = ref<User[]>([...assignersR.value])
 
 const notice: Notice = {
   inviId: invigilationR.value?.id,
@@ -29,7 +29,8 @@ const notice: Notice = {
   date: invigilationR.value?.date,
   stime: invigilationR.value?.time?.starttime,
   etime: invigilationR.value?.time?.endtime,
-  unionIds: []
+  unionIds: [],
+  noticeUserIds: []
 }
 const week = getInviWeek(notice.date!)
 const dayweek = getInviChineseDayweek(notice.date!)
@@ -38,11 +39,13 @@ const noticeAssignersF = () => {
   const userIds: string[] = []
   const userNames: string[] = []
   selectUsersR.value.forEach((u) => {
+    notice.noticeUserIds?.push(u.id!)
     notice.unionIds?.push(u.dingUnionId!)
     userIds.push(u.dingUserId!)
     userNames.push(u.name!)
   })
-
+  // @ts-ignore
+  notice.noticeUserIds = JSON.stringify(notice.noticeUserIds)
   notice.userIds = userIds.join(',')
   //
   const noticeMessage = `监考时间: ${notice.date}第${week}周${dayweek} ${notice.stime}-${
@@ -53,12 +56,11 @@ const noticeAssignersF = () => {
 监考教师：${userNames.join(',')}`
   notice.noticeMessage = noticeMessage
 
+  console.log(notice)
+
   noticeUsersService(notice).then((msg) => {
     const { messageS, closeF } = storeToRefs(useMessageStore())
     msg && (messageS.value = `通知发送成功。编号：${msg}`)
-    closeF.value = () => {
-      router.push('/subject/dispatched')
-    }
   })
 }
 </script>

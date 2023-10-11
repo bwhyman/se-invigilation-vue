@@ -67,7 +67,7 @@ const routes: RouteRecordRaw[] = [
           },
           {
             props: true,
-            path: 'notices/:depid',
+            path: 'noticedepartments/:depid',
             component: () => import('@/views/main/college/DispatchNoticeView.vue')
           },
           {
@@ -79,6 +79,11 @@ const routes: RouteRecordRaw[] = [
             props: true,
             path: 'assigns/:inviid/departments/:depid/names/:name',
             component: () => import('@/views/main/college/AssignView.vue')
+          },
+          {
+            props: true,
+            path: 'noticeteachers/:inviid',
+            component: () => import('@/views/main/component/AssignNoticeView.vue')
           }
         ]
       },
@@ -111,7 +116,7 @@ const routes: RouteRecordRaw[] = [
           {
             props: true,
             path: 'notices/:inviid',
-            component: () => import('@/views/main/subject/AssignNoticeView.vue')
+            component: () => import('@/views/main/component/AssignNoticeView.vue')
           }
         ]
       }

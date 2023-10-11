@@ -28,6 +28,7 @@ export interface Department {
 export interface Timetable {
   id?: string
   depId?: string
+  collId?: string
   startweek?: number
   endweek?: number
   dayweek?: number
@@ -63,6 +64,8 @@ export interface Invigilation {
   executor?: { userId: string; userName: string; time: string }[]
   calendarId?: string
   createUnionId?: string
+  noticeUserIds?: string[]
+  updateTime?: string
 }
 
 export interface InviDetail {
@@ -121,6 +124,7 @@ export interface Notice {
   unionIds?: string[]
   noticeMessage?: string
   userIds?: string
+  noticeUserIds?: string[]
 }
 
 export interface ResultVO<T> {
