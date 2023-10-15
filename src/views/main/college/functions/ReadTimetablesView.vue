@@ -5,7 +5,11 @@ import {
   listCollegeUsersService,
   getUserService
 } from '@/services/CollegeService'
-import { readCollegeTimetableExcel, readTimetableExcel } from '@/services/ExcelUtils'
+import {
+  readCollegeTimetableExcel,
+  readPostGTimetableExcel,
+  readTimetableExcel
+} from '@/services/ExcelUtils'
 import { useMessageStore } from '@/stores/MessageStore'
 import type { ImportTimetable, Timetable, User } from '@/types'
 
@@ -22,18 +26,21 @@ const readTimetables = async (event: Event) => {
 
   const results = await Promise.all([
     listCollegeUsersService(),
-    readCollegeTimetableExcel(element.files[0])
+    readCollegeTimetableExcel(element.files[0]),
+    readPostGTimetableExcel(element.files[0])
   ])
 
   users.push(...results[0])
   importTimetablesR.value = results[1]
+  importTimetablesR.value.push(...results[2])
+
+  console.log(importTimetablesR.value)
 
   const importTimes = importTimetablesR.value.filter((tb) => tb.courses.length != 0)
   users.forEach((user) => {
     const temp = importTimes.filter((tb) => tb.name == user.name)
     temp.forEach((t) => {
       t.courses.forEach((t) => {
-        t.depId = user?.department?.depId
         t.userId = user?.id
         timetables.push(t)
       })
@@ -66,7 +73,6 @@ const readSingleTimetable = async (event: Event) => {
     const temp = importTimes.filter((tb) => tb.name == user.name)
     temp.forEach((t) => {
       t.courses.forEach((t) => {
-        t.depId = user?.department?.depId
         t.userId = user?.id
         timetables.push(t)
       })
@@ -91,7 +97,6 @@ const addTimetable = async () => {
   importTimetablesR.value.forEach((tb) => {
     tb.courses.forEach((tb2) => {
       tb2.userId = user.id
-      tb2.depId = user.department?.depId
       timetables.push(tb2)
     })
   })
@@ -104,7 +109,16 @@ const addTimetable = async () => {
 </script>
 <template>
   <el-row class="my-row">
-    读取学院教师课表，提交时自动删除原全部课表。
+    <el-col style="margin-bottom: 10px">
+      读取全院教师课表。
+      <br />
+      将研究生课表(与正常课表相似的按星期/节排列的版本)，复制到全院课表表格的第2个sheet，自动全部读取。
+      <br />
+      提交时自动删除原全部课表。
+      <br />
+      请将同名教师姓名，改为钉钉群中名称。例如，电气李丹
+      <br />
+    </el-col>
     <el-col>
       <input type="file" @change="readTimetables" style="margin-right: 10px" />
       <el-button
@@ -127,7 +141,7 @@ const addTimetable = async () => {
       <el-button
         type="success"
         @click="addTimetable"
-        :disabled="importTimetablesR.length == 0 || timetableUserAccountR.length == 0"
+        :disabled="timetableUserAccountR.length == 0"
         style="margin-bottom: 10px">
         提交
       </el-button>

@@ -34,7 +34,7 @@ const parseObject = (data: any) => {
       parseObject(value)
     }
 
-    if (typeof value == 'string' && value.includes('{"')) {
+    if (typeof value == 'string' && (value.includes('{"') || value.includes('['))) {
       try {
         newValue = JSON.parse(value)
         if (typeof newValue == 'object') {

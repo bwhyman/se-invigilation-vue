@@ -104,6 +104,8 @@ export const addAssignUsersService = async (inviid: string, user: AssignUser) =>
   await axios.post(`${SUBJECT}/invidetails/${inviid}`, user)
   // 清空教师监考数量缓存
   inviCountsStore.inviCounts.length = 0
+  // 清空当前监考缓存
+  useInvigilationsStore().currentInviS = undefined
   return true
 }
 

@@ -1,13 +1,8 @@
-import { useSettingStore } from '@/stores/SettingStore'
 import type { Timetable, User } from '@/types'
 import { inviStatuses } from './Const'
 
 //
-export const getInviWeek = (date: string) => {
-  const settingsStore = useSettingStore()
-  const firstWeek =
-    storeToRefs(settingsStore).settingsR.value.find((s) => s.key == 'firstweek')?.value ?? ''
-
+export const getInviWeek = (date: string, firstWeek: string) => {
   const startDate = new Date(firstWeek).getTime()
   const inviDate = new Date(date).getTime()
 

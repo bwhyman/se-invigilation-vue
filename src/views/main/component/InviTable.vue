@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import router from '@/router'
+import { getSettingsService } from '@/services/CommonService'
 import { getInviChineseDayweek, getInviWeek } from '@/services/Utils'
+import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation } from '@/types'
 import { Bell } from '@element-plus/icons-vue'
+
+await getSettingsService()
+
+const settingsStore = useSettingStore()
 
 // 表格全局每页显示个数
 const PAGESIZE = 40
@@ -13,7 +19,7 @@ interface Props {
 }
 const props = defineProps<Props>()
 
-const WeekC = computed(() => (date: string) => getInviWeek(date))
+const WeekC = computed(() => (date: string) => getInviWeek(date, settingsStore.getFirstWeek()))
 const dayweekC = computed(() => (date: string) => getInviChineseDayweek(date))
 
 const changePage = (n: number) => {

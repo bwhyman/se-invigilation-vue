@@ -19,18 +19,21 @@ import AssignTable from './component/AssignTable.vue'
 import { useUserStore } from '@/stores/UserStore'
 import router from '@/router'
 import { useMessageStore } from '@/stores/MessageStore'
-import { getInviService } from '@/services/CommonService'
+import { getInviService, getSettingsService } from '@/services/CommonService'
+import { useSettingStore } from '@/stores/SettingStore'
 
 const props = defineProps<{ inviid: string }>()
 const messageStore = useMessageStore()
 
-const currentInvi = (await getInviService(props.inviid)) ?? {}
+const resultInit = await Promise.all([getInviService(props.inviid), getSettingsService()])
+const currentInvi = resultInit[0] ?? {}
+const settingsStore = useSettingStore()
 //
 const userR = storeToRefs(useUserStore()).userS
 const assignUsersR = ref<AssignUser>({})
 
 // 当前分配的监考信息
-let week = getInviWeek(currentInvi.date!)
+let week = getInviWeek(currentInvi.date!, settingsStore.getFirstWeek())
 let dayweek = getInviDayweek(currentInvi.date!)
 const amountR = currentInvi.amount!
 
@@ -145,7 +148,7 @@ for (let index = 0; index < groupUsers.value.length; index++) {
   }
 }
 
-const WeekC = computed(() => (date: string) => getInviWeek(date))
+const WeekC = computed(() => (date: string) => getInviWeek(date, settingsStore.getFirstWeek()))
 const dayweekC = computed(() => (date: string) => getInviChineseDayweek(date))
 
 //
@@ -209,10 +212,11 @@ const submitUsers = () => {
   <!--  -->
   <el-row class="my-row">
     <el-col style="text-align: center">
-      {{ currentInvi.date }} / 第{{ WeekC(currentInvi.date!) }}周 /
-      {{ dayweekC(currentInvi.date!) }}/ {{ currentInvi.time?.starttime }} -
-      {{ currentInvi.time?.endtime }} / {{ currentInvi.course!.teacherName }} /
-      {{ currentInvi.course!.courseName }} /
+      {{ currentInvi.date }} 第{{ WeekC(currentInvi.date!) }}周 {{ dayweekC(currentInvi.date!) }}
+      {{ currentInvi.time?.starttime }} -
+      {{ currentInvi.time?.endtime }}
+      <br />
+      {{ currentInvi.course!.teacherName }} / {{ currentInvi.course!.courseName }} /
       {{ currentInvi.course!.clazz }}
 
       <br />

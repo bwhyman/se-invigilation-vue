@@ -6,18 +6,19 @@ import {
   listUsersByNameService,
   updateInvisService
 } from '@/services/CollegeService'
-import { getInviService } from '@/services/CommonService'
-import { listInviDetailUsersService, noticeUsersService } from '@/services/SubjectService'
+import { getInviService, getSettingsService } from '@/services/CommonService'
 import { getInviChineseDayweek, getInviWeek, stringInviTime } from '@/services/Utils'
 import { useMessageStore } from '@/stores/MessageStore'
+import { useSettingStore } from '@/stores/SettingStore'
 import { useUserStore } from '@/stores/UserStore'
-import type { AssignUser, Invigilation, Notice, User } from '@/types'
+import type { AssignUser, Invigilation } from '@/types'
 
 const props = defineProps<{ inviid: string; depid: string; name: string }>()
 const results = await Promise.all([
   getInviService(props.inviid),
   listUsersByNameService(props.depid, props.name),
-  listOpenedDepartmentsService()
+  listOpenedDepartmentsService(),
+  getSettingsService()
 ])
 
 const inviR = results[0] ?? {}
@@ -25,12 +26,14 @@ const users = results[1]
 const departments = results[2]
 const depart = departments.find((d) => d.id == props.depid)
 const messageStore = useMessageStore()
+const settingsStore = useSettingStore()
+
 if (users.length == 0) {
   storeToRefs(messageStore).messageS.value = '该专业未找到考试课程教师，请重新确认'
 }
 const userR = useUserStore().userS
 
-const WeekC = computed(() => (date: string) => getInviWeek(date))
+const WeekC = computed(() => (date: string) => getInviWeek(date, settingsStore.getFirstWeek()))
 const dayweekC = computed(() => (date: string) => getInviChineseDayweek(date))
 
 const selectUserR = ref<string>()

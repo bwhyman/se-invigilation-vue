@@ -43,10 +43,14 @@ export const loginService = async (user: User) => {
 
 //
 export const getSettingsService = async () => {
-  const resp = await axios.get<ResultVO<{ settings: Setting[] }>>('settings')
   const settingStore = useSettingStore()
+  if (settingStore.settingsR.length != 0) {
+    return settingStore.settingsR
+  }
+  const resp = await axios.get<ResultVO<{ settings: Setting[] }>>('settings')
+  const settings = (settingStore.settingsR = resp.data.data?.settings ?? [])
 
-  storeToRefs(settingStore).settingsR.value = resp.data.data?.settings!
+  return settings
 }
 
 //

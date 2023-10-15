@@ -27,7 +27,6 @@ export interface Department {
 
 export interface Timetable {
   id?: string
-  depId?: string
   collId?: string
   startweek?: number
   endweek?: number

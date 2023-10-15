@@ -21,9 +21,9 @@ const props = defineProps<{
     <el-table-column label="当日课程">
       <template #default="scope">
         <template v-for="(tb, index) of scope.row.timetables as Timetable[]" :key="index">
-          {{ tb.course?.courseName }}/{{ tb.course?.location }}/{{ tb.startweek }}-{{
-            tb.endweek
-          }}周；周{{ tb.dayweek }}；{{ tb.period }}节
+          {{ tb.course?.courseName }}/{{ tb.startweek }}-{{ tb.endweek }}周；周{{ tb.dayweek }}；{{
+            tb.period
+          }}节 / {{ tb.course?.location }}/ {{ tb.course?.clazz }}
           <br />
         </template>
       </template>
@@ -31,7 +31,9 @@ const props = defineProps<{
     <el-table-column width="300" label="当日监考">
       <template #default="scope">
         <template v-for="(invi, index) of scope.row.invis as Invigilation[]" :key="index">
-          {{ invi.course?.courseName }} / {{ invi.date }} {{ invi.time?.starttime }}
+          {{ invi.course?.courseName }}/{{ invi.date }} {{ invi.time?.starttime }}/{{
+            invi.course?.location
+          }}
           <br />
         </template>
       </template>

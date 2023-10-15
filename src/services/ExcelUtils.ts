@@ -321,33 +321,6 @@ const readInviRow = (r: any, reject: any) => {
   return invi
 }
 
-export const readDingtalkExcel = (file: Blob) => {
-  return new Promise<User[]>((resolve) => {
-    const reader = new FileReader()
-    const users: User[] = []
-    reader.onload = (e: ProgressEvent<FileReader>) => {
-      const data = e.target?.result
-      const wb = XLSX.read(data, { type: 'binary' })
-      const sheet = wb.Sheets[wb.SheetNames[0]]
-
-      for (const r of XLSX.utils.sheet_to_json(sheet) as any) {
-        const t: User = {
-          name: r['name'],
-          dingUserId: r['userid'],
-          dingUnionId: r['unionid'],
-          mobile: r['mobile']
-        }
-        users.push(t)
-      }
-    }
-
-    reader.onloadend = () => {
-      resolve(users)
-    }
-    reader.readAsBinaryString(file)
-  })
-}
-
 //
 export const exportInvisDetails = (invis: Invigilation[], details: InviDetail[]) => {
   let index = 0
@@ -386,4 +359,69 @@ export const exportInvisDetails = (invis: Invigilation[], details: InviDetail[])
   XLSX.utils.book_append_sheet(workBook, jsonWorkSheet, `监考详细信息`)
   XLSX.utils.book_append_sheet(workBook, jsonWorkSheet2, `监考统计`)
   return XLSX.writeFile(workBook, '监考详细信息.xlsx')
+}
+
+// 读取研究生课表
+export const readPostGTimetableExcel = (file: Blob) => {
+  return new Promise<ImportTimetable[]>((resolve) => {
+    const reader = new FileReader()
+    const timetables: ImportTimetable[] = []
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      const data = e.target?.result
+      const wb = XLSX.read(data, { type: 'binary' })
+      const sheet = wb.Sheets[wb.SheetNames[1]]
+
+      const weekChars = ['C', 'D', 'E', 'F', 'G', 'H', 'I']
+      // 星期
+      for (let i = 0; i < weekChars.length; i++) {
+        // 节
+        for (let j = 2; j < 14; j += 2) {
+          const result = sheet[`${weekChars[i]}${j}`]
+          if (!result || result.v.trim().length == 0) continue
+          const cell = result.v.trim()
+          // 节
+          const period = `${j - 1}${j}`
+          const cellRows = cell.split(/\r\n+/)
+          for (let k = 0; k < cellRows.length; k += 2) {
+            const row2 = cellRows[k + 1]
+            // 教师名称
+            const teacherName = row2.substring(1, row2.indexOf('】'))
+            const timetable: ImportTimetable = { name: teacherName, courses: [] }
+
+            const temp = row2.substring(row2.indexOf('(') + 1, row2.indexOf(')'))
+
+            // 拆分为每组，包含教室与周
+            for (const groups of temp.split(';')) {
+              if (groups.length == 0) break
+              const locAndWeek = groups.split(',')
+              //
+              const courses: Timetable[] = []
+              const weeks = locAndWeek[1].replaceAll('第', '').replaceAll('周', '')
+              getWeeks(weeks, courses)
+              courses.forEach((course) => {
+                course.course = {}
+                if (!course.course) return
+                course.course.location = locAndWeek[0]
+                course.course.clazz = '研究生'
+                // 节
+                course.period = period
+                course.course.courseName = cellRows[k].substring(0, cellRows[k].indexOf('（'))
+                // 星期
+                course.dayweek = i + 1
+                course.teacherName = teacherName
+              })
+
+              timetable.courses.push(...courses)
+            }
+            timetables.push(timetable)
+          }
+        }
+      }
+    }
+
+    reader.onloadend = () => {
+      resolve(timetables)
+    }
+    reader.readAsBinaryString(file)
+  })
 }
