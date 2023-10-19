@@ -86,6 +86,7 @@ export const listDepatchedsService = async (depid: string, page: number) => {
 export const updateInvisService = async (invis: Invigilation[]) => {
   // 清空已导入监考缓存
   invisStore.invigilationsImportS.length = 0
+  invisStore.invigilationsDispatchS.length = 0
 
   invis.forEach((i) => {
     // @ts-ignore
@@ -186,6 +187,7 @@ export const delInviService = async (inviid: string) => {
 // 重置监考为未下发状态，发送取消通知，重置信息等
 export const resetInviService = async (inviid: string) => {
   storeToRefs(invisStore).invigilationsImportS.value = []
+
   await axios.put(`${COLLEGE}/invigilations/${inviid}/status`)
   return true
 }
@@ -272,7 +274,7 @@ export const updateUserDepartmentService = async (user: User) => {
 
 // 重置指定账号密码
 export const resetPasswordService = async (account: string) => {
-  const resp = await axios.put(`${COLLEGE}/passwords/${account}`)
+  await axios.put(`${COLLEGE}/passwords/${account}`)
 
   return true
 }
@@ -280,7 +282,23 @@ export const resetPasswordService = async (account: string) => {
 export const addUserService = async (user: User) => {
   // @ts-ignore
   user.department = JSON.stringify(user.department)
-  const resp = await axios.post(`${COLLEGE}/users`, user)
+  await axios.post(`${COLLEGE}/users`, user)
 
   return true
+}
+
+//
+export const listInvisByDateService = async (sdate: string, edate: string) => {
+  const key = `${sdate}-${edate}`
+  const dateInvis = useInvigilationsStore().dateInivsMap.get(key)
+  if (dateInvis) return dateInvis
+
+  const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
+    `${COLLEGE}/invis/date/${sdate}/${edate}`
+  )
+  const invis = resp.data.data?.invis ?? []
+  useInvigilationsStore().dateInivsMap.clear()
+  useInvigilationsStore().dateInivsMap.set(key, invis)
+
+  return invis
 }

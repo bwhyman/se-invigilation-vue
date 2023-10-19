@@ -1,23 +1,27 @@
 <script setup lang="ts">
 import router from '@/router'
 import { getSettingsService } from '@/services/CommonService'
-import { getInviChineseDayweek, getInviWeek } from '@/services/Utils'
+import { getInviChineseDayweek, getInviWeek, replaceTDateC } from '@/services/Utils'
 import { useSettingStore } from '@/stores/SettingStore'
-import type { Invigilation } from '@/types'
+import type { Invigilation, Page } from '@/types'
 import { Bell } from '@element-plus/icons-vue'
 
 await getSettingsService()
 
 const settingsStore = useSettingStore()
 
-// 表格全局每页显示个数
-const PAGESIZE = 40
-
 interface Props {
   invis: Invigilation[]
-  page?: { currentpage?: number; total?: number; url?: string }
+  page?: Page
+  showExecutor?: boolean
 }
 const props = defineProps<Props>()
+
+// 表格全局每页显示个数
+let PAGESIZE = 40
+if (props.page!.noPage) {
+  PAGESIZE = props.page?.total!
+}
 
 const WeekC = computed(() => (date: string) => getInviWeek(date, settingsStore.getFirstWeek()))
 const dayweekC = computed(() => (date: string) => getInviChineseDayweek(date))
@@ -30,13 +34,11 @@ const changePage = (n: number) => {
   router.push(`${props.page!.url!}/${n}`)
 }
 
-const beNoticed = computed(() => (exid: string, noticeIds: string[]) => {
+const beNoticed = computed(() => (exid: string, noticeIds: string[] = []) => {
   return noticeIds.indexOf(exid) != -1
 })
 
-const bellTitleC = computed(
-  () => (invi: Invigilation) => `ID: ${invi.calendarId}\n${invi.updateTime?.replace('T', ' ')}`
-)
+const bellTitleC = computed(() => (invi: Invigilation) => `ID: ${invi.calendarId}`)
 </script>
 <template>
   <el-table :data="props.invis" style="margin-bottom: 10px">
@@ -77,33 +79,44 @@ const bellTitleC = computed(
         </template>
         <template v-if="scope.row.importer">
           导入：
-          <el-tag>{{ scope.row.importer.userName }}</el-tag>
+          <el-tag class="curor" :title="replaceTDateC(scope.row.importer.time)">
+            {{ scope.row.importer.userName }}
+          </el-tag>
           <br />
         </template>
         <template v-if="scope.row.dispatcher">
           下发：
-          <el-tag>{{ scope.row.dispatcher.userName }}</el-tag>
+          <el-tag class="curor" :title="replaceTDateC(scope.row.dispatcher.time)">
+            {{ scope.row.dispatcher.userName }}
+          </el-tag>
           <br />
         </template>
         <template v-if="scope.row.allocator">
           分配：
-          <el-tag>{{ scope.row.allocator.userName }}</el-tag>
+          <el-tag class="curor" :title="replaceTDateC(scope.row.allocator.time)">
+            {{ scope.row.allocator.userName }}
+          </el-tag>
           <br />
         </template>
       </template>
     </el-table-column>
-    <el-table-column>
+    <el-table-column v-if="props.showExecutor">
       <template #default="scope">
         <div v-if="scope.row.executor">
           <template v-for="(exeUser, index) of scope.row.executor" :key="index">
-            <el-tag size="large">
+            <el-tag
+              size="large"
+              class="curor"
+              style="min-width: 60px"
+              :title="replaceTDateC(exeUser.time)">
               {{ exeUser.userName }}
             </el-tag>
             <el-icon
               :title="bellTitleC(scope.row)"
+              class="curor"
               color="green"
               size="large"
-              v-if="beNoticed(exeUser.userId, scope.row.noticeUserIds ?? [])"
+              v-if="beNoticed(exeUser.userId, scope.row.noticeUserIds)"
               style="vertical-align: middle">
               <Bell />
             </el-icon>
@@ -114,7 +127,7 @@ const bellTitleC = computed(
     </el-table-column>
     <el-table-column min-width="60">
       <template #default="scope">
-        <div style="text-align: right">
+        <div>
           <slot name="action" :invi="scope.row as Invigilation"></slot>
         </div>
       </template>
@@ -134,8 +147,13 @@ const bellTitleC = computed(
         :current-page="props.page?.currentpage"
         layout="prev, pager, next"
         @update:current-page="changePage"
-        :default-page-size="PAGESIZE"
+        :page-size="PAGESIZE"
         :total="props.page?.total!" />
     </el-col>
   </el-row>
 </template>
+<style scoped>
+.curor {
+  cursor: pointer;
+}
+</style>

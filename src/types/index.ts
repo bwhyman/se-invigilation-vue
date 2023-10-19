@@ -126,6 +126,13 @@ export interface Notice {
   noticeUserIds?: string[]
 }
 
+export interface Page {
+  currentpage?: number
+  total?: number
+  url?: string
+  noPage?: boolean
+}
+
 export interface ResultVO<T> {
   code: number
   message?: string

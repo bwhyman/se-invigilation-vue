@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getDepatchedTotalService, listDepatchedsService } from '@/services/CollegeService'
-import type { Department, Invigilation } from '@/types'
+import type { Department, Invigilation, Page } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 import DepartmentView from './DepartmentView.vue'
 import router from '@/router'
@@ -9,7 +9,7 @@ import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 
 const props = defineProps<{ depid: string; page?: string }>()
 const inviS = ref<Invigilation[]>([])
-const pageR = ref<{ currentpage?: number; total?: number; url?: string }>({
+const pageR = ref<Page>({
   currentpage: 0,
   total: 0,
   url: ''
@@ -56,7 +56,7 @@ const editF = (inviid: string) => {
     </el-row>
     <el-row class="my-row">
       <el-col style="margin-bottom: 10px">
-        <InviTable :invis="inviS" :page="pageR">
+        <InviTable :invis="inviS" :page="pageR" :show-executor="true">
           <template #action="action">
             <el-button type="primary" :icon="Edit" circle @click="editF(action.invi.id!)" />
           </template>

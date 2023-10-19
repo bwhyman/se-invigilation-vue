@@ -165,9 +165,7 @@ const delInvi = () => {
         message: 'Delete completed'
       })
       delInviService(invi!.id!).then(() => {
-        setTimeout(() => {
-          router.push(`/college/imported`)
-        }, 1000)
+        router.push(`/college/imported`)
       })
     })
     .catch(() => {
@@ -190,9 +188,7 @@ const resetInvi = () => {
         message: 'Delete completed'
       })
       resetInviService(invi!.id!).then(() => {
-        setTimeout(() => {
-          router.push(`/college/imported`)
-        }, 2000)
+        router.push(`/college/imported`)
       })
     })
     .catch(() => {

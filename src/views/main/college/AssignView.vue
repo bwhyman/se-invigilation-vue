@@ -33,8 +33,8 @@ if (users.length == 0) {
 }
 const userR = useUserStore().userS
 
-const WeekC = computed(() => (date: string) => getInviWeek(date, settingsStore.getFirstWeek()))
-const dayweekC = computed(() => (date: string) => getInviChineseDayweek(date))
+const WeekC = getInviWeek(inviR.date!, settingsStore.getFirstWeek())
+const dayweekC = getInviChineseDayweek(inviR.date!)
 
 const selectUserR = ref<string>()
 const assignF = async () => {
@@ -57,7 +57,6 @@ const assignF = async () => {
     storeToRefs(messageStore).messageS.value = '提交成功'
     storeToRefs(messageStore).closeF.value = () => {
       router.push(`/college/noticeteachers/${inviR.id}`)
-      //listInviDetailUsersService(inviR.id!).then((us) => {})
     }
   })
 }
@@ -65,9 +64,8 @@ const assignF = async () => {
 <template>
   <el-row class="my-row">
     <el-col style="text-align: center">
-      {{ inviR.date }} / 第{{ WeekC(inviR.date!) }}周 / {{ dayweekC(inviR.date!) }}/
-      {{ inviR.time?.starttime }} - {{ inviR.time?.endtime }} / {{ inviR.course!.teacherName }} /
-      {{ inviR.course!.courseName }} /
+      {{ inviR.date }} / 第{{ WeekC }}周 / {{ dayweekC }}/ {{ inviR.time?.starttime }} -
+      {{ inviR.time?.endtime }} / {{ inviR.course!.teacherName }} / {{ inviR.course!.courseName }} /
       {{ inviR.course!.clazz }}
 
       <br />

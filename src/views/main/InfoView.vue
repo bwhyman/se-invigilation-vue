@@ -41,6 +41,7 @@
       <br />
       提醒方式：系统同时额外设置了钉钉日程24+2小时2次提醒。教师钉钉将在监考前24小时收到第1次监考提醒，在2小时内收到第2次监考提醒。
       <br />
+      忘记发送通知，重新分配监考给原教师，再发送通知即可。
     </el-col>
     <el-col class="my-col" :span="2"><el-tag size="large">修改</el-tag></el-col>
     <el-col class="my-col" :span="22">

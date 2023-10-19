@@ -5,7 +5,7 @@ import { DISPATCH } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
 import { useMessageStore } from '@/stores/MessageStore'
 import { useUserStore } from '@/stores/UserStore'
-import type { Department, Invigilation } from '@/types'
+import type { Department, Invigilation, Page } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 import DepartmentView from './DepartmentView.vue'
 import { Edit } from '@element-plus/icons-vue'
@@ -13,10 +13,11 @@ import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 
 const inviS = await listImportedService()
 
-const pageR = ref<{ currentpage?: number; total?: number; url?: string }>({
+const pageR = ref<Page>({
   currentpage: 1,
   total: inviS.length,
-  url: ''
+  url: '',
+  noPage: true
 })
 
 const userStore = useUserStore()
@@ -103,7 +104,7 @@ const assignF = (invi: Invigilation) => {
         </el-button>
       </el-col>
       <el-col>
-        <InviTable :invis="inviS" :page="pageR">
+        <InviTable :invis="inviS" :page="pageR" :show-executor="false">
           <template #action="action">
             <div style="display: flex; justify-content: space-between; align-items: center">
               <div style="text-align: left">

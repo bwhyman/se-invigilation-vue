@@ -2,15 +2,16 @@
 import InviTable from '@/views/main/component/InviTable.vue'
 import { getTotalsService, listInvisService } from '@/services/SubjectService'
 import { ASSIGN } from '@/services/Const'
-import { Edit, Bell } from '@element-plus/icons-vue'
-import type { Invigilation } from '@/types'
+import { Edit } from '@element-plus/icons-vue'
+import type { Invigilation, Page } from '@/types'
 import router from '@/router'
+import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 
 const props = defineProps<{ page?: string }>()
 const inviS = ref<Invigilation[]>([])
 const total = await getTotalsService(ASSIGN)
 
-const pageR = ref<{ currentpage?: number; total?: number; url?: string }>({
+const pageR = ref<Page>({
   currentpage: 0,
   total: total,
   url: '/subject/assigned'
@@ -26,16 +27,17 @@ watch(
   { immediate: true }
 )
 
-const editF = (id: string) => {
-  router.push(`/subject/assigns/${id}`)
+const editF = (invi: Invigilation) => {
+  useInvigilationsStore().currentInviS = invi
+  router.push(`/subject/assigns/${invi.id}`)
 }
 </script>
 <template>
   <el-row class="my-row">
     <el-col>
-      <InviTable :invis="inviS" :page="pageR">
+      <InviTable :invis="inviS" :page="pageR" :show-executor="true">
         <template #action="action">
-          <el-button type="primary" :icon="Edit" circle @click="editF(action.invi.id!)" />
+          <el-button type="primary" :icon="Edit" circle @click="editF(action.invi)" />
         </template>
       </InviTable>
     </el-col>

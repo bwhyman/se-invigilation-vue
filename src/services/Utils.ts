@@ -1,5 +1,4 @@
 import type { Timetable, User } from '@/types'
-import { inviStatuses } from './Const'
 
 //
 export const getInviWeek = (date: string, firstWeek: string) => {
@@ -16,10 +15,6 @@ export const getInviDayweek = (date: string) => {
 
 export const getInviChineseDayweek = (date: string) => {
   return new Date(date).toLocaleString('zh-cn', { weekday: 'long' })
-}
-
-export const getStatusName = (s: number) => {
-  return inviStatuses.find((status) => status.k == s)?.v
 }
 
 //
@@ -59,3 +54,6 @@ export const confTime = (date: string, time: string, period: string) => {
 
   return period == x
 }
+
+//
+export const replaceTDateC = computed(() => (date: string) => date.replace('T', ' '))

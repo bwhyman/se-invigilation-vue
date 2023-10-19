@@ -3,14 +3,14 @@ import router from '@/router'
 import { DISPATCH } from '@/services/Const'
 import { getTotalsService, listInvisService } from '@/services/SubjectService'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
-import type { Invigilation } from '@/types'
+import type { Invigilation, Page } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 
 const props = defineProps<{ page?: string }>()
 const inviS = ref<Invigilation[]>([])
 const total = await getTotalsService(DISPATCH)
 
-const pageR = ref<{ currentpage?: number; total?: number; url?: string }>({
+const pageR = ref<Page>({
   currentpage: 0,
   total: total,
   url: '/subject/dispatched'
@@ -35,7 +35,7 @@ const assignF = (invi: Invigilation) => {
 <template>
   <el-row class="my-row">
     <el-col>
-      <InviTable :invis="inviS" :page="pageR">
+      <InviTable :invis="inviS" :page="pageR" :show-executor="false">
         <template #action="action">
           <el-button type="primary" @click="assignF(action.invi)">分配</el-button>
         </template>

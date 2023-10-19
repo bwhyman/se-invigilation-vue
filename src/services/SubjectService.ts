@@ -74,17 +74,10 @@ export const listTimetablesService = async (week: number, dayweek: number) => {
 
 //
 export const listDateInvisService = async (date: string) => {
-  const invisStore = useInvigilationsStore()
-  let invis = invisStore.dateInvisMap.get(date)
-  if (invis) return invis
-
   const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
     `${SUBJECT}/invis/dates/${date}`
   )
-  invis = resp.data.data?.invis ?? []
-  invisStore.dateInvisMap.set(date, invis)
-
-  return invis
+  return resp.data.data?.invis ?? []
 }
 
 //

@@ -1,4 +1,4 @@
-import type { Course, ImportTimetable, Invigilation, Timetable, User, InviDetail } from '@/types'
+import type { ImportTimetable, Invigilation, Timetable, User, InviDetail } from '@/types'
 import * as XLSX from 'xlsx'
 import { IMPORT } from './Const'
 
@@ -22,53 +22,23 @@ export const readCollegeTimetableExcel = (file: Blob) => {
           for (let j = i + 3; j <= i + 8; j++) {
             const x = sheet[`${weekChars[k]}${j}`]
             if (!x || x.v.trim().length == 0) continue
-            const section = x.v
-            const courseRegx = /(\w.+|\W.+)\n/g
-            const sections = section.match(courseRegx)
-
+            const sections = x.v.split('\n')
+            // 具体节
+            const tempP = getPeriod(j - (i - 1))
             // 同一节中有多门课
-            for (let m = 0; m < sections.length; m += 4) {
-              // 具体节
-              let tempP = ''
-              switch (j - (i - 1)) {
-                case 4:
-                  tempP = '12'
-                  break
-                case 5:
-                  tempP = '34'
-                  break
-                case 6:
-                  tempP = '56'
-                  break
-                case 7:
-                  tempP = '78'
-                  break
-                case 8:
-                  tempP = '910'
-                  break
-                case 9:
-                  tempP = '1112'
-                  break
-              }
-
-              let name = sections[m].replace('\n', '')
-              if (name.indexOf('[') !== -1) {
-                name = name.substring(0, name.indexOf('['))
-              }
-              let weeks = sections[m + 2].replace('\n', '').replace('单', '').replace('双', '')
-              weeks = weeks.substring(0, weeks.indexOf('周'))
-
+            for (let m = 0; m < sections.length; m += 5) {
+              const name = getCourseName(sections[m])
+              const weeks = formatWeeks(sections[m + 2])
               const wArrays: Timetable[] = []
               getWeeks(weeks, wArrays)
-
               wArrays.forEach((w) => {
                 const temp: { courseName?: string; location?: string; clazz?: string } = {}
                 w.teacherName = teach.name
                 w.period = tempP
                 w.dayweek = k + 1
                 temp.courseName = name
-                temp.clazz = sections[m + 1].replace('\n', '')
-                temp.location = sections[m + 3].replace('\n', '')
+                temp.clazz = sections[m + 1]
+                temp.location = sections[m + 3]
                 w.course = temp
                 teach.courses.push(w)
               })
@@ -107,54 +77,25 @@ export const readTimetableExcel = (file: Blob) => {
             const x = sheet[`${weekChars[k]}${j}`]
 
             if (!x || x.v.trim().length == 0) continue
-            const section = x.v
-            const courseRegx = /(\w.+|\W.+)\n/g
-            const sections = section.match(courseRegx)
-
+            const sections = x.v.split('\n')
+            // 具体节
+            const tempP = getPeriod(j - (i - 1))
             // 同一节中有多门课
-            for (let m = 0; m < sections.length; m += 4) {
-              // 具体节
-              let tempP = ''
-              switch (j - (i - 1)) {
-                case 4:
-                  tempP = '12'
-                  break
-                case 5:
-                  tempP = '34'
-                  break
-                case 6:
-                  tempP = '56'
-                  break
-                case 7:
-                  tempP = '78'
-                  break
-                case 8:
-                  tempP = '910'
-                  break
-                case 9:
-                  tempP = '1112'
-                  break
-              }
+            for (let m = 0; m < sections.length; m += 5) {
               // 课程名称
-              let name = sections[m].replace('\n', '')
-              if (name.indexOf('[') !== -1) {
-                name = name.substring(0, name.indexOf('['))
-              }
-
+              const name = getCourseName(sections[m])
               //
-              let weeks = sections[m + 1].replace('\n', '').replace('单', '').replace('双', '')
-              weeks = weeks.substring(0, weeks.indexOf('周'))
+              const weeks = formatWeeks(sections[m + 2])
               const wArrays: Timetable[] = []
               getWeeks(weeks, wArrays)
-
               wArrays.forEach((w) => {
                 const temp: { courseName?: string; location?: string; clazz?: string } = {}
                 w.teacherName = teach.name
                 w.period = tempP
                 w.dayweek = k + 1
                 temp.courseName = name
-                temp.clazz = sections[m + 3].replace('\n', '')
-                temp.location = sections[m + 2].replace('\n', '')
+                temp.clazz = sections[m + 3]
+                temp.location = sections[m + 2]
                 w.course = temp
 
                 teach.courses.push(w)
@@ -172,22 +113,65 @@ export const readTimetableExcel = (file: Blob) => {
   })
 }
 
+// 获取课表中起止周
 const getWeeks = (weeks: string, wArrays: Timetable[]) => {
-  if (weeks.length === 1) {
-    wArrays.push({ startweek: Number(weeks), endweek: Number(weeks) })
-    return
-  }
-  if (weeks.indexOf('-') !== -1 && weeks.indexOf(',') === -1) {
-    const weeksSplit = weeks.split('-')
-    wArrays.push({ startweek: Number(weeksSplit[0]), endweek: Number(weeksSplit[1]) })
-    return
-  }
   if (weeks.indexOf(',') !== -1) {
     const weeksSplit = weeks.split(',')
     weeksSplit.forEach((w) => {
       getWeeks(w, wArrays)
     })
+    return
   }
+  if (weeks.indexOf('-') === -1) {
+    wArrays.push({ startweek: Number(weeks), endweek: Number(weeks) })
+    return
+  }
+  if (weeks.indexOf('-') !== -1) {
+    const weeksSplit = weeks.split('-')
+    wArrays.push({ startweek: Number(weeksSplit[0]), endweek: Number(weeksSplit[1]) })
+    return
+  }
+  return wArrays
+}
+
+// 提取课表中周的具体数字
+const formatWeeks = (weeks: string) => {
+  weeks = weeks.replaceAll('单', '').replaceAll('双', '')
+  return weeks.substring(0, weeks.indexOf('周'))
+}
+
+// 获取课表课程名称
+const getCourseName = (str: string) => {
+  if (str.indexOf('[') !== -1) {
+    str = str.substring(0, str.indexOf('['))
+  }
+  return str
+}
+
+//
+const getPeriod = (num: number) => {
+  let tempP = ''
+  switch (num) {
+    case 4:
+      tempP = '12'
+      break
+    case 5:
+      tempP = '34'
+      break
+    case 6:
+      tempP = '56'
+      break
+    case 7:
+      tempP = '78'
+      break
+    case 8:
+      tempP = '910'
+      break
+    case 9:
+      tempP = '1112'
+      break
+  }
+  return tempP
 }
 
 // 读取用户表
@@ -300,6 +284,10 @@ const readInviRow = (r: any, reject: any) => {
     invi.time.starttime = r['开始时间'].split(' ')[1]
     invi.time.endtime = r['结束时间'].split(' ')[1]
   }
+
+  invi.time.starttime = invi.time.starttime?.replaceAll('：', ':')
+  invi.time.endtime = invi.time.endtime?.replaceAll('：', ':')
+
   if (!invi.date || invi.date.length == 0) {
     reject('监考日期为空。表格中日期使用文本类型，不要使用日期类型')
     return
@@ -331,15 +319,12 @@ export const exportInvisDetails = (invis: Invigilation[], details: InviDetail[])
     row['课程'] = invi.course?.courseName ?? ''
     row['班级'] = invi.course?.clazz ?? ''
     row['考试时间'] = `${invi.date} ${invi.time?.starttime}~${invi.time?.endtime}` ?? ''
+    row['考试地点'] = `${invi.course?.location}` ?? ''
     row['人数'] = invi.amount ?? ''
     row['导入'] = invi.importer?.userName ?? ''
     row['下发'] = invi.dispatcher?.userName ?? ''
     row['分配'] = invi.allocator?.userName ?? ''
-    let names = ''
-    invi.executor?.forEach((exec) => {
-      names += exec.userName + ';'
-    })
-    row['监考'] = names
+    row['监考教师'] = invi.executor?.map((exe) => exe.userName).join(';')
     return row
   })
   let ind = 0

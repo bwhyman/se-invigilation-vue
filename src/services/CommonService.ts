@@ -11,7 +11,7 @@ const userStore = useUserStore()
 const invisStore = useInvigilationsStore()
 
 // login
-export const loginService = async (user: User) => {
+export const loginService = async (user: User, freePwd: boolean) => {
   try {
     const resp = await axios.post<ResultVO<{ user: User }>>('login', user)
     const us = resp.data.data?.user
@@ -22,6 +22,13 @@ export const loginService = async (user: User) => {
     sessionStorage.setItem('role', role)
     storeToRefs(userStore).userS.value = us
     sessionStorage.setItem('user', JSON.stringify(us))
+
+    if (freePwd) {
+      localStorage.setItem('token', token)
+      localStorage.setItem('role', role)
+      localStorage.setItem('user', JSON.stringify(us))
+    }
+
     let path = ''
     switch (role) {
       case SUBJECT_ADMIN:
@@ -69,4 +76,31 @@ export const getInviService = async (inviid: string) => {
   invi = resp.data.data?.invi
 
   return invi
+}
+
+export const freePwdService = () => {
+  const token = localStorage.getItem('token')
+  token && sessionStorage.setItem('token', token)
+  const role = localStorage.getItem('role')
+  role && sessionStorage.setItem('role', role)
+  const ut = localStorage.getItem('user')
+  if (ut) {
+    sessionStorage.setItem('user', ut)
+    const user = JSON.parse(ut)
+    storeToRefs(userStore).userS.value = user
+  }
+  let path = ''
+  switch (role) {
+    case SUBJECT_ADMIN:
+      path = 'subject/dispatched'
+      break
+    case COLLEGE_ADMIN:
+      path = '/college/imported'
+      break
+    case SUPER_ADMIN:
+      path = '/admin'
+      break
+  }
+
+  router.push(path)
 }

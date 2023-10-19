@@ -2,6 +2,7 @@
 import type { InviAssignUser, Invigilation, Timetable } from '@/types'
 const props = defineProps<{
   users: InviAssignUser[]
+  dayweek: string
 }>()
 </script>
 <template>
@@ -21,7 +22,7 @@ const props = defineProps<{
     <el-table-column label="当日课程">
       <template #default="scope">
         <template v-for="(tb, index) of scope.row.timetables as Timetable[]" :key="index">
-          {{ tb.course?.courseName }}/{{ tb.startweek }}-{{ tb.endweek }}周；周{{ tb.dayweek }}；{{
+          {{ tb.course?.courseName }}/{{ tb.startweek }}-{{ tb.endweek }}周；{{ props.dayweek }}；{{
             tb.period
           }}节 / {{ tb.course?.location }}/ {{ tb.course?.clazz }}
           <br />

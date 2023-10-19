@@ -25,6 +25,9 @@ import { useSettingStore } from '@/stores/SettingStore'
 const props = defineProps<{ inviid: string }>()
 const messageStore = useMessageStore()
 
+//
+const selectedUsers = ref<InviAssignUser[]>([])
+
 const resultInit = await Promise.all([getInviService(props.inviid), getSettingsService()])
 const currentInvi = resultInit[0] ?? {}
 const settingsStore = useSettingStore()
@@ -55,10 +58,10 @@ const inviCountsS = allP[2] ?? []
 const usersS = allP[3] ?? []
 
 // 分别计算渲染
-const groupUsers = ref<InviAssignUser[]>([])
+const groupUsers: InviAssignUser[] = []
 const allUsers: User[] = [...usersS]
-const closedUsersR = ref<User[]>([])
-const confUsersR = ref<InviAssignUser[]>([])
+const closedUsersR: User[] = []
+const confUsersR: InviAssignUser[] = []
 
 const dateIns: {
   userId?: string
@@ -74,7 +77,7 @@ dateInvisR.forEach((di) => {
 for (let index = 0; index < allUsers.length; index++) {
   // closed
   if (allUsers[index].inviStatus == CLOSED) {
-    closedUsersR.value.push(allUsers[index])
+    closedUsersR.push(allUsers[index])
     allUsers.splice(index, 1)
     index--
     continue
@@ -96,7 +99,7 @@ for (let index = 0; index < allUsers.length; index++) {
     })
   })
 
-  groupUsers.value.push({
+  groupUsers.push({
     id: allUsers[index].id,
     name: allUsers[index].name,
     amount: am,
@@ -104,23 +107,23 @@ for (let index = 0; index < allUsers.length; index++) {
     invis: invisTm
   })
 }
-groupUsers.value.sort((x, y) => x.amount! - y.amount!)
+groupUsers.sort((x, y) => x.amount! - y.amount!)
 
-for (let index = 0; index < groupUsers.value.length; index++) {
-  if (groupUsers.value[index].timetables) {
-    const x = groupUsers.value[index].timetables!.find((tb) =>
+for (let index = 0; index < groupUsers.length; index++) {
+  if (groupUsers[index].timetables) {
+    const x = groupUsers[index].timetables!.find((tb) =>
       confTime(currentInvi.date!, currentInvi.time?.starttime!, tb.period!)
     )
     if (x) {
-      confUsersR.value.push(groupUsers.value[index])
-      groupUsers.value.splice(index, 1)
+      confUsersR.push(groupUsers[index])
+      groupUsers.splice(index, 1)
       index--
       continue
     }
   }
 
-  if (groupUsers.value[index].invis?.length! > 0) {
-    for (const invi of groupUsers.value[index].invis!) {
+  if (groupUsers[index].invis?.length! > 0) {
+    for (const invi of groupUsers[index].invis!) {
       if (invi.executor) {
         for (const ex of invi.executor) {
           const currentInviTimeStartTime = new Date(
@@ -132,11 +135,11 @@ for (let index = 0; index < groupUsers.value.length; index++) {
           const thisInviTime = new Date(`${invi.date} ${invi.time?.starttime}`)
 
           if (thisInviTime >= currentInviTimeStartTime && thisInviTime <= currentInviTimeEndTime) {
-            const x = groupUsers.value.find((gu) => gu.id == ex.userId)
+            const x = groupUsers.find((gu) => gu.id == ex.userId)
             if (x) {
-              const ind = groupUsers.value.indexOf(x)
-              confUsersR.value.push(groupUsers.value[ind])
-              groupUsers.value.splice(ind, 1)
+              const ind = groupUsers.indexOf(x)
+              confUsersR.push(groupUsers[ind])
+              groupUsers.splice(ind, 1)
               index--
             }
 
@@ -148,11 +151,16 @@ for (let index = 0; index < groupUsers.value.length; index++) {
   }
 }
 
-const WeekC = computed(() => (date: string) => getInviWeek(date, settingsStore.getFirstWeek()))
-const dayweekC = computed(() => (date: string) => getInviChineseDayweek(date))
+// 追加将当前监考教师置于默认状态
+if (currentInvi.executor) {
+  currentInvi.executor.forEach((exe) => {
+    const x = confUsersR.filter((us) => us.id == exe.userId)
+    selectedUsers.value.push(...x)
+  })
+}
 
-//
-const selectedUsers = ref<InviAssignUser[]>([])
+const WeekC = getInviWeek(currentInvi.date!, settingsStore.getFirstWeek())
+const dayweekCN = getInviChineseDayweek(currentInvi.date!)
 
 const handleChange = (user: InviAssignUser) => {
   if (selectedUsers.value.length < amountR) {
@@ -212,8 +220,7 @@ const submitUsers = () => {
   <!--  -->
   <el-row class="my-row">
     <el-col style="text-align: center">
-      {{ currentInvi.date }} 第{{ WeekC(currentInvi.date!) }}周 {{ dayweekC(currentInvi.date!) }}
-      {{ currentInvi.time?.starttime }} -
+      {{ currentInvi.date }} 第{{ WeekC }}周 {{ dayweekCN }} {{ currentInvi.time?.starttime }} -
       {{ currentInvi.time?.endtime }}
       <br />
       {{ currentInvi.course!.teacherName }} / {{ currentInvi.course!.courseName }} /
@@ -248,7 +255,7 @@ const submitUsers = () => {
       <template v-if="currentInvi.executor?.length! > 0">
         当前监考教师：
         <template v-for="(exec, index) of currentInvi.executor" :key="index">
-          {{ exec.userName }};
+          <el-tag size="large" type="success" style="margin-right: 5px">{{ exec.userName }}</el-tag>
         </template>
       </template>
     </el-col>
@@ -258,7 +265,7 @@ const submitUsers = () => {
       </el-button>
     </el-col>
     <el-col style="margin-bottom: 10px">
-      <AssignTable :users="groupUsers">
+      <AssignTable :users="groupUsers" :dayweek="dayweekCN">
         <template #userAssign="userAssign">
           <el-button
             style="width: 60px"
@@ -275,7 +282,7 @@ const submitUsers = () => {
       <el-tag type="warning" size="large">冲突</el-tag>
     </el-col>
     <el-col style="margin-bottom: 10px">
-      <AssignTable :users="confUsersR">
+      <AssignTable :users="confUsersR" :dayweek="dayweekCN">
         <template #userAssign="userAssign">
           <el-button
             style="width: 60px"
