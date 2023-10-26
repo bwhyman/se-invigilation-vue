@@ -3,11 +3,18 @@ import { Setting, SwitchButton, Sunrise } from '@element-plus/icons-vue'
 import { COLLEGE_ADMIN, SUBJECT_ADMIN } from '@/services/Const'
 import { useUserStore } from '@/stores/UserStore'
 import router from '@/router'
-const collegeNav = defineAsyncComponent(() => import('@/views/main/college/header/IndexView.vue'))
-const subjectNav = defineAsyncComponent(() => import('@/views/main/subject/header/IndexView.vue'))
+import type { Component } from 'vue'
 
 const role = sessionStorage.getItem('role')
 const user = storeToRefs(useUserStore()).userS
+
+let nemuComponent: Component
+
+if (role == COLLEGE_ADMIN) {
+  nemuComponent = defineAsyncComponent(() => import('@/views/main/college/header/IndexView.vue'))
+} else if (role == SUBJECT_ADMIN) {
+  nemuComponent = defineAsyncComponent(() => import('@/views/main/subject/header/IndexView.vue'))
+}
 
 const logout = () => {
   sessionStorage.clear()
@@ -31,8 +38,7 @@ const info = () => {
 
     <!-- 基于权限加载上功能栏 -->
     <el-col :span="18">
-      <collegeNav v-if="role == COLLEGE_ADMIN" />
-      <subjectNav v-if="role == SUBJECT_ADMIN" />
+      <component :is="nemuComponent" />
     </el-col>
     <el-col :span="2">
       <el-icon id="info" :size="32" color="#409EFF" @click="info" style="margin-right: 10px">

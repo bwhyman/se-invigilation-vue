@@ -2,11 +2,10 @@
 import router from '@/router'
 import { addInvigilationsService } from '@/services/CollegeService'
 import { IMPORT } from '@/services/Const'
-import { readInviExcel } from '@/services/ExcelUtils'
 import { stringInviTime } from '@/services/Utils'
 import { useMessageStore } from '@/stores/MessageStore'
 import { useUserStore } from '@/stores/UserStore'
-import type { Course, Invigilation } from '@/types'
+import type { Invigilation } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 
 const invisR = ref<Invigilation[]>([])
@@ -19,12 +18,12 @@ const pageR = ref<{ currentpage?: number; total?: number; url?: string }>({
   url: ''
 })
 
-const readInvis = (event: Event) => {
+const readInvis = async (event: Event) => {
   const element = event.target as HTMLInputElement
   if (!element || !element.files) {
     return
   }
-
+  const { readInviExcel } = await import('@/services/ExcelUtils')
   readInviExcel(element.files[0])
     .then((invis: Invigilation[]) => {
       invisR.value = invis

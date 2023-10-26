@@ -1,79 +1,111 @@
 <script setup lang="ts">
+import router from '@/router'
 import { listInvisByDateService } from '@/services/CollegeService'
 import { getSettingsService } from '@/services/CommonService'
-import { getInviChineseDayweek, getInviWeek, replaceTDateC } from '@/services/Utils'
+import {
+  getInviWeekC,
+  getInviChinesedayweekC,
+  replaceTDateC,
+  bellTitleC,
+  beNoticedC
+} from '@/services/Utils'
 import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation } from '@/types'
 import { Bell } from '@element-plus/icons-vue'
 
+const UNDISPATCHED = 0
+const UNASSIGNED = 1
+const ASSIGNED = 2
+const ALL = 3
+
+const formatDate = (date: Date) => {
+  date.setHours(date.getHours() + 8)
+  return date.toISOString().substring(0, 10)
+}
 //
-const dateRangeR = ref<Date[]>([])
+const inviStatusR = ref(ALL)
+//
+const dateRangeR = ref<string[]>([])
+// 默认+7天
 const sDate = new Date()
-const eDate = new Date(new Date().setDate(sDate.getDate() + 7))
-dateRangeR.value[0] = sDate
-dateRangeR.value[1] = eDate
+const eDate = new Date()
+eDate.setDate(eDate.getDate() + 7)
+dateRangeR.value[0] = formatDate(sDate)
+dateRangeR.value[1] = formatDate(eDate)
 
 const results = await Promise.all([
   getSettingsService(),
-  listInvisByDateService(sDate.toISOString().substring(0, 10), eDate.toISOString().substring(0, 10))
+  listInvisByDateService(dateRangeR.value[0], dateRangeR.value[1])
 ])
 
-const invis = results[1]
+let invis = results[1]
 const invisR = ref<Invigilation[]>([])
 const settingsStore = useSettingStore()
 
 invisR.value = invis
 
 const changeFixedRangeF = async () => {
-  const sdate = dateRangeR.value[0].toISOString().substring(0, 10)
-  const edate = dateRangeR.value[1].toISOString().substring(0, 10)
-  invisR.value = await listInvisByDateService(sdate, edate)
+  const sdate = dateRangeR.value[0]
+  const edate = dateRangeR.value[1]
+  invis = await listInvisByDateService(sdate, edate)
+  inviStatusR.value = ALL
+  invisR.value = invis
 }
 
-const inviStatusR = ref(3)
-
-const WeekC = computed(() => (date: string) => getInviWeek(date, settingsStore.getFirstWeek()))
-const dayweekC = computed(() => (date: string) => getInviChineseDayweek(date))
+const WeekC = getInviWeekC(settingsStore.getFirstWeek())
 
 //
 const invisStatusChangeF = (val: number) => {
   // 已分配
-  if (val == 2) {
+  if (val == ASSIGNED) {
     invisR.value = invis.filter((invi) => invi.executor)
+    return
   }
   // 全部
-  if (val == 3) {
+  if (val == ALL) {
     invisR.value = invis
+    return
   }
-  // 未分配
-  if (val == 1) {
-    const invisUns = [...invis.filter((invi) => !invi.executor)]
-    invisUns.sort((x, y) => Number(x.department?.depId!) - Number(y.department?.depId!))
+  // 已下发未分配，要过滤未下发
+  if (val == UNASSIGNED) {
+    const x = invis.filter((invi) => !invi.executor && invi.department)
+    const invisUns = [...x]
+    invisUns.sort((x, y) => x.department?.depId!.localeCompare(y.department?.depId!, 'en')!)
     invisR.value = invisUns
+    return
+  }
+  // 未下发
+  if (val == UNDISPATCHED) {
+    const x = invis.filter((invi) => !invi.department)
+    const invisUns = [...x]
+    invisR.value = invisUns
+    return
   }
 }
 
-const bellTitleC = computed(() => (invi: Invigilation) => `ID: ${invi.calendarId}`)
-const beNoticed = computed(() => (exid: string, noticeIds: string[] = []) => {
-  return noticeIds.indexOf(exid) != -1
-})
+//
+const noticeF = (depid: string) => {
+  router.push(`/college/noticedepartments/${depid}`)
+}
 </script>
 <template>
   <el-row class="my-row">
-    <el-col :span="8">
-      <div class="demo-date-picker">
-        <div class="block">
-          <el-date-picker
-            v-model="dateRangeR"
-            type="daterange"
-            range-separator="To"
-            start-placeholder="Start date"
-            end-placeholder="End date"
-            size="large" />
+    <el-col>
+      <div style="display: inline-block; margin-right: 10px">
+        <div class="demo-date-picker">
+          <div class="block">
+            <el-date-picker
+              value-format="YYYY-MM-DD"
+              v-model="dateRangeR"
+              type="daterange"
+              range-separator="To"
+              start-placeholder="Start date"
+              end-placeholder="End date"
+              size="large" />
+          </div>
         </div>
       </div>
-    </el-col>
-    <el-col :span="2">
+
       <el-button type="success" :disabled="!(dateRangeR.length > 0)" @click="changeFixedRangeF">
         提交
       </el-button>
@@ -86,6 +118,7 @@ const beNoticed = computed(() => (exid: string, noticeIds: string[] = []) => {
         <el-radio-button label="3">全部</el-radio-button>
         <el-radio-button label="2">已分配</el-radio-button>
         <el-radio-button label="1">已下发未分配</el-radio-button>
+        <el-radio-button label="0">未下发</el-radio-button>
       </el-radio-group>
       <!--  -->
       <el-table :data="invisR">
@@ -95,7 +128,7 @@ const beNoticed = computed(() => (exid: string, noticeIds: string[] = []) => {
             {{ scope.row.course.teacherName }}
           </template>
         </el-table-column>
-        <el-table-column min-width="150">
+        <el-table-column min-width="130">
           <template #default="scope">
             {{ scope.row.course.courseName }}
             <br />
@@ -106,25 +139,33 @@ const beNoticed = computed(() => (exid: string, noticeIds: string[] = []) => {
           <template #default="scope">
             {{ scope.row.date }} {{ scope.row.time.starttime }}~{{ scope.row.time.endtime }}
             <br />
-            第 {{ WeekC(scope.row.date) }} 周 / {{ dayweekC(scope.row.date) }}
+            第 {{ WeekC(scope.row.date) }} 周 / {{ getInviChinesedayweekC(scope.row.date) }}
           </template>
         </el-table-column>
-        <el-table-column>
+        <el-table-column width="120">
           <template #default="scope">
             <template v-if="scope.row.course">
               {{ scope.row.course.location }}
             </template>
           </template>
         </el-table-column>
-        <el-table-column v-if="inviStatusR == 1">
+        <el-table-column v-if="inviStatusR == UNASSIGNED">
           <template #default="scope">
-            <template v-if="scope.row.department">
-              {{ scope.row.department.departmentName }}
-            </template>
+            <el-row>
+              <el-col :span="20">{{ scope.row.department?.departmentName }}</el-col>
+              <el-col :span="2">
+                <el-button
+                  :span="2"
+                  type="primary"
+                  :icon="Bell"
+                  circle
+                  @click="noticeF(scope.row.department?.depId)" />
+              </el-col>
+            </el-row>
           </template>
         </el-table-column>
 
-        <el-table-column v-if="inviStatusR != 1" width="120">
+        <el-table-column v-if="inviStatusR != UNASSIGNED" width="120">
           <template #default="scope">
             <div v-if="scope.row.executor">
               <template v-for="(exeUser, index) of scope.row.executor" :key="index">
@@ -140,7 +181,7 @@ const beNoticed = computed(() => (exid: string, noticeIds: string[] = []) => {
                   class="curor"
                   color="green"
                   size="large"
-                  v-if="beNoticed(exeUser.userId, scope.row.noticeUserIds)"
+                  v-if="beNoticedC(exeUser.userId, scope.row.noticeUserIds)"
                   style="vertical-align: middle">
                   <Bell />
                 </el-icon>
@@ -169,16 +210,5 @@ const beNoticed = computed(() => (exid: string, noticeIds: string[] = []) => {
 
 .demo-date-picker .block:last-child {
   border-right: none;
-}
-
-.demo-date-picker .demonstration {
-  display: block;
-  color: var(--el-text-color-secondary);
-  font-size: 14px;
-  margin-bottom: 20px;
-}
-
-table td {
-  border-bottom: 1px solid #ebeef5;
 }
 </style>

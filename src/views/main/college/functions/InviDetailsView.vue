@@ -4,7 +4,6 @@ import {
   listCollegeInviDetailsService,
   listCollegeCountsService
 } from '@/services/CollegeService'
-import { exportInvisDetails } from '@/services/ExcelUtils'
 import type { InviDetail } from '@/types'
 
 const exportF = async () => {
@@ -30,7 +29,7 @@ const exportF = async () => {
 
     details.push(detail)
   })
-
+  const { exportInvisDetails } = await import('@/services/ExcelUtils')
   exportInvisDetails(results[1], details)
 }
 </script>

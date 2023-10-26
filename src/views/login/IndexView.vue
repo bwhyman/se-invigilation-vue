@@ -48,6 +48,10 @@ const removeFreePwd = () => {
   <el-row v-if="userLocalR?.name">
     <el-col :span="12" :offset="6" style="margin-top: 15px">
       <el-card class="box-card">
+        <el-tag effect="plain" size="large" style="margin-bottom: 10px">
+          欢迎回来，{{ userLocalR.name }}老师
+        </el-tag>
+        <br />
         <el-button type="success" @click="freeLoginF" style="margin-bottom: 10px">
           <el-icon style="margin-right: 8px"><Coffee /></el-icon>
           <span id="jinrishici-sentence" style="margin-left: 0"></span>

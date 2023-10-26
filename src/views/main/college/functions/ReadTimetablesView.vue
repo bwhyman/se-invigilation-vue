@@ -5,11 +5,6 @@ import {
   listCollegeUsersService,
   getUserService
 } from '@/services/CollegeService'
-import {
-  readCollegeTimetableExcel,
-  readPostGTimetableExcel,
-  readTimetableExcel
-} from '@/services/ExcelUtils'
 import { useMessageStore } from '@/stores/MessageStore'
 import type { ImportTimetable, Timetable, User } from '@/types'
 
@@ -23,6 +18,10 @@ const readTimetables = async (event: Event) => {
   if (!element || !element.files) {
     return
   }
+
+  const { readCollegeTimetableExcel, readPostGTimetableExcel } = await import(
+    '@/services/ExcelUtils'
+  )
 
   const results = await Promise.all([
     listCollegeUsersService(),
@@ -66,7 +65,7 @@ const readSingleTimetable = async (event: Event) => {
   if (!element || !element.files) {
     return
   }
-
+  const { readTimetableExcel } = await import('@/services/ExcelUtils')
   importTimetablesR.value = await readTimetableExcel(element.files[0])
   const importTimes = importTimetablesR.value.filter((tb) => tb.courses.length != 0)
   users.forEach((user) => {

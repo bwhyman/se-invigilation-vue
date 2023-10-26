@@ -62,102 +62,80 @@ const groupUsers: InviAssignUser[] = []
 const allUsers: User[] = [...usersS]
 const closedUsersR: User[] = []
 const confUsersR: InviAssignUser[] = []
+const currentUsersR: InviAssignUser[] = []
 
-const dateIns: {
-  userId?: string
-  userName?: string
-  time?: string
-}[] = []
-dateInvisR.forEach((di) => {
-  di.executor?.forEach((ex) => {
-    dateIns.push(ex)
-  })
-})
-
-for (let index = 0; index < allUsers.length; index++) {
+allloop: for (const user of allUsers) {
   // closed
-  if (allUsers[index].inviStatus == CLOSED) {
-    closedUsersR.push(allUsers[index])
-    allUsers.splice(index, 1)
-    index--
+  if (user.inviStatus == CLOSED) {
+    closedUsersR.push(user)
     continue
   }
   // 整合监考数量
-  const am = inviCountsS.find((ic) => ic.userId == allUsers[index].id)?.count ?? 0
+  const am = inviCountsS.find((ic) => ic.userId == user.id)?.count ?? 0
   // 整合课表
-  const tb = timetablesR.filter((tb) => tb.userId == allUsers[index].id)
+  const tb = timetablesR.filter((tb) => tb.userId == user.id)
 
+  // 无论是否冲突，均需整合数据，并展示
+  const groupUser: InviAssignUser = {
+    id: user.id,
+    name: user.name,
+    amount: am,
+    timetables: tb
+  }
   const invisTm: Invigilation[] = []
-
   dateInvisR.forEach((di) => {
     if (!di.executor) return
-
     di.executor.forEach((de) => {
-      if (de.userId == allUsers[index].id) {
+      if (de.userId == user.id) {
         invisTm.push(di)
+        groupUser.invis = invisTm
       }
     })
   })
 
-  groupUsers.push({
-    id: allUsers[index].id,
-    name: allUsers[index].name,
-    amount: am,
-    timetables: tb,
-    invis: invisTm
-  })
-}
-groupUsers.sort((x, y) => x.amount! - y.amount!)
-
-for (let index = 0; index < groupUsers.length; index++) {
-  if (groupUsers[index].timetables) {
-    const x = groupUsers[index].timetables!.find((tb) =>
+  // 课表时间冲突，置于冲突集合
+  if (groupUser.timetables) {
+    const x = groupUser.timetables!.find((tb) =>
       confTime(currentInvi.date!, currentInvi.time?.starttime!, tb.period!)
     )
     if (x) {
-      confUsersR.push(groupUsers[index])
-      groupUsers.splice(index, 1)
-      index--
+      confUsersR.push(groupUser)
       continue
     }
   }
 
-  if (groupUsers[index].invis?.length! > 0) {
-    for (const invi of groupUsers[index].invis!) {
-      if (invi.executor) {
-        for (const ex of invi.executor) {
-          const currentInviTimeStartTime = new Date(
-            `${currentInvi.date} ${currentInvi.time?.starttime}`
-          )
-          const currentInviTimeEndTime = new Date(
-            `${currentInvi.date} ${currentInvi.time?.endtime}`
-          )
-          const thisInviTime = new Date(`${invi.date} ${invi.time?.starttime}`)
-
-          if (thisInviTime >= currentInviTimeStartTime && thisInviTime <= currentInviTimeEndTime) {
-            const x = groupUsers.find((gu) => gu.id == ex.userId)
-            if (x) {
-              const ind = groupUsers.indexOf(x)
-              confUsersR.push(groupUsers[ind])
-              groupUsers.splice(ind, 1)
-              index--
-            }
-
-            continue
-          }
-        }
+  // 考试时间冲突，置于冲突集合
+  if (groupUser.invis) {
+    for (const invi of groupUser.invis) {
+      const currentInviTimeStartTime = new Date(
+        `${currentInvi.date} ${currentInvi.time?.starttime}`
+      )
+      const currentInviTimeEndTime = new Date(`${currentInvi.date} ${currentInvi.time?.endtime}`)
+      const thisInviTime = new Date(`${invi.date} ${invi.time?.starttime}`)
+      if (thisInviTime >= currentInviTimeStartTime && thisInviTime <= currentInviTimeEndTime) {
+        confUsersR.push(groupUser)
+        continue allloop
       }
     }
   }
+  // 不冲突
+  groupUsers.push(groupUser)
 }
-
 // 追加将当前监考教师置于默认状态
 if (currentInvi.executor) {
   currentInvi.executor.forEach((exe) => {
-    const x = confUsersR.filter((us) => us.id == exe.userId)
-    selectedUsers.value.push(...x)
+    const x = confUsersR.find((us) => us.id == exe.userId)
+    if (x) {
+      selectedUsers.value.push(x!)
+      currentUsersR.push(x!)
+      const index = confUsersR.indexOf(x!)
+      confUsersR.splice(index, 1)
+    }
   })
 }
+//
+groupUsers.sort((x, y) => x.amount! - y.amount!)
+confUsersR.sort((x, y) => x.amount! - y.amount!)
 
 const WeekC = getInviWeek(currentInvi.date!, settingsStore.getFirstWeek())
 const dayweekCN = getInviChineseDayweek(currentInvi.date!)
@@ -246,20 +224,29 @@ const submitUsers = () => {
       <br />
     </el-col>
   </el-row>
-
+  <el-row class="my-row" v-if="currentUsersR.length > 0">
+    <el-col>
+      <el-tag type="primary" size="large">当前</el-tag>
+    </el-col>
+    <el-col style="margin-bottom: 10px">
+      <AssignTable :users="currentUsersR" :dayweek="dayweekCN">
+        <template #userAssign="userAssign">
+          <el-button
+            style="width: 60px"
+            :type="getDisabledC(userAssign.user!).type"
+            :disabled="getDisabledC(userAssign.user!).disabled"
+            @click="handleChange(userAssign.user!)">
+            {{ getDisripC(userAssign.user!) }}
+          </el-button>
+        </template>
+      </AssignTable>
+    </el-col>
+  </el-row>
   <el-row class="my-row">
     <el-col :span="6">
       <el-tag type="success" size="large">建议</el-tag>
     </el-col>
-    <el-col :span="8">
-      <template v-if="currentInvi.executor?.length! > 0">
-        当前监考教师：
-        <template v-for="(exec, index) of currentInvi.executor" :key="index">
-          <el-tag size="large" type="success" style="margin-right: 5px">{{ exec.userName }}</el-tag>
-        </template>
-      </template>
-    </el-col>
-    <el-col :span="2" :offset="8">
+    <el-col :span="2" :offset="16">
       <el-button type="success" :disabled="selectedUsers.length < amountR" @click="submitUsers">
         提交
       </el-button>

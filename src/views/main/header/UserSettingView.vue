@@ -9,11 +9,6 @@ const messageS = storeToRefs(useMessageStore()).messageS
 
 const pwdM = ref({ p1: '', p2: '' })
 
-const logout = () => {
-  sessionStorage.clear()
-  window.location.href = '/'
-}
-
 const resetPwd = () => {
   if (!pwdM.value.p1 || !(pwdM.value.p1 == pwdM.value.p2)) {
     messageS.value = '2次输入密码不同'

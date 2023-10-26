@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import router from '@/router'
 import { getSettingsService } from '@/services/CommonService'
-import { getInviChineseDayweek, getInviWeek, replaceTDateC } from '@/services/Utils'
+import {
+  replaceTDateC,
+  bellTitleC,
+  beNoticedC,
+  getInviWeekC,
+  getInviChinesedayweekC
+} from '@/services/Utils'
 import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation, Page } from '@/types'
 import { Bell } from '@element-plus/icons-vue'
@@ -23,22 +29,15 @@ if (props.page!.noPage) {
   PAGESIZE = props.page?.total!
 }
 
-const WeekC = computed(() => (date: string) => getInviWeek(date, settingsStore.getFirstWeek()))
-const dayweekC = computed(() => (date: string) => getInviChineseDayweek(date))
+const inviWeekC = getInviWeekC(settingsStore.getFirstWeek())
 
 const changePage = (n: number) => {
-  if (n == 1) {
-    router.push(`${props.page!.url!}`)
-    return
+  let path = `${props.page!.url!}`
+  if (n > 1) {
+    path = `${path}/${n}`
   }
-  router.push(`${props.page!.url!}/${n}`)
+  router.push(path)
 }
-
-const beNoticed = computed(() => (exid: string, noticeIds: string[] = []) => {
-  return noticeIds.indexOf(exid) != -1
-})
-
-const bellTitleC = computed(() => (invi: Invigilation) => `ID: ${invi.calendarId}`)
 </script>
 <template>
   <el-table :data="props.invis" style="margin-bottom: 10px">
@@ -56,7 +55,7 @@ const bellTitleC = computed(() => (invi: Invigilation) => `ID: ${invi.calendarId
       <template #default="scope">
         {{ scope.row.date }}
         <br />
-        第 {{ WeekC(scope.row.date) }} 周 / {{ dayweekC(scope.row.date) }}
+        第 {{ inviWeekC(scope.row.date) }} 周 / {{ getInviChinesedayweekC(scope.row.date) }}
         <br />
         {{ scope.row.time.starttime }} -
         {{ scope.row.time.endtime }}
@@ -116,7 +115,7 @@ const bellTitleC = computed(() => (invi: Invigilation) => `ID: ${invi.calendarId
               class="curor"
               color="green"
               size="large"
-              v-if="beNoticed(exeUser.userId, scope.row.noticeUserIds)"
+              v-if="beNoticedC(exeUser.userId, scope.row.noticeUserIds)"
               style="vertical-align: middle">
               <Bell />
             </el-icon>

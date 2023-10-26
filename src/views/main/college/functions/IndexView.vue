@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const components = [
+const components: { name: string; component: Component }[] = [
   {
     name: '开启/关闭部门',
     component: defineAsyncComponent(() => import('./CloseDepartmentView.vue'))

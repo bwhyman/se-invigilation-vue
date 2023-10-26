@@ -1,4 +1,4 @@
-import type { Timetable, User } from '@/types'
+import type { Invigilation, Timetable, User } from '@/types'
 
 //
 export const getInviWeek = (date: string, firstWeek: string) => {
@@ -57,3 +57,15 @@ export const confTime = (date: string, time: string, period: string) => {
 
 //
 export const replaceTDateC = computed(() => (date: string) => date.replace('T', ' '))
+
+//
+export const bellTitleC = computed(() => (invi: Invigilation) => `ID: ${invi.calendarId}`)
+export const beNoticedC = computed(() => (exid: string, noticeIds: string[] = []) => {
+  return noticeIds.indexOf(exid) != -1
+})
+
+//
+export const getInviWeekC = (firstWeek: string) => {
+  return computed(() => (date: string) => getInviWeek(date, firstWeek))
+}
+export const getInviChinesedayweekC = computed(() => (date: string) => getInviChineseDayweek(date))
