@@ -37,10 +37,10 @@ const info = () => {
     </el-col>
 
     <!-- 基于权限加载上功能栏 -->
-    <el-col :span="18">
+    <el-col :span="16">
       <component :is="nemuComponent" />
     </el-col>
-    <el-col :span="2">
+    <el-col :span="4" style="text-align: right; padding-right: 10px">
       <el-icon id="info" :size="32" color="#409EFF" @click="info" style="margin-right: 10px">
         <Sunrise />
       </el-icon>

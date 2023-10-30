@@ -40,8 +40,18 @@ const changePage = (n: number) => {
 }
 </script>
 <template>
+  <el-row>
+    <el-col :span="2">
+      <span>
+        共
+        <el-tag>{{ props.page?.total! }}</el-tag>
+        项
+      </span>
+    </el-col>
+    <el-col :span="22" style="text-align: right"><slot name="top"></slot></el-col>
+  </el-row>
   <el-table :data="props.invis" style="margin-bottom: 10px">
-    <el-table-column type="index" label="#" width="50" />
+    <el-table-column type="index" label="" width="50" />
     <el-table-column>
       <template #default="scope">
         {{ scope.row.course.teacherName }}
@@ -132,9 +142,9 @@ const changePage = (n: number) => {
       </template>
     </el-table-column>
   </el-table>
-  <el-row>
+  <el-row v-if="props.page?.total! > 0">
     <el-col :span="2">
-      <span v-if="props.page?.total != 0">
+      <span>
         共
         <el-tag>{{ props.page?.total! }}</el-tag>
         项

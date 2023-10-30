@@ -95,16 +95,16 @@ const assignF = (invi: Invigilation) => {
       </el-col>
     </el-row>
     <el-row class="my-row">
-      <el-col style="text-align: right">
-        <el-button
-          type="success"
-          :disabled="!departmentR || selectR.length == 0"
-          @click="updateInvis">
-          提交
-        </el-button>
-      </el-col>
       <el-col>
         <InviTable :invis="inviS" :page="pageR" :show-executor="false">
+          <template #top>
+            <el-button
+              type="success"
+              :disabled="!departmentR || selectR.length == 0"
+              @click="updateInvis">
+              提交
+            </el-button>
+          </template>
           <template #action="action">
             <div style="display: flex; justify-content: space-between; align-items: center">
               <div style="text-align: left">

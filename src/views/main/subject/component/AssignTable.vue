@@ -7,7 +7,7 @@ const props = defineProps<{
 </script>
 <template>
   <el-table :data="props.users">
-    <el-table-column type="index" label="#" width="50" />
+    <el-table-column type="index" label="" width="50" />
     <el-table-column width="85">
       <template #default="scope">
         <slot name="userAssign" :user="scope.row as InviAssignUser"></slot>

@@ -120,9 +120,18 @@ const noticeF = (depid: string) => {
         <el-radio-button label="1">已下发未分配</el-radio-button>
         <el-radio-button label="0">未下发</el-radio-button>
       </el-radio-group>
+    </el-col>
+    <el-col :span="2">
+      <span>
+        共
+        <el-tag>{{ invisR.length }}</el-tag>
+        项
+      </span>
+    </el-col>
+    <el-col>
       <!--  -->
       <el-table :data="invisR">
-        <el-table-column type="index" label="#" width="50" />
+        <el-table-column type="index" label="" width="50" />
         <el-table-column width="100">
           <template #default="scope">
             {{ scope.row.course.teacherName }}

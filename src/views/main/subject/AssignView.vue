@@ -213,7 +213,7 @@ const submitUsers = () => {
   <!--  -->
   <el-row class="my-row">
     <el-col :span="2">
-      <el-tag type="warning">说明：</el-tag>
+      <el-tag type="warning">说明</el-tag>
     </el-col>
     <el-col :span="22">
       提交，保存监考分配记录，在下一步独立操作发送钉钉监考通知。
@@ -226,7 +226,7 @@ const submitUsers = () => {
   </el-row>
   <el-row class="my-row" v-if="currentUsersR.length > 0">
     <el-col>
-      <el-tag type="primary" size="large">当前</el-tag>
+      <el-tag size="large">当前</el-tag>
     </el-col>
     <el-col style="margin-bottom: 10px">
       <AssignTable :users="currentUsersR" :dayweek="dayweekCN">
@@ -285,7 +285,7 @@ const submitUsers = () => {
     <el-tag type="danger" size="large">关闭</el-tag>
     <el-col>
       <el-table :data="closedUsersR">
-        <el-table-column type="index" label="#" width="50" />
+        <el-table-column type="index" label="" width="50" />
         <el-table-column>
           <template #default="scope">
             {{ scope.row.name }}
