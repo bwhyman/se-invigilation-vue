@@ -2,11 +2,12 @@
 import router from '@/router'
 import {
   addAssignService,
+  getCollegeInviService,
   listOpenedDepartmentsService,
   listUsersByNameService,
   updateInvisService
 } from '@/services/CollegeService'
-import { getInviService, getSettingsService } from '@/services/CommonService'
+import { getSettingsService, noticeDingCancelService } from '@/services/CommonService'
 import { getInviChineseDayweek, getInviWeek, stringInviTime } from '@/services/Utils'
 import { useMessageStore } from '@/stores/MessageStore'
 import { useSettingStore } from '@/stores/SettingStore'
@@ -15,13 +16,20 @@ import type { AssignUser, Invigilation } from '@/types'
 
 const props = defineProps<{ inviid: string; depid: string; name: string }>()
 const results = await Promise.all([
-  getInviService(props.inviid),
+  getCollegeInviService(props.inviid),
   listUsersByNameService(props.depid, props.name),
   listOpenedDepartmentsService(),
   getSettingsService()
 ])
 
-const inviR = results[0] ?? {}
+const inviR = results[0]
+if (!inviR) {
+  const messageStore = useMessageStore()
+  const msg = '获取监考信息错误!'
+  storeToRefs(messageStore).messageS.value = msg
+  throw new Error(msg)
+}
+
 const users = results[1]
 const departments = results[2]
 const depart = departments.find((d) => d.id == props.depid)
@@ -49,16 +57,17 @@ const assignF = async () => {
   invi.dispatcher = stringInviTime({ id: userR.id, name: userR.name })
   await updateInvisService([invi])
 
-  const assignUser: AssignUser = { executor: [] }
-  assignUser.depId = depart?.id
+  const assignUser: AssignUser = { executor: [], users: [] }
+  assignUser.department = { depId: depart?.id, departmentName: depart?.name }
   assignUser.allocator = stringInviTime({ id: userR.id, name: userR.name })
   assignUser.executor?.push(stringInviTime({ id: selUser.id!, name: selUser.name! }))
-  addAssignService(inviR.id!, assignUser).then(() => {
-    storeToRefs(messageStore).messageS.value = '提交成功'
-    storeToRefs(messageStore).closeF.value = () => {
-      router.push(`/college/noticeteachers/${inviR.id}`)
-    }
-  })
+  assignUser.users?.push({ id: selUser.id!, name: selUser.name! })
+  await noticeDingCancelService(invi!.id!)
+  await addAssignService(inviR.id!, assignUser)
+  storeToRefs(messageStore).messageS.value = '提交成功'
+  storeToRefs(messageStore).closeF.value = () => {
+    router.push(`/college/invinotice/${inviR.id}`)
+  }
 }
 </script>
 <template>

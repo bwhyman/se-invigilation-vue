@@ -18,6 +18,7 @@ const SUBJECT = 'subject'
 const usersStore = useUsersStore()
 const timetablesStore = useTimetablesStore()
 const inviCountsStore = useInviCountsStore()
+const invisStore = useInvigilationsStore()
 
 // 加载专业内全部教师
 export const listUsersService = async () => {
@@ -94,6 +95,8 @@ export const listCountsService = async () => {
 export const addAssignUsersService = async (inviid: string, user: AssignUser) => {
   // @ts-ignore
   user.allocator = JSON.stringify(user.allocator)
+  // @ts-ignore
+  user.executor = JSON.stringify(user.executor)
   await axios.post(`${SUBJECT}/invidetails/${inviid}`, user)
   // 清空教师监考数量缓存
   inviCountsStore.inviCounts.length = 0
@@ -114,4 +117,14 @@ export const noticeUsersService = async (notice: Notice) => {
 
   const resp = await axios.post<ResultVO<{ code: string }>>(`${SUBJECT}/assignnotices`, notice)
   return resp.data.data?.code
+}
+
+//
+export const getInviService = async (inviid: string) => {
+  let invi = invisStore.currentInviS
+  if (invi) return invi
+  const resp = await axios.get<ResultVO<{ invi: Invigilation }>>(`${SUBJECT}/invis/${inviid}`)
+  invi = resp.data.data?.invi
+
+  return invi
 }

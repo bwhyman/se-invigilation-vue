@@ -11,6 +11,7 @@ import {
 import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation, Page } from '@/types'
 import { Bell } from '@element-plus/icons-vue'
+import TotalNumber from './TotalNumber.vue'
 
 await getSettingsService()
 
@@ -24,7 +25,7 @@ interface Props {
 const props = defineProps<Props>()
 
 // 表格全局每页显示个数
-let PAGESIZE = 40
+let PAGESIZE = 20
 if (props.page!.noPage) {
   PAGESIZE = props.page?.total!
 }
@@ -32,21 +33,22 @@ if (props.page!.noPage) {
 const inviWeekC = getInviWeekC(settingsStore.getFirstWeek())
 
 const changePage = (n: number) => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  })
   let path = `${props.page!.url!}`
   if (n > 1) {
     path = `${path}/${n}`
   }
+
   router.push(path)
 }
 </script>
 <template>
   <el-row>
     <el-col :span="2">
-      <span>
-        共
-        <el-tag>{{ props.page?.total! }}</el-tag>
-        项
-      </span>
+      <TotalNumber :total="props.page?.total!" />
     </el-col>
     <el-col :span="22" style="text-align: right"><slot name="top"></slot></el-col>
   </el-row>
@@ -144,11 +146,7 @@ const changePage = (n: number) => {
   </el-table>
   <el-row v-if="props.page?.total! > 0">
     <el-col :span="2">
-      <span>
-        共
-        <el-tag>{{ props.page?.total! }}</el-tag>
-        项
-      </span>
+      <TotalNumber :total="props.page?.total!" />
     </el-col>
     <el-col :span="10">
       <el-pagination

@@ -12,6 +12,9 @@ import {
 import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation } from '@/types'
 import { Bell } from '@element-plus/icons-vue'
+import TotalNumber from '../component/TotalNumber.vue'
+import { useMessageStore } from '@/stores/MessageStore'
+const SendRemark = defineAsyncComponent(() => import('./SendRemark.vue'))
 
 const UNDISPATCHED = 0
 const UNASSIGNED = 1
@@ -87,6 +90,36 @@ const invisStatusChangeF = (val: number) => {
 const noticeF = (depid: string) => {
   router.push(`/college/noticedepartments/${depid}`)
 }
+
+//
+const sendRemarkR = ref(false)
+const remarkInvisR = ref<Invigilation[]>([])
+// 课程名称/日期/开始时间，完全相同，为同一门监考
+const noticeRemarkF = (invi: Invigilation) => {
+  remarkInvisR.value = invisR.value.filter(
+    (i) =>
+      i.course?.courseName?.trim() == invi.course?.courseName?.trim() &&
+      i.date == invi.date &&
+      i.time?.starttime == invi.time?.starttime
+  )
+  sendRemarkR.value = true
+}
+const closeRemarkF = (message: string) => {
+  sendRemarkR.value = false
+  if (message && message.length > 0) {
+    const messageStore = useMessageStore()
+    storeToRefs(messageStore).messageS.value = `备注通知发送成功。${message}`
+    storeToRefs(messageStore).closeF.value = () => {
+      router.go(0)
+    }
+  }
+}
+
+//
+const remarkTypeC = computed(
+  () => (invi: Invigilation) =>
+    invi.remark ? { type: 'success', message: invi.remark } : { type: 'primary' }
+)
 </script>
 <template>
   <el-row class="my-row">
@@ -122,11 +155,7 @@ const noticeF = (depid: string) => {
       </el-radio-group>
     </el-col>
     <el-col :span="2">
-      <span>
-        共
-        <el-tag>{{ invisR.length }}</el-tag>
-        项
-      </span>
+      <TotalNumber :total="invisR.length" />
     </el-col>
     <el-col>
       <!--  -->
@@ -137,11 +166,23 @@ const noticeF = (depid: string) => {
             {{ scope.row.course.teacherName }}
           </template>
         </el-table-column>
-        <el-table-column min-width="130">
+        <el-table-column min-width="100">
           <template #default="scope">
-            {{ scope.row.course.courseName }}
-            <br />
-            {{ scope.row.course.clazz }}
+            <el-row>
+              <el-col :span="4">
+                <el-button
+                  :title="remarkTypeC(scope.row).message"
+                  :type="remarkTypeC(scope.row).type"
+                  :icon="Bell"
+                  circle
+                  @click="noticeRemarkF(scope.row)" />
+              </el-col>
+              <el-col :span="20">
+                {{ scope.row.course.courseName }}
+                <br />
+                {{ scope.row.course.clazz }}
+              </el-col>
+            </el-row>
           </template>
         </el-table-column>
         <el-table-column>
@@ -202,6 +243,7 @@ const noticeF = (depid: string) => {
       </el-table>
     </el-col>
   </el-row>
+  <SendRemark v-if="sendRemarkR" :invis="remarkInvisR" :close="closeRemarkF" />
 </template>
 <style scoped>
 .demo-date-picker {

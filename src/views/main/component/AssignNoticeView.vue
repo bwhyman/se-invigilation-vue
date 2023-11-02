@@ -1,19 +1,34 @@
 <script setup lang="ts">
-import { getInviService, getSettingsService } from '@/services/CommonService'
-import { listInviDetailUsersService, noticeUsersService } from '@/services/SubjectService'
+import { getSettingsService } from '@/services/CommonService'
+import {
+  getInviService,
+  listInviDetailUsersService,
+  noticeUsersService
+} from '@/services/SubjectService'
 import { getInviChineseDayweek, getInviWeek } from '@/services/Utils'
 import { useMessageStore } from '@/stores/MessageStore'
 import { useSettingStore } from '@/stores/SettingStore'
 import { useUserStore } from '@/stores/UserStore'
 import type { Invigilation, Notice, User } from '@/types'
+import { SUBJECT_ADMIN, COLLEGE_ADMIN } from '@/services/Const'
+import router from '@/router'
+import { getCollegeInviService } from '@/services/CollegeService'
 
 const props = defineProps<{ inviid: string }>()
 
 const userS = storeToRefs(useUserStore()).userS
 
+const role = sessionStorage.getItem('role')
+let getInvi
+if (role == COLLEGE_ADMIN) {
+  getInvi = getCollegeInviService(props.inviid)
+} else if (role == SUBJECT_ADMIN) {
+  getInvi = getInviService(props.inviid)
+}
+
 const results = await Promise.all([
   listInviDetailUsersService(props.inviid),
-  getInviService(props.inviid),
+  getInvi,
   getSettingsService()
 ])
 
@@ -55,11 +70,20 @@ const noticeMessage = `监考时间: ${notice.date}第${week}周${dayweek} ${not
 监考教师：${userNames.join(',')}`
 notice.noticeMessage = noticeMessage
 
-const noticeAssignersF = () => {
-  noticeUsersService(notice).then((msg) => {
-    const { messageS } = storeToRefs(useMessageStore())
-    msg && (messageS.value = `通知发送成功。编号：${msg}`)
-  })
+const noticeAssignersF = async () => {
+  const msg = await noticeUsersService(notice)
+
+  const { messageS, closeF } = storeToRefs(useMessageStore())
+  msg && (messageS.value = `通知发送成功。编号：${msg}`)
+  closeF.value = () => {
+    const role = sessionStorage.getItem('role')
+    if (role == SUBJECT_ADMIN) {
+      router.push('/subject/dispatched')
+    }
+    if (role == COLLEGE_ADMIN) {
+      router.push('/college/imported')
+    }
+  }
 }
 </script>
 <template>

@@ -4,7 +4,7 @@ import { listDispatchersService, noticeDispatcherService } from '@/services/Coll
 import { getSettingsService } from '@/services/CommonService'
 import { useMessageStore } from '@/stores/MessageStore'
 import { useSettingStore } from '@/stores/SettingStore'
-import type { User } from '@/types'
+import type { Notice, User } from '@/types'
 const props = defineProps<{ depid: string }>()
 
 // notice
@@ -19,7 +19,11 @@ const noticeDispatchersF = () => {
   const settingStore = useSettingStore()
   const weburl = settingStore.getWebUrl()
   const message = `已下发新监考信息，请及时分配。\n${weburl}`
-  noticeDispatcherService(selDisR.value, message).then((r) => {
+  const notice: Notice = {
+    userIds: selDisR.value.join(','),
+    noticeMessage: message
+  }
+  noticeDispatcherService(notice).then((r) => {
     const { messageS, closeF } = storeToRefs(useMessageStore())
     if (r?.errcode != 0) {
       messageS.value = `发送通知错误`

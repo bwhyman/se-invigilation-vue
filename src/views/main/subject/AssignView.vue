@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   addAssignUsersService,
+  getInviService,
   listCountsService,
   listDateInvisService,
   listTimetablesService,
@@ -19,7 +20,7 @@ import AssignTable from './component/AssignTable.vue'
 import { useUserStore } from '@/stores/UserStore'
 import router from '@/router'
 import { useMessageStore } from '@/stores/MessageStore'
-import { getInviService, getSettingsService } from '@/services/CommonService'
+import { getSettingsService, noticeDingCancelService } from '@/services/CommonService'
 import { useSettingStore } from '@/stores/SettingStore'
 
 const props = defineProps<{ inviid: string }>()
@@ -29,11 +30,17 @@ const messageStore = useMessageStore()
 const selectedUsers = ref<InviAssignUser[]>([])
 
 const resultInit = await Promise.all([getInviService(props.inviid), getSettingsService()])
-const currentInvi = resultInit[0] ?? {}
+const currentInvi = resultInit[0]
+if (!currentInvi) {
+  const msg = '获取监考信息错误!'
+  storeToRefs(messageStore).messageS.value = msg
+  throw new Error(msg)
+}
+
 const settingsStore = useSettingStore()
 //
 const userR = storeToRefs(useUserStore()).userS
-const assignUsersR = ref<AssignUser>({})
+const assignUsersR = ref<AssignUser>({ executor: [], users: [] })
 
 // 当前分配的监考信息
 let week = getInviWeek(currentInvi.date!, settingsStore.getFirstWeek())
@@ -164,14 +171,13 @@ const getDisabledC = computed(() => (user: InviAssignUser) => {
 })
 
 //
-const submitUsers = () => {
+const submitUsers = async () => {
   if (selectedUsers.value.length != currentInvi.amount) {
     const { messageS } = storeToRefs(messageStore)
     messageS.value = '分配教师数与所需监考数不匹配'
     return
   }
 
-  assignUsersR.value.executor = []
   if (currentInvi.calendarId) {
     const userIds: string[] = []
     currentInvi.executor!.forEach((ex) => {
@@ -183,15 +189,17 @@ const submitUsers = () => {
 
   selectedUsers.value.forEach((us) => {
     assignUsersR.value.executor?.push(stringInviTime({ id: us.id, name: us.name }))
+    assignUsersR.value.users?.push({ id: us.id, name: us.name })
   })
 
-  addAssignUsersService(currentInvi.id!, assignUsersR.value).then(() => {
-    const { messageS, closeF } = storeToRefs(messageStore)
-    messageS.value = '分配结果已保存'
-    closeF.value = () => {
-      router.push(`/subject/notices/${props.inviid}`)
-    }
-  })
+  await noticeDingCancelService(currentInvi.id!)
+  await addAssignUsersService(currentInvi.id!, assignUsersR.value)
+
+  const { messageS, closeF } = storeToRefs(messageStore)
+  messageS.value = '分配结果已保存'
+  closeF.value = () => {
+    router.push(`/subject/notices/${props.inviid}`)
+  }
 }
 </script>
 <template>

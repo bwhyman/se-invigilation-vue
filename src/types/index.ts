@@ -64,6 +64,7 @@ export interface Invigilation {
   calendarId?: string
   createUnionId?: string
   noticeUserIds?: string[]
+  remark?: string
   updateTime?: string
 }
 
@@ -95,9 +96,10 @@ export interface InviAssignUser {
 }
 
 export interface AssignUser {
-  depId?: string
+  department?: { depId?: string; departmentName?: string }
   allocator?: { userId: string; userName: string; time: string }
   executor?: { userId: string; userName: string; time: string }[]
+  users?: User[]
 }
 
 export interface DingNoticeResponse {
@@ -124,6 +126,12 @@ export interface Notice {
   noticeMessage?: string
   userIds?: string
   noticeUserIds?: string[]
+}
+
+export interface NoticeRemark {
+  dingUserIds: string
+  remark: string
+  inviIds: string[]
 }
 
 export interface Page {

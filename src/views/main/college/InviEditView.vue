@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import router from '@/router'
-import { delInviService, resetInviService, updateInviService } from '@/services/CollegeService'
-import { getInviService } from '@/services/CommonService'
+import {
+  delInviService,
+  getCollegeInviService,
+  resetInviService,
+  updateInviService
+} from '@/services/CollegeService'
+import { noticeDingCancelService } from '@/services/CommonService'
 import { IMPORT } from '@/services/Const'
 import { useMessageStore } from '@/stores/MessageStore'
 import type { Invigilation } from '@/types'
@@ -9,7 +14,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const props = defineProps<{ inviid: string }>()
-let invi = await getInviService(props.inviid)
+let invi = await getCollegeInviService(props.inviid)
 const isAssigned = ref(false)
 const unlockedR = ref(true)
 
@@ -159,14 +164,14 @@ const delInvi = () => {
     cancelButtonText: 'Cancel',
     type: 'warning'
   })
-    .then(() => {
+    .then(async () => {
       ElMessage({
         type: 'success',
         message: 'Delete completed'
       })
-      delInviService(invi!.id!).then(() => {
-        router.push(`/college/imported`)
-      })
+      await noticeDingCancelService(invi!.id!)
+      await delInviService(invi!.id!)
+      router.push(`/college/imported`)
     })
     .catch(() => {
       ElMessage({
@@ -182,14 +187,14 @@ const resetInvi = () => {
     cancelButtonText: 'Cancel',
     type: 'warning'
   })
-    .then(() => {
+    .then(async () => {
       ElMessage({
         type: 'success',
         message: 'Delete completed'
       })
-      resetInviService(invi!.id!).then(() => {
-        router.push(`/college/imported`)
-      })
+      await noticeDingCancelService(invi!.id!)
+      await resetInviService(invi!.id!)
+      router.push(`/college/imported`)
     })
     .catch(() => {
       ElMessage({

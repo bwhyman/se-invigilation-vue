@@ -67,17 +67,6 @@ export const updateSelfPassword = async (pwd: string) => {
   messageS.value = '密码更新成功'
 }
 
-//
-export const getInviService = async (inviid: string) => {
-  let invi = invisStore.currentInviS
-  if (invi) return invi
-
-  const resp = await axios.get<ResultVO<{ invi: Invigilation }>>(`invis/${inviid}`)
-  invi = resp.data.data?.invi
-
-  return invi
-}
-
 export const freePwdService = () => {
   const token = localStorage.getItem('token')
   token && sessionStorage.setItem('token', token)
@@ -103,4 +92,9 @@ export const freePwdService = () => {
   }
 
   router.push(path)
+}
+
+// 发送取消监考通知，移除监考日程
+export const noticeDingCancelService = async (inviid: string) => {
+  await axios.delete(`invinotices/${inviid}`)
 }

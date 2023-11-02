@@ -7,7 +7,7 @@ const messageR = storeToRefs(useMessageStore()).messageS
 const closeD = storeToRefs(useMessageStore()).closeF
 </script>
 <template>
-  <el-dialog v-model="dialogVisible" title="消息" width="30%" @close="closeD">
+  <el-dialog v-model="dialogVisible" title="消息" width="30%" @close="closeD" :show-close="false">
     <span>{{ messageR }}</span>
   </el-dialog>
 </template>

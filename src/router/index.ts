@@ -82,7 +82,7 @@ const routes: RouteRecordRaw[] = [
           },
           {
             props: true,
-            path: 'noticeteachers/:inviid',
+            path: 'invinotice/:inviid',
             component: () => import('@/views/main/component/AssignNoticeView.vue')
           },
           {

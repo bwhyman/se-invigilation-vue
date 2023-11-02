@@ -4,6 +4,8 @@ import type {
   DingNoticeResponse,
   InviCount,
   Invigilation,
+  Notice,
+  NoticeRemark,
   ResultVO,
   Timetable,
   User
@@ -123,11 +125,11 @@ export const listDispatchersService = async (depid: string) => {
   return resp.data.data?.users ?? []
 }
 
-export const noticeDispatcherService = async (users: string[], message: string) => {
-  const userIds = users.join(',')
+export const noticeDispatcherService = async (notice: Notice) => {
+  //const userIds = users.join(',')
   const resp = await axios.post<ResultVO<{ dingResp: DingNoticeResponse }>>(
     `${COLLEGE}/dispatchnotices`,
-    { userIds, message }
+    notice
   )
   const dingResp = resp.data.data?.dingResp
 
@@ -184,7 +186,7 @@ export const delInviService = async (inviid: string) => {
   return true
 }
 
-// 重置监考为未下发状态，发送取消通知，重置信息等
+// 重置监考为未下发状态，重置信息等
 export const resetInviService = async (inviid: string) => {
   storeToRefs(invisStore).invigilationsImportS.value = []
 
@@ -230,6 +232,10 @@ export const listUsersByNameService = async (depid: string, name: string) => {
 export const addAssignService = async (inviid: string, user: AssignUser) => {
   // @ts-ignore
   user.allocator = JSON.stringify(user.allocator)
+  // @ts-ignore
+  user.executor = JSON.stringify(user.executor)
+  // @ts-ignore
+  user.department = JSON.stringify(user.department)
   await axios.post(`${COLLEGE}/assigns/invis/${inviid}`, user)
 }
 
@@ -301,4 +307,31 @@ export const listInvisByDateService = async (sdate: string, edate: string) => {
   useInvigilationsStore().dateInivsMap.set(key, invis)
 
   return invis
+}
+
+//
+export const sendInviRemarkNoticeService = async (notice: NoticeRemark) => {
+  const resp = await axios.post<ResultVO<{ result: { request_id: string } }>>(
+    `${COLLEGE}/invinotices`,
+    notice
+  )
+  return resp.data.data?.result.request_id ?? ''
+}
+
+// 获取指定学院，指定id的监考信息
+export const getCollegeInviService = async (inviid: string) => {
+  let invi = invisStore.currentInviS
+  if (invi) return invi
+
+  const resp = await axios.get<ResultVO<{ invi: Invigilation }>>(`${COLLEGE}/invis/${inviid}`)
+  invi = resp.data.data?.invi
+
+  return invi
+}
+
+//
+export const listUserDingIdsService = async (userIds: string[]) => {
+  const resp = await axios.post<ResultVO<{ users: User[] }>>(`invinotices/dingids`, userIds)
+
+  return resp.data.data?.users ?? []
 }
