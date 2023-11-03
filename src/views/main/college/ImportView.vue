@@ -23,7 +23,7 @@ const readInvis = async (event: Event) => {
   if (!element || !element.files) {
     return
   }
-  const { readInviExcel } = await import('@/services/ExcelUtils')
+  const { readInviExcel } = await import('@/services/excel/InviExcel')
   readInviExcel(element.files[0])
     .then((invis: Invigilation[]) => {
       invisR.value = invis

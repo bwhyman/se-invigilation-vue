@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { addUsersService, getDingUsersService, listCollegesService } from '@/services/AdminService'
-import { readUsersExcel } from '@/services/ExcelUtils'
 import { useMessageStore } from '@/stores/MessageStore'
 import type { Department, DingUser, User } from '@/types'
 
@@ -29,6 +28,7 @@ const readUserFile = async (event: Event) => {
   if (!element || !element.files) {
     return
   }
+  const { readUsersExcel } = await import('@/services/excel/UsersExcel')
   const eus = await readUsersExcel(element.files[0])
   dingUsersR.forEach((duser) => {
     const user: User = {}
@@ -60,11 +60,13 @@ const readUserFile = async (event: Event) => {
   element.value = ''
 }
 const addUsersF = async () => {
-  const result = await addUsersService({
+  await addUsersService({
     collId: selectCollegeR.value?.id!,
     collegeName: selectCollegeR.value?.name!,
     users: allUsersR.value
   })
+  const messageStore = useMessageStore()
+  storeToRefs(messageStore).messageS.value = '添加用户成功'
 }
 </script>
 <template>

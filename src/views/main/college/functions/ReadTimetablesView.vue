@@ -20,7 +20,7 @@ const readTimetables = async (event: Event) => {
   }
 
   const { readCollegeTimetableExcel, readPostGTimetableExcel } = await import(
-    '@/services/ExcelUtils'
+    '@/services/excel/TimetableExcel'
   )
 
   const results = await Promise.all([
@@ -65,7 +65,7 @@ const readSingleTimetable = async (event: Event) => {
   if (!element || !element.files) {
     return
   }
-  const { readTimetableExcel } = await import('@/services/ExcelUtils')
+  const { readTimetableExcel } = await import('@/services/excel/TimetableExcel')
   importTimetablesR.value = await readTimetableExcel(element.files[0])
   const importTimes = importTimetablesR.value.filter((tb) => tb.courses.length != 0)
   users.forEach((user) => {

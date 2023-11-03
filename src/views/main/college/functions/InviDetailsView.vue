@@ -29,7 +29,7 @@ const exportF = async () => {
 
     details.push(detail)
   })
-  const { exportInvisDetails } = await import('@/services/ExcelUtils')
+  const { exportInvisDetails } = await import('@/services/excel/Invis2Excel')
   exportInvisDetails(results[1], details)
 }
 </script>

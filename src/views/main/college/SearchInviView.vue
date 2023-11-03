@@ -120,6 +120,11 @@ const remarkTypeC = computed(
   () => (invi: Invigilation) =>
     invi.remark ? { type: 'success', message: invi.remark } : { type: 'primary' }
 )
+//
+const exportF = async () => {
+  const { exportInvisDetailsDate } = await import('@/services/excel/Invis2Excel')
+  exportInvisDetailsDate(invis, dateRangeR.value[0], dateRangeR.value[1])
+}
 </script>
 <template>
   <el-row class="my-row">
@@ -143,7 +148,7 @@ const remarkTypeC = computed(
         提交
       </el-button>
     </el-col>
-    <el-col style="margin-top: 10px">
+    <el-col style="margin-top: 10px" :span="20">
       <el-radio-group
         @change="invisStatusChangeF"
         v-model="inviStatusR"
@@ -154,7 +159,12 @@ const remarkTypeC = computed(
         <el-radio-button label="0">未下发</el-radio-button>
       </el-radio-group>
     </el-col>
-    <el-col :span="2">
+    <el-col :span="4" style="text-align: right">
+      <el-button type="primary" @click="exportF" :disabled="invisR.length == 0">
+        导出监考表格
+      </el-button>
+    </el-col>
+    <el-col :span="4">
       <TotalNumber :total="invisR.length" />
     </el-col>
     <el-col>
