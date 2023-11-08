@@ -33,10 +33,6 @@ if (props.page!.noPage) {
 const inviWeekC = getInviWeekC(settingsStore.getFirstWeek())
 
 const changePage = (n: number) => {
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  })
   let path = `${props.page!.url!}`
   if (n > 1) {
     path = `${path}/${n}`

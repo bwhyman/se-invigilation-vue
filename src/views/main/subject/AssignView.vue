@@ -189,7 +189,7 @@ const submitUsers = async () => {
 
   selectedUsers.value.forEach((us) => {
     assignUsersR.value.executor?.push(stringInviTime({ id: us.id, name: us.name }))
-    assignUsersR.value.users?.push({ id: us.id, name: us.name })
+    assignUsersR.value.users?.push({ id: us.id })
   })
 
   await noticeDingCancelService(currentInvi.id!)

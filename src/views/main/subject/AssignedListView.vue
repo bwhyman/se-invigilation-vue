@@ -6,8 +6,7 @@ import { Edit } from '@element-plus/icons-vue'
 import type { Invigilation, Page } from '@/types'
 import router from '@/router'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
-
-const props = defineProps<{ page?: string }>()
+defineProps<{ page?: string }>()
 const inviS = ref<Invigilation[]>([])
 const total = await getTotalsService(ASSIGN)
 
@@ -16,16 +15,14 @@ const pageR = ref<Page>({
   total: total,
   url: '/subject/assigned'
 })
+const route = useRoute()
 
-watch(
-  props,
-  async () => {
-    const cpage = props.page ? parseInt(props.page) : 1
-    inviS.value = await listInvisService(ASSIGN, cpage)
-    pageR.value.currentpage = cpage
-  },
-  { immediate: true }
-)
+watchEffect(async () => {
+  const { page } = route.params as { page: string }
+  const cpage = page ? parseInt(page) : 1
+  inviS.value = await listInvisService(ASSIGN, cpage)
+  pageR.value.currentpage = cpage
+})
 
 const editF = (invi: Invigilation) => {
   useInvigilationsStore().currentInviS = invi

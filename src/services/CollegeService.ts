@@ -182,7 +182,7 @@ export const updateInviService = async (invi: Invigilation) => {
 // 删除监考
 export const delInviService = async (inviid: string) => {
   storeToRefs(invisStore).invigilationsImportS.value = []
-  axios.delete(`${COLLEGE}/invigilations/${inviid}`)
+  await axios.delete(`${COLLEGE}/invigilations/${inviid}`)
   return true
 }
 
