@@ -6,8 +6,11 @@ import DepartmentView from './DepartmentView.vue'
 import router from '@/router'
 import { Edit } from '@element-plus/icons-vue'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
+interface Props {
+  depid?: string
+  page?: string
+}
 
-defineProps<{ depid: string; page?: string }>()
 const inviS = ref<Invigilation[]>([])
 const pageR = ref<Page>({
   currentpage: 0,
@@ -18,7 +21,7 @@ const pageR = ref<Page>({
 const departTotalsR: { id: string; total: number }[] = []
 const route = useRoute()
 watchEffect(async () => {
-  const { depid, page } = route.params as { depid: string; page: string }
+  const { depid, page } = route.params as Props
   if (!depid) return
   const cpage = page ? parseInt(page) : 1
 

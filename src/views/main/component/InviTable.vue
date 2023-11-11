@@ -33,12 +33,21 @@ if (props.page!.noPage) {
 const inviWeekC = getInviWeekC(settingsStore.getFirstWeek())
 
 const changePage = (n: number) => {
+  scrollToTop()
   let path = `${props.page!.url!}`
   if (n > 1) {
     path = `${path}/${n}`
   }
 
   router.push(path)
+}
+
+const scrollToTop = () => {
+  let sTop = document.documentElement.scrollTop || document.body.scrollTop
+  if (sTop > 0) {
+    window.requestAnimationFrame(scrollToTop)
+    window.scrollTo(0, sTop - sTop / 8)
+  }
 }
 </script>
 <template>
