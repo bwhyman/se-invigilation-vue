@@ -11,7 +11,7 @@ import {
 } from '@/services/Utils'
 import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation } from '@/types'
-import { Bell } from '@element-plus/icons-vue'
+import { Bell, Message } from '@element-plus/icons-vue'
 import TotalNumber from '../component/TotalNumber.vue'
 import { useMessageStore } from '@/stores/MessageStore'
 const SendRemark = defineAsyncComponent(() => import('./SendRemark.vue'))
@@ -179,56 +179,35 @@ const exportF = async () => {
             {{ scope.row.course.teacherName }}
           </template>
         </el-table-column>
-        <el-table-column min-width="100">
+        <el-table-column min-width="120">
           <template #default="scope">
-            <el-row>
-              <el-col :span="4">
-                <el-button
-                  :title="remarkTypeC(scope.row).message"
-                  :type="remarkTypeC(scope.row).type"
-                  :icon="Bell"
-                  circle
-                  @click="noticeRemarkF(scope.row)" />
-              </el-col>
-              <el-col :span="20">
-                {{ scope.row.course.courseName }}
-                <br />
-                {{ scope.row.course.clazz }}
-              </el-col>
-            </el-row>
+            {{ scope.row.course.courseName }}
+            <br />
+            {{ scope.row.course.clazz }}
           </template>
         </el-table-column>
         <el-table-column>
           <template #default="scope">
-            {{ scope.row.date }} {{ scope.row.time.starttime }}~{{ scope.row.time.endtime }}
+            {{ scope.row.date }}
             <br />
             第 {{ WeekC(scope.row.date) }} 周 / {{ getInviChinesedayweekC(scope.row.date) }}
+            <br />
+            {{ scope.row.time.starttime }}-{{ scope.row.time.endtime }}
           </template>
         </el-table-column>
-        <el-table-column width="120">
+        <el-table-column>
           <template #default="scope">
             <template v-if="scope.row.course">
               {{ scope.row.course.location }}
             </template>
           </template>
         </el-table-column>
-        <el-table-column v-if="inviStatusR == UNASSIGNED">
+        <el-table-column>
           <template #default="scope">
-            <el-row>
-              <el-col :span="20">{{ scope.row.department?.departmentName }}</el-col>
-              <el-col :span="2">
-                <el-button
-                  :span="2"
-                  type="primary"
-                  :icon="Bell"
-                  circle
-                  @click="noticeF(scope.row.department?.depId)" />
-              </el-col>
-            </el-row>
+            {{ scope.row.department?.departmentName }}
           </template>
         </el-table-column>
-
-        <el-table-column v-if="inviStatusR != UNASSIGNED" width="120">
+        <el-table-column>
           <template #default="scope">
             <div v-if="scope.row.executor">
               <template v-for="(exeUser, index) of scope.row.executor" :key="index">
@@ -251,6 +230,23 @@ const exportF = async () => {
                 <br />
               </template>
             </div>
+          </template>
+        </el-table-column>
+        <el-table-column width="80">
+          <template #default="scope">
+            <el-button
+              v-if="inviStatusR == ALL"
+              :title="remarkTypeC(scope.row).message"
+              :type="remarkTypeC(scope.row).type"
+              :icon="Message"
+              circle
+              @click="noticeRemarkF(scope.row)" />
+            <el-button
+              v-if="inviStatusR == UNASSIGNED"
+              type="primary"
+              :icon="Bell"
+              circle
+              @click="noticeF(scope.row.department?.depId)" />
           </template>
         </el-table-column>
       </el-table>

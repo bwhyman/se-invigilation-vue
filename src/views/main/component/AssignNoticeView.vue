@@ -42,13 +42,13 @@ const selectUsersR = ref<User[]>([...assignersR.value])
 
 const notice: Notice = {
   inviId: invigilationR.value?.id,
-  createUnionId: userS.value.dingUnionId,
   date: invigilationR.value?.date,
   stime: invigilationR.value?.time?.starttime,
   etime: invigilationR.value?.time?.endtime,
   unionIds: [],
   noticeUserIds: []
 }
+
 const week = getInviWeek(notice.date!, settingsStore.getFirstWeek())
 const dayweek = getInviChineseDayweek(notice.date!)
 
@@ -60,6 +60,8 @@ selectUsersR.value.forEach((u) => {
   userIds.push(u.dingUserId!)
   userNames.push(u.name!)
 })
+// 改为监考第一名教师发起日程
+notice.createUnionId = selectUsersR.value[0].dingUnionId
 // @ts-ignore
 notice.noticeUserIds = JSON.stringify(notice.noticeUserIds)
 notice.userIds = userIds.join(',')
@@ -71,6 +73,15 @@ const noticeMessage = `监考时间: ${notice.date}第${week}周${dayweek} ${not
 notice.noticeMessage = noticeMessage
 
 const noticeAssignersF = async () => {
+  // 计算监考前一天9点
+  const x = new Date(
+    `${invigilationR.value?.date}T${invigilationR.value?.time?.starttime}`
+  ).getTime()
+  const y = x - 1000 * 60 * 60 * 24
+  const z = new Date(y)
+  z.setHours(9)
+  const remindMinutes = (x - z.getTime()) / (1000 * 60)
+  notice.remindMinutes = remindMinutes
   const msg = await noticeUsersService(notice)
 
   const { messageS, closeF } = storeToRefs(useMessageStore())

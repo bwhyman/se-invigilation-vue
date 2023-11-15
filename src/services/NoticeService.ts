@@ -3,14 +3,9 @@ import { getInviChineseDayweek, getInviWeek } from './Utils'
 import { useSettingStore } from '@/stores/SettingStore'
 import { noticeUsersService } from './SubjectService'
 
-export const noticeDingService = async (
-  createUser: User,
-  assignUsers: User[],
-  invi: Invigilation
-) => {
+export const noticeDingService = async (assignUsers: User[], invi: Invigilation) => {
   const notice: Notice = {
     inviId: invi.id,
-    createUnionId: createUser.dingUnionId,
     date: invi.date,
     stime: invi?.time?.starttime,
     etime: invi?.time?.endtime,
@@ -29,6 +24,8 @@ export const noticeDingService = async (
     userIds.push(u.dingUserId!)
     userNames.push(u.name!)
   })
+  // 改为监考第一名教师发起日程
+  notice.createUnionId = assignUsers[0].dingUnionId
   // @ts-ignore
   notice.noticeUserIds = JSON.stringify(notice.noticeUserIds)
   notice.userIds = userIds.join(',')
@@ -41,8 +38,15 @@ export const noticeDingService = async (
 监考教师：${userNames.join('; ')}`
   notice.noticeMessage = noticeMessage
 
-  console.log(notice)
+  const dateTime = new Date(`${invi?.date}T${invi?.time?.starttime}`)
+  const x = dateTime.getTime()
+  const y = x - 1000 * 60 * 60 * 24
+  const z = new Date(y)
+  z.setHours(9)
+  const remindMinutes = (x - z.getTime()) / (1000 * 60)
+  notice.remindMinutes = remindMinutes
 
+  console.log(notice)
   const msg = await noticeUsersService(notice)
   return msg
 }

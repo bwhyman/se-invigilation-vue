@@ -126,6 +126,7 @@ export interface Notice {
   noticeMessage?: string
   userIds?: string
   noticeUserIds?: string[]
+  remindMinutes?: number
 }
 
 export interface NoticeRemark {
