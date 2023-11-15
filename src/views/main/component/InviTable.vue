@@ -141,7 +141,7 @@ const scrollToTop = () => {
         </div>
       </template>
     </el-table-column>
-    <el-table-column min-width="60">
+    <el-table-column min-width="80">
       <template #default="scope">
         <div>
           <slot name="action" :invi="scope.row as Invigilation"></slot>

@@ -8,14 +8,14 @@ import { useUserStore } from '@/stores/UserStore'
 import type { Department, Invigilation, Page } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 import DepartmentView from './DepartmentView.vue'
-import { Edit } from '@element-plus/icons-vue'
+import OpterationMenuView from './operations/OpterationMenuView.vue'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 
-const inviS = await listImportedService()
-
+await listImportedService()
+const inviS = storeToRefs(useInvigilationsStore()).invigilationsImportS
 const pageR = ref<Page>({
   currentpage: 1,
-  total: inviS.length,
+  total: inviS.value.length,
   url: '',
   noPage: true
 })
@@ -68,24 +68,6 @@ const updateInvis = () => {
 const departChange = (dep: Department) => {
   departmentR.value = dep!
 }
-
-const editF = (inviid: string) => {
-  router.push(`/college/inviedit/${inviid}`)
-  const invi = inviS.find((i) => i.id == inviid)
-  useInvigilationsStore().currentInviS = invi
-}
-
-const assignF = (invi: Invigilation) => {
-  if (invi.amount != 1) {
-    storeToRefs(useMessageStore()).messageS.value = '只能为监考人数为1的监考直接分配'
-    return
-  }
-  storeToRefs(useInvigilationsStore()).currentInviS.value = invi
-  const depid = departmentR.value?.id
-  const name = invi.course?.teacherName
-  const inviid = invi.id
-  router.push(`/college/assigns/${inviid}/departments/${depid}/names/${name}`)
-}
 </script>
 <template>
   <div>
@@ -106,23 +88,17 @@ const assignF = (invi: Invigilation) => {
             </el-button>
           </template>
           <template #action="action">
-            <div style="display: flex; justify-content: space-between; align-items: center">
-              <div style="text-align: left">
-                <div>
-                  <el-button
-                    @click="selectF(action.invi)"
-                    :type="buttonTypeC(action.invi.id!)"
-                    style="margin-bottom: 5px">
-                    下发
-                  </el-button>
-                </div>
-                <div>
-                  <el-button @click="assignF(action.invi)" type="warning" :disabled="!departmentR">
-                    分配
-                  </el-button>
-                </div>
-              </div>
-              <el-button type="primary" :icon="Edit" circle @click="editF(action.invi.id!)" />
+            <div
+              style="
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                margin: 3px 0;
+              ">
+              <el-button @click="selectF(action.invi)" :type="buttonTypeC(action.invi.id!)">
+                下发
+              </el-button>
+              <OpterationMenuView :invi="action.invi" />
             </div>
           </template>
         </InviTable>

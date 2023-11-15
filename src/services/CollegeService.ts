@@ -335,3 +335,28 @@ export const listUserDingIdsService = async (userIds: string[]) => {
 
   return resp.data.data?.users ?? []
 }
+
+//
+export const cutInviService = async (oldInviid: string, invi: Invigilation) => {
+  // 清空已导入监考缓存
+  invisStore.invigilationsImportS.length = 0
+  // @ts-ignore
+  invi.importer = JSON.stringify(invi.importer)
+  // @ts-ignore
+  invi.course = JSON.stringify(invi.course)
+  // @ts-ignore
+  invi.time = JSON.stringify(invi.time)
+
+  const resp = await axios.post<ResultVO<{ invis: Invigilation[] }>>(
+    `${COLLEGE}/cutinvigilation/${oldInviid}`,
+    invi
+  )
+
+  storeToRefs(invisStore).invigilationsImportS.value = resp.data.data?.invis ?? []
+}
+
+// 基于用户姓名获取用户信息
+export const getUserByNameServie = async (name: string) => {
+  const resp = await axios.get<ResultVO<{ user: User }>>(`${COLLEGE}/users/${name}`)
+  return resp.data.data?.user
+}

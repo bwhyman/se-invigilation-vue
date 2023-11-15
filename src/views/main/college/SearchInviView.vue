@@ -18,7 +18,6 @@ const SendRemark = defineAsyncComponent(() => import('./SendRemark.vue'))
 
 const UNDISPATCHED = 0
 const UNASSIGNED = 1
-const ASSIGNED = 2
 const ALL = 3
 
 const formatDate = (date: Date) => {
@@ -59,9 +58,14 @@ const WeekC = getInviWeekC(settingsStore.getFirstWeek())
 
 //
 const invisStatusChangeF = (val: number) => {
-  // 已分配
-  if (val == ASSIGNED) {
-    invisR.value = invis.filter((invi) => invi.executor)
+  // 未通知
+  if (val == 2) {
+    //  已分配
+    const x = invis.filter((invi) => invi.executor)
+    // 未通知
+    invisR.value = x.filter(
+      (invi) => !invi.noticeUserIds || invi.amount != invi.noticeUserIds.length
+    )
     return
   }
   // 全部
@@ -72,9 +76,8 @@ const invisStatusChangeF = (val: number) => {
   // 已下发未分配，要过滤未下发
   if (val == UNASSIGNED) {
     const x = invis.filter((invi) => !invi.executor && invi.department)
-    const invisUns = [...x]
-    invisUns.sort((x, y) => x.department?.depId!.localeCompare(y.department?.depId!, 'en')!)
-    invisR.value = invisUns
+    x.sort((x, y) => x.department?.depId!.localeCompare(y.department?.depId!, 'en')!)
+    invisR.value = x
     return
   }
   // 未下发
@@ -154,8 +157,8 @@ const exportF = async () => {
         v-model="inviStatusR"
         style="margin-bottom: 10px">
         <el-radio-button label="3">全部</el-radio-button>
-        <el-radio-button label="2">已分配</el-radio-button>
-        <el-radio-button label="1">已下发未分配</el-radio-button>
+        <el-radio-button label="2">未通知</el-radio-button>
+        <el-radio-button label="1">未分配</el-radio-button>
         <el-radio-button label="0">未下发</el-radio-button>
       </el-radio-group>
     </el-col>

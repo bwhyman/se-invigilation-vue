@@ -200,6 +200,19 @@ const submitUsers = async () => {
   closeF.value = () => {
     router.push(`/subject/notices/${props.inviid}`)
   }
+  // const userss: User[] = []
+
+  // assignUsersR.value.users!.forEach((asuser) => {
+  //   const u = usersS.find((u) => u.id == asuser.id)
+  //   u && userss.push(u)
+  // })
+  // const msg = await noticeDingService(userR.value, userss, currentInvi)
+
+  // const { messageS, closeF } = storeToRefs(messageStore)
+  // messageS.value = `分配结果已保存。通知已发送\n编号：${msg}`
+  // closeF.value = () => {
+  //   router.push(`/subject/dispatched`)
+  // }
 }
 </script>
 <template>

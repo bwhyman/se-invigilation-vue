@@ -77,7 +77,7 @@ const routes: RouteRecordRaw[] = [
           },
           {
             props: true,
-            path: 'assigns/:inviid/departments/:depid/names/:name',
+            path: 'assigns/:inviid/names/:name',
             component: () => import('@/views/main/college/AssignView.vue')
           },
           {
