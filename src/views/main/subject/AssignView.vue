@@ -22,6 +22,7 @@ import router from '@/router'
 import { useMessageStore } from '@/stores/MessageStore'
 import { getSettingsService, noticeDingCancelService } from '@/services/CommonService'
 import { useSettingStore } from '@/stores/SettingStore'
+import InviMessage from '../component/InviInfo.vue'
 
 const props = defineProps<{ inviid: string }>()
 const messageStore = useMessageStore()
@@ -144,7 +145,6 @@ if (currentInvi.executor) {
 groupUsers.sort((x, y) => x.amount! - y.amount!)
 confUsersR.sort((x, y) => x.amount! - y.amount!)
 
-const WeekC = getInviWeek(currentInvi.date!, settingsStore.getFirstWeek())
 const dayweekCN = getInviChineseDayweek(currentInvi.date!)
 
 const handleChange = (user: InviAssignUser) => {
@@ -219,16 +219,7 @@ const submitUsers = async () => {
   <!--  -->
   <el-row class="my-row">
     <el-col style="text-align: center">
-      {{ currentInvi.date }} 第{{ WeekC }}周 {{ dayweekCN }} {{ currentInvi.time?.starttime }} -
-      {{ currentInvi.time?.endtime }}
-      <br />
-      {{ currentInvi.course!.teacherName }} / {{ currentInvi.course!.courseName }} /
-      {{ currentInvi.course!.clazz }}
-
-      <br />
-      {{ currentInvi.course!.location }} /
-      <el-tag>{{ currentInvi.amount }}</el-tag>
-      人
+      <InviMessage :invi="currentInvi" />
     </el-col>
   </el-row>
   <!--  -->

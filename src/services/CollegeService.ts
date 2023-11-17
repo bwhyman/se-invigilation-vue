@@ -126,7 +126,6 @@ export const listDispatchersService = async (depid: string) => {
 }
 
 export const noticeDispatcherService = async (notice: Notice) => {
-  //const userIds = users.join(',')
   const resp = await axios.post<ResultVO<{ dingResp: DingNoticeResponse }>>(
     `${COLLEGE}/dispatchnotices`,
     notice
@@ -357,6 +356,12 @@ export const cutInviService = async (oldInviid: string, invi: Invigilation) => {
 
 // 基于用户姓名获取用户信息
 export const getUserByNameServie = async (name: string) => {
-  const resp = await axios.get<ResultVO<{ user: User }>>(`${COLLEGE}/users/${name}`)
-  return resp.data.data?.user
+  const resp = await axios.get<ResultVO<{ users: User[] }>>(`${COLLEGE}/users/${name}`)
+  return resp.data.data?.users ?? []
+}
+
+//
+export const listDepartmentUsersService = async (depid: string) => {
+  const resp = await axios.get<ResultVO<{ users: User[] }>>(`${COLLEGE}/department/${depid}/users`)
+  return resp.data.data?.users ?? []
 }

@@ -2,7 +2,7 @@
 <template>
   <el-row class="my-row">
     <el-col class="my-col" :span="2"><el-tag size="large">过程</el-tag></el-col>
-    <el-col class="my-col" :span="22">添加--下发--分配--通知</el-col>
+    <el-col class="my-col" :span="22">导入--下发--分配--通知</el-col>
     <el-col class="my-col" :span="2"><el-tag size="large">导入</el-tag></el-col>
     <el-col class="my-col" :span="22">
       监考为不可分割的最小单元。即，如需将一次2人监考分别下发至2个专业，需分解为2次1人监考。在表格复制一行，或通过系统监考`剪裁`功能实现。

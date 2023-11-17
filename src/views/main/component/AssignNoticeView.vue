@@ -8,15 +8,12 @@ import {
 import { getInviChineseDayweek, getInviWeek } from '@/services/Utils'
 import { useMessageStore } from '@/stores/MessageStore'
 import { useSettingStore } from '@/stores/SettingStore'
-import { useUserStore } from '@/stores/UserStore'
 import type { Invigilation, Notice, User } from '@/types'
 import { SUBJECT_ADMIN, COLLEGE_ADMIN } from '@/services/Const'
 import router from '@/router'
 import { getCollegeInviService } from '@/services/CollegeService'
 
 const props = defineProps<{ inviid: string }>()
-
-const userS = storeToRefs(useUserStore()).userS
 
 const role = sessionStorage.getItem('role')
 let getInvi
@@ -66,10 +63,10 @@ notice.createUnionId = selectUsersR.value[0].dingUnionId
 notice.noticeUserIds = JSON.stringify(notice.noticeUserIds)
 notice.userIds = userIds.join(',')
 //
-const noticeMessage = `监考时间: ${notice.date}第${week}周${dayweek} ${notice.stime}-${notice.etime}
+const noticeMessage = `监考时间: ${notice.date}第${week}周${dayweek} ${notice.stime}~${notice.etime}
 监考课程：${invigilationR.value?.course?.courseName}
 监考地点：${invigilationR.value?.course?.location}
-监考教师：${userNames.join(',')}`
+监考教师：${userNames.join(';')}`
 notice.noticeMessage = noticeMessage
 
 const noticeAssignersF = async () => {

@@ -74,7 +74,7 @@ const scrollToTop = () => {
         <br />
         第 {{ inviWeekC(scope.row.date) }} 周 / {{ getInviChinesedayweekC(scope.row.date) }}
         <br />
-        {{ scope.row.time.starttime }} -
+        {{ scope.row.time.starttime }} ~
         {{ scope.row.time.endtime }}
       </template>
     </el-table-column>

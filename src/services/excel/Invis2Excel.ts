@@ -67,7 +67,7 @@ export const exportInvisDetailsDate = (invis: Invigilation[], sdate: string, eda
     getExcelCell(invi.course?.teacherName ?? ''),
     getExcelCell(invi.course?.courseName ?? ''),
     getExcelCell(invi.course?.clazz ?? ''),
-    getExcelCell(`${invi.date} ${invi.time?.starttime}-${invi.time?.endtime}` ?? ''),
+    getExcelCell(`${invi.date} ${invi.time?.starttime}~${invi.time?.endtime}` ?? ''),
     getExcelCell(`${invi.course?.location}` ?? ''),
     getExcelCell(invi.executor?.map((exe) => exe.userName).join(';') ?? '')
   ])
