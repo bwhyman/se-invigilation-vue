@@ -12,6 +12,7 @@ import type { Invigilation, Notice, User } from '@/types'
 import { SUBJECT_ADMIN, COLLEGE_ADMIN } from '@/services/Const'
 import router from '@/router'
 import { getCollegeInviService } from '@/services/CollegeService'
+import { ElLoading } from 'element-plus'
 
 const props = defineProps<{ inviid: string }>()
 
@@ -70,19 +71,7 @@ const noticeMessage = `监考时间: ${notice.date}第${week}周${dayweek} ${not
 notice.noticeMessage = noticeMessage
 
 const noticeAssignersF = async () => {
-  // 计算监考前一天9点
-  const x = new Date(
-    `${invigilationR.value?.date}T${invigilationR.value?.time?.starttime}`
-  ).getTime()
-  const y = x - 1000 * 60 * 60 * 24
-  const z = new Date(y)
-  z.setHours(9)
-  const remindMinutes = (x - z.getTime()) / (1000 * 60)
-  notice.remindMinutes = remindMinutes
-  const msg = await noticeUsersService(notice)
-
   const { messageS, closeF } = storeToRefs(useMessageStore())
-  msg && (messageS.value = `通知发送成功。编号：${msg}`)
   closeF.value = () => {
     const role = sessionStorage.getItem('role')
     if (role == SUBJECT_ADMIN) {
@@ -92,6 +81,34 @@ const noticeAssignersF = async () => {
       router.push('/college/imported')
     }
   }
+  if (invigilationR.value?.calendarId != null) {
+    messageS.value = `请勿重复发送通知。如需更改请返回分配页面重新分配监考`
+    return
+  }
+
+  // 计算监考前一天9点
+  const x = new Date(
+    `${invigilationR.value?.date}T${invigilationR.value?.time?.starttime}`
+  ).getTime()
+  const y = x - 1000 * 60 * 60 * 24
+  const z = new Date(y)
+  z.setHours(9)
+  const remindMinutes = (x - z.getTime()) / (1000 * 60)
+  notice.remindMinutes = remindMinutes
+
+  const loading = ElLoading.service({
+    lock: true,
+    text: 'Loading',
+    background: 'rgba(0, 0, 0, 0.7)'
+  })
+  let msg
+  try {
+    msg = await noticeUsersService(notice)
+  } finally {
+    loading.close()
+  }
+
+  msg && (messageS.value = `通知发送成功。编号：${msg}`)
 }
 </script>
 <template>

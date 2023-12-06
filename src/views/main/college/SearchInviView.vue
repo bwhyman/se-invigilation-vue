@@ -14,10 +14,11 @@ import type { Invigilation } from '@/types'
 import { Bell, Message } from '@element-plus/icons-vue'
 import TotalNumber from '../component/TotalNumber.vue'
 import { useMessageStore } from '@/stores/MessageStore'
-const SendRemark = defineAsyncComponent(() => import('./SendRemark.vue'))
+const SendRemark = defineAsyncComponent(() => import('./remarks/SendRemark.vue'))
 
 const UNDISPATCHED = 0
 const UNASSIGNED = 1
+const UNNOTICED = 2
 const ALL = 3
 
 const formatDate = (date: Date) => {
@@ -59,7 +60,7 @@ const WeekC = getInviWeekC(settingsStore.getFirstWeek())
 //
 const invisStatusChangeF = (val: number) => {
   // 未通知
-  if (val == 2) {
+  if (val == UNNOTICED) {
     //  已分配
     const x = invis.filter((invi) => invi.executor)
     // 未通知
@@ -82,9 +83,7 @@ const invisStatusChangeF = (val: number) => {
   }
   // 未下发
   if (val == UNDISPATCHED) {
-    const x = invis.filter((invi) => !invi.department)
-    const invisUns = [...x]
-    invisR.value = invisUns
+    invisR.value = invis.filter((invi) => !invi.department)
     return
   }
 }
@@ -156,10 +155,10 @@ const exportF = async () => {
         @change="invisStatusChangeF"
         v-model="inviStatusR"
         style="margin-bottom: 10px">
-        <el-radio-button label="3">全部</el-radio-button>
-        <el-radio-button label="2">未通知</el-radio-button>
-        <el-radio-button label="1">未分配</el-radio-button>
-        <el-radio-button label="0">未下发</el-radio-button>
+        <el-radio-button :label="ALL">全部</el-radio-button>
+        <el-radio-button :label="UNNOTICED">未通知</el-radio-button>
+        <el-radio-button :label="UNASSIGNED">未分配</el-radio-button>
+        <el-radio-button :label="UNDISPATCHED">未下发</el-radio-button>
       </el-radio-group>
     </el-col>
     <el-col :span="4" style="text-align: right">
