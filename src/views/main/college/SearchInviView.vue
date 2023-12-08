@@ -191,7 +191,7 @@ const exportF = async () => {
             <br />
             第 {{ WeekC(scope.row.date) }} 周 / {{ getInviChinesedayweekC(scope.row.date) }}
             <br />
-            {{ scope.row.time.starttime }}-{{ scope.row.time.endtime }}
+            {{ scope.row.time.starttime }} ~ {{ scope.row.time.endtime }}
           </template>
         </el-table-column>
         <el-table-column>

@@ -87,9 +87,7 @@ const noticeAssignersF = async () => {
   }
 
   // 计算监考前一天9点
-  const x = new Date(
-    `${invigilationR.value?.date}T${invigilationR.value?.time?.starttime}`
-  ).getTime()
+  const x = new Date(`${invigilationR.value?.date}T00:00`).getTime()
   const y = x - 1000 * 60 * 60 * 24
   const z = new Date(y)
   z.setHours(9)
