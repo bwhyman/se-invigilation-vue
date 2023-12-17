@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import router from '@/router'
 import { listUserDingIdsService, sendInviRemarkNoticeService } from '@/services/CollegeService'
 import { getInviChineseDayweek, getInviWeek } from '@/services/Utils'
 import { useMessageStore } from '@/stores/MessageStore'
 import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation, NoticeRemark } from '@/types'
+import { render } from 'vue'
 
-const props = defineProps<{ invis: Invigilation[]; close: (message: string) => void }>()
+const props = defineProps<{ invis: Invigilation[] }>()
 const invis = props.invis
 const invi: Invigilation = invis[0]
 
@@ -30,30 +32,32 @@ const sendF = async () => {
   const users = await listUserDingIdsService(userids)
 
   const messageStore = useMessageStore()
+  const { messageS, closeF } = storeToRefs(messageStore)
   if (users.length == 0) {
-    storeToRefs(messageStore).messageS.value = '获取用户钉钉账号失败'
+    messageS.value = '获取用户钉钉账号失败'
   }
   const inviids = invis.map((i) => i.id!)
   if (inviids.length == 0) {
-    storeToRefs(messageStore).messageS.value = '获取监考信息失败'
+    messageS.value = '获取监考信息失败'
   }
   const notice: NoticeRemark = {
     dingUserIds: users.map((u) => u.dingUserId).join(','),
     remark: message.value,
     inviIds: inviids
   }
-
   const result = await sendInviRemarkNoticeService(notice)
-  props.close(result)
+  if (result && result.length > 0) {
+    messageS.value = `备注通知发送成功。${result}`
+    closeF.value = () => {
+      router.go(0)
+    }
+  }
 }
+
+const closeDialog = () => render(null, document.body)
 </script>
 <template>
-  <el-dialog
-    v-model="dialogFormVisible"
-    title="发送监考备注工作通知"
-    destroy-on-close
-    @close="props.close"
-    :show-close="false">
+  <el-dialog v-model="dialogFormVisible" title="发送监考备注工作通知" @close="closeDialog">
     <p>监考课程名称及考试时间相同，为同一门考试。</p>
     <p>
       共涉及监考

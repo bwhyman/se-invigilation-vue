@@ -11,10 +11,9 @@ import {
 } from '@/services/Utils'
 import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation } from '@/types'
-import { Bell, Message } from '@element-plus/icons-vue'
+import { Bell } from '@element-plus/icons-vue'
 import TotalNumber from '../component/TotalNumber.vue'
-import { useMessageStore } from '@/stores/MessageStore'
-const SendRemark = defineAsyncComponent(() => import('./remarks/SendRemark.vue'))
+import RemarkButton from './remarks/RemarkButton.vue'
 
 const UNDISPATCHED = 0
 const UNASSIGNED = 1
@@ -93,35 +92,6 @@ const noticeF = (depid: string) => {
   router.push(`/college/noticedepartments/${depid}`)
 }
 
-//
-const sendRemarkR = ref(false)
-const remarkInvisR = ref<Invigilation[]>([])
-// 课程名称/日期/开始时间，完全相同，为同一门监考
-const noticeRemarkF = (invi: Invigilation) => {
-  remarkInvisR.value = invisR.value.filter(
-    (i) =>
-      i.course?.courseName?.trim() == invi.course?.courseName?.trim() &&
-      i.date == invi.date &&
-      i.time?.starttime == invi.time?.starttime
-  )
-  sendRemarkR.value = true
-}
-const closeRemarkF = (message: string) => {
-  sendRemarkR.value = false
-  if (message && message.length > 0) {
-    const messageStore = useMessageStore()
-    storeToRefs(messageStore).messageS.value = `备注通知发送成功。${message}`
-    storeToRefs(messageStore).closeF.value = () => {
-      router.go(0)
-    }
-  }
-}
-
-//
-const remarkTypeC = computed(
-  () => (invi: Invigilation) =>
-    invi.remark ? { type: 'success', message: invi.remark } : { type: 'primary' }
-)
 //
 const exportF = async () => {
   const { exportInvisDetailsDate } = await import('@/services/excel/Invis2Excel')
@@ -233,13 +203,7 @@ const exportF = async () => {
         </el-table-column>
         <el-table-column width="80">
           <template #default="scope">
-            <el-button
-              v-if="inviStatusR == ALL"
-              :title="remarkTypeC(scope.row).message"
-              :type="remarkTypeC(scope.row).type"
-              :icon="Message"
-              circle
-              @click="noticeRemarkF(scope.row)" />
+            <RemarkButton v-if="inviStatusR == ALL" :current-invi="scope.row" :invis="invisR" />
             <el-button
               v-if="inviStatusR == UNASSIGNED"
               type="primary"
@@ -251,7 +215,6 @@ const exportF = async () => {
       </el-table>
     </el-col>
   </el-row>
-  <SendRemark v-if="sendRemarkR" :invis="remarkInvisR" :close="closeRemarkF" />
 </template>
 <style scoped>
 .demo-date-picker {

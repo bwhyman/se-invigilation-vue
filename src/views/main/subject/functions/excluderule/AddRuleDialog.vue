@@ -90,12 +90,8 @@ const submitF = async () => {
 <template>
   <div>
     <el-button type="primary" @click="openDialogF" :icon="Plus" />
-    <el-dialog
-      v-model="dialogFormVisible"
-      title="添加排除规则"
-      @close="closedialF"
-      :destroy-on-close="true">
-      <p>
+    <el-dialog v-model="dialogFormVisible" title="添加排除规则" @close="closedialF">
+      <p style="margin-bottom: 10px">
         说明：可以使用快捷选项迅速设置数据，也可单独选择具体数据。例如直接选择星期或节。
         <br />
         规则：相同起止周/星期/节为一个规则。例如教师工作日早晚排除；但该教师周末全天也需排除，则需创建一个新规则。
