@@ -35,10 +35,7 @@ const updateUserInviStatus = () => {
 <template>
   <el-row class="my-row">
     <el-col style="margin-bottom: 5px" :span="22">
-      <p>
-        <el-tag>开启/关闭</el-tag>
-        监考分配显示
-      </p>
+      <p>监考分配显示</p>
     </el-col>
     <el-col :span="2">
       <el-button type="success" @click="updateUserInviStatus" :disabled="btnR">提交</el-button>

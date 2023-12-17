@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { InviAssignUser, Invigilation, Timetable } from '@/types'
+import { dayOfWeeksC, periodOfDaysC } from '@/services/ExcludeRule'
+
 const props = defineProps<{
   users: InviAssignUser[]
   dayweek: string
@@ -36,6 +38,15 @@ const props = defineProps<{
             invi.course?.location
           }}
           <br />
+        </template>
+      </template>
+    </el-table-column>
+    <el-table-column label="排除规则">
+      <template #default="scope">
+        <template v-if="scope.row.excludeRule">
+          {{ scope.row.excludeRule.startweek }}-{{ scope.row.excludeRule.endweek }}周/{{
+            dayOfWeeksC(scope.row.excludeRule.dayweeks)
+          }}/ {{ periodOfDaysC(scope.row.excludeRule.periods) }}
         </template>
       </template>
     </el-table-column>

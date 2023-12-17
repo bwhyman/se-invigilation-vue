@@ -1,0 +1,41 @@
+<script setup lang="ts">
+import { listExcludeRulesService } from '@/services/SubjectService'
+import { useExcludeRulesStore } from '@/stores/ExcludeRuleStore'
+import { dayOfWeeksC, periodOfDaysC } from '@/services/ExcludeRule'
+import AddRuleDialog from './AddRuleDialog.vue'
+import DelRuleButton from './DelRuleButton.vue'
+
+await listExcludeRulesService()
+const excludeRules = storeToRefs(useExcludeRulesStore()).excludeRules
+</script>
+<template>
+  <el-row class="my-row">
+    <el-col>
+      <AddRuleDialog />
+      <el-table :data="excludeRules">
+        <el-table-column type="index" label="" width="50" />
+        <el-table-column width="130" prop="teacherName" />
+        <el-table-column>
+          <template #default="scope">
+            {{ scope.row.startweek }} - {{ scope.row.endweek }}周
+          </template>
+        </el-table-column>
+        <el-table-column>
+          <template #default="scope">
+            {{ dayOfWeeksC(scope.row.dayweeks) }}
+          </template>
+        </el-table-column>
+        <el-table-column>
+          <template #default="scope">
+            {{ periodOfDaysC(scope.row.periods) }}
+          </template>
+        </el-table-column>
+        <el-table-column width="60">
+          <template #default="scope">
+            <DelRuleButton :rule="scope.row" />
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-col>
+  </el-row>
+</template>

@@ -110,7 +110,7 @@ const routes: RouteRecordRaw[] = [
           },
           {
             path: 'functions',
-            component: () => import('@/views/main/subject/FunctionView.vue')
+            component: () => import('@/views/main/subject/functions/IndexView.vue')
           },
           {
             props: true,

@@ -4,6 +4,7 @@ import {
   getInviService,
   listCountsService,
   listDateInvisService,
+  listExcludeRulesService,
   listTimetablesService,
   listUsersService
 } from '@/services/SubjectService'
@@ -14,7 +15,7 @@ import {
   getInviWeek,
   stringInviTime
 } from '@/services/Utils'
-import type { Invigilation, User, InviAssignUser, AssignUser } from '@/types'
+import type { Invigilation, User, InviAssignUser, AssignUser, ExcludeRule } from '@/types'
 import { CLOSED } from '@/services/Const'
 import AssignTable from './component/AssignTable.vue'
 import { useUserStore } from '@/stores/UserStore'
@@ -23,6 +24,7 @@ import { useMessageStore } from '@/stores/MessageStore'
 import { getSettingsService, noticeDingCancelService } from '@/services/CommonService'
 import { useSettingStore } from '@/stores/SettingStore'
 import InviMessage from '../component/InviInfo.vue'
+import { getDepartmentCommentService } from '@/services/SubjectService'
 
 const props = defineProps<{ inviid: string }>()
 const messageStore = useMessageStore()
@@ -57,13 +59,17 @@ const allP = await Promise.all([
   // 监考数量
   listCountsService(),
   // 全部教师
-  listUsersService()
+  listUsersService(),
+  getDepartmentCommentService(),
+  listExcludeRulesService()
 ])
 
 const timetablesR = allP[0] ?? []
 const dateInvisR = allP[1] ?? []
 const inviCountsS = allP[2] ?? []
 const usersS = allP[3] ?? []
+const departmentComment = allP[4]
+const rulesR = allP[5]
 
 // 分别计算渲染
 const groupUsers: InviAssignUser[] = []
@@ -71,6 +77,7 @@ const allUsers: User[] = [...usersS]
 const closedUsersR: User[] = []
 const confUsersR: InviAssignUser[] = []
 const currentUsersR: InviAssignUser[] = []
+//const excludeUsersR: ExcludeRule[] = []
 
 allloop: for (const user of allUsers) {
   // closed
@@ -78,6 +85,7 @@ allloop: for (const user of allUsers) {
     closedUsersR.push(user)
     continue
   }
+
   // 整合监考数量
   const am = inviCountsS.find((ic) => ic.userId == user.id)?.count ?? 0
   // 整合课表
@@ -126,6 +134,29 @@ allloop: for (const user of allUsers) {
       }
     }
   }
+  // 当前教师排除规则
+  const excludeRules = rulesR.filter((rule) => rule.userId == groupUser.id)
+  // 排除冲突
+  if (excludeRules) {
+    for (const exclude of excludeRules) {
+      if (
+        exclude.startweek! <= week &&
+        exclude.endweek! >= week &&
+        exclude.dayweeks?.includes(dayweek)
+      ) {
+        for (const per of exclude.periods!) {
+          const conf = confTime(currentInvi.date!, currentInvi.time?.starttime!, per)
+          if (conf) {
+            groupUser.excludeRule = exclude
+            console.log(groupUser)
+            confUsersR.push(groupUser)
+            continue allloop
+          }
+        }
+      }
+    }
+  }
+
   // 不冲突
   groupUsers.push(groupUser)
 }
@@ -234,6 +265,14 @@ const submitUsers = async () => {
       <br />
       同一名教师可带自己研究生参加同一场监考，算2次监考。
       <br />
+    </el-col>
+  </el-row>
+  <el-row class="my-row" v-if="departmentComment.length > 0">
+    <el-col :span="2">
+      <el-tag type="warning">备注</el-tag>
+    </el-col>
+    <el-col :span="22" style="white-space: pre-wrap">
+      {{ departmentComment }}
     </el-col>
   </el-row>
   <el-row class="my-row" v-if="currentUsersR.length > 0">

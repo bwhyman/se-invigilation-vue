@@ -2,6 +2,7 @@ import axios from '@/axios'
 import { useUsersStore } from '@/stores/UsersStore'
 import type {
   AssignUser,
+  ExcludeRule,
   InviCount,
   Invigilation,
   Notice,
@@ -12,6 +13,7 @@ import type {
 import { useTimetablesStore } from '@/stores/TimetableStore'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 import { useInviCountsStore } from '@/stores/inviCountsStore'
+import { useExcludeRulesStore } from '@/stores/ExcludeRuleStore'
 
 const SUBJECT = 'subject'
 
@@ -127,4 +129,48 @@ export const getInviService = async (inviid: string) => {
   invi = resp.data.data?.invi
 
   return invi
+}
+
+//
+export const getDepartmentCommentService = async () => {
+  const resp = await axios.get<ResultVO<{ comment: string }>>(`${SUBJECT}/comments`)
+  return resp.data.data?.comment ?? ''
+}
+
+//
+export const addDepartmentCommentService = async (comment: string) => {
+  await axios.post(`${SUBJECT}/comments`, { comment: comment })
+  return true
+}
+
+//
+export const listExcludeRulesService = async () => {
+  const excludeRulesStore = useExcludeRulesStore()
+  if (excludeRulesStore.excludeRules.length > 0) return excludeRulesStore.excludeRules
+  const resp = await axios.get<ResultVO<{ rules: ExcludeRule[] }>>(`${SUBJECT}/excluderules`)
+
+  excludeRulesStore.excludeRules = resp.data.data?.rules ?? []
+  return excludeRulesStore.excludeRules
+}
+
+//
+export const addExcludeRuleService = async (rule: ExcludeRule) => {
+  // @ts-ignore
+  rule.dayweeks = JSON.stringify(rule.dayweeks)
+  // @ts-ignore
+  rule.periods = JSON.stringify(rule.periods)
+
+  const resp = await axios.post<ResultVO<{ rules: ExcludeRule[] }>>(`${SUBJECT}/excluderules`, rule)
+  const excludeRulesStore = useExcludeRulesStore()
+  excludeRulesStore.excludeRules = resp.data.data?.rules ?? []
+  return true
+}
+//
+export const delExcludeRuleService = async (exid: string) => {
+  const resp = await axios.delete<ResultVO<{ rules: ExcludeRule[] }>>(
+    `${SUBJECT}/excluderules/${exid}`
+  )
+  const excludeRulesStore = useExcludeRulesStore()
+  excludeRulesStore.excludeRules = resp.data.data?.rules ?? []
+  return true
 }

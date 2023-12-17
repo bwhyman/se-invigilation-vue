@@ -23,6 +23,8 @@ export interface Department {
   name?: string
   college?: string
   inviStatus?: number
+  dingDepid?: string
+  comment?: string
 }
 
 export interface Timetable {
@@ -93,6 +95,7 @@ export interface InviAssignUser {
   timetables?: Timetable[]
   invis?: Invigilation[]
   amount?: number
+  excludeRule?: ExcludeRule
 }
 
 export interface AssignUser {
@@ -140,6 +143,17 @@ export interface Page {
   total?: number
   url?: string
   noPage?: boolean
+}
+
+export interface ExcludeRule {
+  id?: string
+  depId?: string
+  userId?: string
+  teacherName?: string
+  startweek?: number
+  endweek?: number
+  dayweeks?: number[]
+  periods?: string[]
 }
 
 export interface ResultVO<T> {
