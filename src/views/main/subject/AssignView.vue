@@ -15,7 +15,7 @@ import {
   getInviWeek,
   stringInviTime
 } from '@/services/Utils'
-import type { Invigilation, User, InviAssignUser, AssignUser, ExcludeRule } from '@/types'
+import type { Invigilation, User, InviAssignUser, AssignUser } from '@/types'
 import { CLOSED } from '@/services/Const'
 import AssignTable from './component/AssignTable.vue'
 import { useUserStore } from '@/stores/UserStore'
@@ -77,7 +77,6 @@ const allUsers: User[] = [...usersS]
 const closedUsersR: User[] = []
 const confUsersR: InviAssignUser[] = []
 const currentUsersR: InviAssignUser[] = []
-//const excludeUsersR: ExcludeRule[] = []
 
 allloop: for (const user of allUsers) {
   // closed
@@ -90,13 +89,15 @@ allloop: for (const user of allUsers) {
   const am = inviCountsS.find((ic) => ic.userId == user.id)?.count ?? 0
   // 整合课表
   const tb = timetablesR.filter((tb) => tb.userId == user.id)
+  const excludes = rulesR.filter((rule) => rule.userId == user.id)
 
   // 无论是否冲突，均需整合数据，并展示
   const groupUser: InviAssignUser = {
     id: user.id,
     name: user.name,
     amount: am,
-    timetables: tb
+    timetables: tb,
+    excludeRules: excludes
   }
   const invisTm: Invigilation[] = []
   dateInvisR.forEach((di) => {
@@ -115,6 +116,7 @@ allloop: for (const user of allUsers) {
       confTime(currentInvi.date!, currentInvi.time?.starttime!, tb.period!)
     )
     if (x) {
+      groupUser.reason = 'timetable'
       confUsersR.push(groupUser)
       continue
     }
@@ -129,16 +131,16 @@ allloop: for (const user of allUsers) {
       const currentInviTimeEndTime = new Date(`${currentInvi.date} ${currentInvi.time?.endtime}`)
       const thisInviTime = new Date(`${invi.date} ${invi.time?.starttime}`)
       if (thisInviTime >= currentInviTimeStartTime && thisInviTime <= currentInviTimeEndTime) {
+        groupUser.reason = 'invi'
         confUsersR.push(groupUser)
         continue allloop
       }
     }
   }
-  // 当前教师排除规则
-  const excludeRules = rulesR.filter((rule) => rule.userId == groupUser.id)
+
   // 排除冲突
-  if (excludeRules) {
-    for (const exclude of excludeRules) {
+  if (groupUser.excludeRules) {
+    for (const exclude of groupUser.excludeRules) {
       if (
         exclude.startweek! <= week &&
         exclude.endweek! >= week &&
@@ -147,8 +149,7 @@ allloop: for (const user of allUsers) {
         for (const per of exclude.periods!) {
           const conf = confTime(currentInvi.date!, currentInvi.time?.starttime!, per)
           if (conf) {
-            groupUser.excludeRule = exclude
-            console.log(groupUser)
+            groupUser.reason = 'rule'
             confUsersR.push(groupUser)
             continue allloop
           }

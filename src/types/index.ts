@@ -95,7 +95,8 @@ export interface InviAssignUser {
   timetables?: Timetable[]
   invis?: Invigilation[]
   amount?: number
-  excludeRule?: ExcludeRule
+  excludeRules?: ExcludeRule[]
+  reason?: string
 }
 
 export interface AssignUser {
