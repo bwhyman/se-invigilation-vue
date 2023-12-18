@@ -6,13 +6,13 @@ import {
   noticeUsersService
 } from '@/services/SubjectService'
 import { getInviChineseDayweek, getInviWeek } from '@/services/Utils'
-import { useMessageStore } from '@/stores/MessageStore'
 import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation, Notice, User } from '@/types'
 import { SUBJECT_ADMIN, COLLEGE_ADMIN } from '@/services/Const'
 import router from '@/router'
 import { getCollegeInviService } from '@/services/CollegeService'
 import { ElLoading } from 'element-plus'
+import { createMessageDialog } from '@/components/message'
 
 const props = defineProps<{ inviid: string }>()
 
@@ -71,18 +71,8 @@ const noticeMessage = `监考时间: ${notice.date}第${week}周${dayweek} ${not
 notice.noticeMessage = noticeMessage
 
 const noticeAssignersF = async () => {
-  const { messageS, closeF } = storeToRefs(useMessageStore())
-  closeF.value = () => {
-    const role = sessionStorage.getItem('role')
-    if (role == SUBJECT_ADMIN) {
-      router.push('/subject/dispatched')
-    }
-    if (role == COLLEGE_ADMIN) {
-      router.push('/college/imported')
-    }
-  }
   if (invigilationR.value?.calendarId != null) {
-    messageS.value = `请勿重复发送通知。如需更改请返回分配页面重新分配监考`
+    createMessageDialog(`请勿重复发送通知。如需更改请返回分配页面重新分配监考`)
     return
   }
 
@@ -105,8 +95,17 @@ const noticeAssignersF = async () => {
   } finally {
     loading.close()
   }
-
-  msg && (messageS.value = `通知发送成功。编号：${msg}`)
+  //
+  const closeF = () => {
+    const role = sessionStorage.getItem('role')
+    if (role == SUBJECT_ADMIN) {
+      router.push('/subject/dispatched')
+    }
+    if (role == COLLEGE_ADMIN) {
+      router.push('/college/imported')
+    }
+  }
+  msg && createMessageDialog(`通知发送成功。编号：${msg}`, closeF)
 }
 </script>
 <template>

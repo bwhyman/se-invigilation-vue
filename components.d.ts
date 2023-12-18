@@ -7,7 +7,7 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
-    ConfirmMessage: typeof import('./src/components/ConfirmMessage.vue')['default']
+    ConfirmMessage: typeof import('./src/components/message/ConfirmMessage.vue')['default']
     ElAutocomplete: typeof import('element-plus/es')['ElAutocomplete']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCard: typeof import('element-plus/es')['ElCard']

@@ -1,12 +1,10 @@
 <script setup lang="ts">
+import { createMessageDialog } from '@/components/message'
 import { listDepartmentsService, updateDepartmentInviStatus } from '@/services/CollegeService'
-
-import { useMessageStore } from '@/stores/MessageStore'
 import type { Department } from '@/types'
 
 let departments = await listDepartmentsService()
 
-const messageStore = useMessageStore()
 const departmentR = ref(departments)
 
 // 更新专业监考下发显示
@@ -26,7 +24,7 @@ const updateUserInviStatus = () => {
 
   updateDepartmentInviStatus(deps).then((departs) => {
     departmentR.value = departs
-    storeToRefs(messageStore).messageS.value = '更新成功'
+    createMessageDialog('更新成功')
   })
 }
 </script>

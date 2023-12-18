@@ -1,16 +1,15 @@
 <script setup lang="ts">
+import { createMessageDialog } from '@/components/message'
 import { getUserService, resetPasswordService } from '@/services/CollegeService'
-import { useMessageStore } from '@/stores/MessageStore'
 import type { User } from '@/types'
 
 const accountR = ref('')
 const userR = ref<User>()
-const messageStore = useMessageStore()
 
 const checkUserF = async () => {
   const user = await getUserService(accountR.value)
   if (!user) {
-    storeToRefs(messageStore).messageS.value = '未找到教师，请确定工号正确'
+    createMessageDialog('未找到教师，请确定工号正确')
     return
   }
   userR.value = user
@@ -18,7 +17,7 @@ const checkUserF = async () => {
 
 const changeF = () => {
   resetPasswordService(accountR.value).then(() => {
-    storeToRefs(messageStore).messageS.value = '重置成功'
+    createMessageDialog('重置成功')
   })
 }
 </script>

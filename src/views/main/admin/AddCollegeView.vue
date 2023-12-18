@@ -1,12 +1,11 @@
 <script setup lang="ts">
+import { createMessageDialog } from '@/components/message'
 import { addCollegeService } from '@/services/AdminService'
-import { useMessageStore } from '@/stores/MessageStore'
 
 const collegeNameR = ref('')
-const messageStore = useMessageStore()
 const addCollegeF = async () => {
   await addCollegeService(collegeNameR.value)
-  storeToRefs(messageStore).messageS.value = '添加成功'
+  createMessageDialog('添加成功')
   collegeNameR.value = ''
 }
 </script>

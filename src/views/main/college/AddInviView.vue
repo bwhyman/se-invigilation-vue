@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { createMessageDialog } from '@/components/message'
 import router from '@/router'
 import { addInviSerivce } from '@/services/CollegeService'
 import { IMPORT } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
-import { useMessageStore } from '@/stores/MessageStore'
 import { useUserStore } from '@/stores/UserStore'
 import type { Invigilation } from '@/types'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -37,7 +37,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   inviR.value.collId = userS.value.department?.collId
   inviR.value.status = IMPORT
   inviR.value.importer = stringInviTime({ id: userS.value.id, name: userS.value.name })
-  addInviSerivce(inviR.value).then((r) => {
+  addInviSerivce(inviR.value).then(() => {
     inviR.value = { course: {}, time: {} }
     formR.value = {
       courseName: '',
@@ -49,11 +49,9 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       location: '',
       amount: 1
     }
-    const { messageS, closeF } = storeToRefs(useMessageStore())
-    messageS.value = '导入成功'
-    closeF.value = () => {
+    createMessageDialog('导入成功', () => {
       router.push('/college/imported')
-    }
+    })
   })
 }
 

@@ -3,7 +3,7 @@ import { addUserService, listDepartmentsService } from '@/services/CollegeServic
 import { useUserStore } from '@/stores/UserStore'
 import { ROLES } from '@/services/Const'
 import type { Department, User } from '@/types'
-import { useMessageStore } from '@/stores/MessageStore'
+import { createMessageDialog } from '@/components/message'
 const departmentsR = ref<Department[]>([])
 departmentsR.value = await listDepartmentsService()
 const userR = ref<User>({})
@@ -26,7 +26,7 @@ const submit = async () => {
   addUserService(userR.value).then(() => {
     dialogFormVisible.value = false
     userR.value = {}
-    storeToRefs(useMessageStore()).messageS.value = '添加成功'
+    createMessageDialog('添加成功')
   })
 }
 </script>

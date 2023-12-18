@@ -1,6 +1,6 @@
 import axios from 'axios'
 import type { ResultVO } from '@/types'
-import { useMessageStore } from '@/stores/MessageStore'
+import { createMessageDialog } from '@/components/message'
 
 axios.defaults.baseURL = '/api/'
 
@@ -14,8 +14,7 @@ axios.interceptors.request.use(
     return req
   },
   (error) => {
-    const store = useMessageStore()
-    store.messageS = error.message
+    createMessageDialog(error.message)
     return Promise.reject()
   }
 )
@@ -56,27 +55,19 @@ axios.interceptors.response.use(
 
     const data: ResultVO<{}> = resp.data
     if (data.code < 300) {
-      const store = useMessageStore()
-      const messageR = storeToRefs(store).messageS
-      messageR.value = data.message ?? ''
-      //
       parseObject(resp.data.data)
       return resp
     }
 
     if (data.code >= 400) {
-      const store = useMessageStore()
-      const messageR = storeToRefs(store).messageS
-      messageR.value = data.message ?? ''
+      createMessageDialog(data.message ?? '')
       return Promise.reject()
     }
     return resp
   },
   // 全局处理异常信息。即，http状态码不是200
   (error) => {
-    const store = useMessageStore()
-    const messageR = storeToRefs(store).messageS
-    messageR.value = error.message ?? ''
+    createMessageDialog(error.message ?? '')
     return Promise.reject()
   }
 )

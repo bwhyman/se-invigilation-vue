@@ -1,12 +1,10 @@
+import { createMessageDialog } from '@/components/message'
 import router from '@/router'
 import { cutInviService } from '@/services/CollegeService'
 import { IMPORT } from '@/services/Const'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
-import { useMessageStore } from '@/stores/MessageStore'
 import type { Invigilation } from '@/types'
 import { ElMessage, ElMessageBox } from 'element-plus'
-
-const messageStore = useMessageStore()
 
 //
 export const editF = (invi: Invigilation) => {
@@ -16,7 +14,7 @@ export const editF = (invi: Invigilation) => {
 
 export const assignF = (invi: Invigilation) => {
   if (invi.amount != 1) {
-    storeToRefs(useMessageStore()).messageS.value = '只能为监考人数为1的监考直接分配'
+    createMessageDialog('只能为监考人数为1的监考直接分配')
     return
   }
   storeToRefs(useInvigilationsStore()).currentInviS.value = invi
@@ -28,7 +26,7 @@ export const assignF = (invi: Invigilation) => {
 //
 export const cutF = async (invi: Invigilation) => {
   if (invi.amount && invi.amount <= 1) {
-    storeToRefs(messageStore).messageS.value = '监考人数必须大于1'
+    createMessageDialog('监考人数必须大于1')
     return
   }
 

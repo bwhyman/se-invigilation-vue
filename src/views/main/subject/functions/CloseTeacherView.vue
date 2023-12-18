@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { createMessageDialog } from '@/components/message'
 import { listUsersService, updateUserInviStatusService } from '@/services/SubjectService'
-import { useMessageStore } from '@/stores/MessageStore'
 import type { User } from '@/types'
 
 const users = await listUsersService()
@@ -26,8 +26,7 @@ const updateUserInviStatus = () => {
     users.push({ id: u.id, inviStatus: u.inviStatus })
   })
   updateUserInviStatusService(users).then(() => {
-    const { messageS } = storeToRefs(useMessageStore())
-    messageS.value = '更新成功'
+    createMessageDialog('更新成功')
   })
   btnR.value = true
 }

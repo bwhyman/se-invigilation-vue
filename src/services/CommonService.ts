@@ -1,14 +1,12 @@
 import axios from '@/axios'
-import type { Invigilation, ResultVO, Setting, User } from '@/types'
+import type { ResultVO, Setting, User } from '@/types'
 import { COLLEGE_ADMIN, SUBJECT_ADMIN, SUPER_ADMIN } from './Const'
 import { useUserStore } from '@/stores/UserStore'
 import router from '@/router'
 import { useSettingStore } from '@/stores/SettingStore'
-import { useMessageStore } from '@/stores/MessageStore'
-import { useInvigilationsStore } from '@/stores/InvigilationsStore'
+import { createMessageDialog } from '@/components/message'
 
 const userStore = useUserStore()
-const invisStore = useInvigilationsStore()
 
 // login
 export const loginService = async (user: User, freePwd: boolean) => {
@@ -63,8 +61,7 @@ export const getSettingsService = async () => {
 //
 export const updateSelfPassword = async (pwd: string) => {
   await axios.post('passwords', { password: pwd })
-  const messageS = storeToRefs(useMessageStore()).messageS
-  messageS.value = '密码更新成功'
+  createMessageDialog('密码更新成功')
 }
 
 export const freePwdService = () => {

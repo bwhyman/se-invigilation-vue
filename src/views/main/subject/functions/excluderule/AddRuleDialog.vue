@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { addExcludeRuleService, listUsersService } from '@/services/SubjectService'
-import { useMessageStore } from '@/stores/MessageStore'
 import type { ExcludeRule, User } from '@/types'
 import { Plus } from '@element-plus/icons-vue'
 import { dayOfWeeks, periodOfDays } from '@/services/ExcludeRule'
+import { createMessageDialog } from '@/components/message'
 
 const dialogFormVisible = ref(false)
 const usersR = ref<User[]>([])
@@ -69,15 +69,13 @@ const periodOfDayChangeF = () => {
   }
 }
 
-const messageStore = useMessageStore()
-const messageS = storeToRefs(messageStore).messageS
 const submitF = async () => {
   if (!excludeRuleR.value.userId || excludeRuleR.value.userId?.length == 0) {
-    messageS.value = '教师不能为空'
+    createMessageDialog('教师不能为空')
     return
   }
   if (excludeRuleR.value.startweek! > excludeRuleR.value.endweek!) {
-    messageS.value = '开始周不能小于结束周'
+    createMessageDialog('开始周不能小于结束周')
     return
   }
   excludeRuleR.value.teacherName = usersR.value.find((u) => u.id == excludeRuleR.value.userId)?.name

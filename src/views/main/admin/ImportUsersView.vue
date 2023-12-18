@@ -1,9 +1,7 @@
 <script setup lang="ts">
+import { createMessageDialog } from '@/components/message'
 import { addUsersService, getDingUsersService, listCollegesService } from '@/services/AdminService'
-import { useMessageStore } from '@/stores/MessageStore'
 import type { Department, DingUser, User } from '@/types'
-
-const messageStore = useMessageStore()
 
 const collegeR = ref<Department[]>([])
 const collegeDingId = ref('')
@@ -54,7 +52,7 @@ const readUserFile = async (event: Event) => {
     unknownUsers.forEach((u) => (names += u.name + ';'))
     console.log(names)
     setTimeout(() => {
-      storeToRefs(messageStore).messageS.value = `钉钉用户存在而表格不存在: ${names}`
+      createMessageDialog(`钉钉用户存在而表格不存在: ${names}`)
     }, 1000)
   }
   element.value = ''
@@ -65,8 +63,7 @@ const addUsersF = async () => {
     collegeName: selectCollegeR.value?.name!,
     users: allUsersR.value
   })
-  const messageStore = useMessageStore()
-  storeToRefs(messageStore).messageS.value = '添加用户成功'
+  createMessageDialog('添加用户成功')
 }
 </script>
 <template>

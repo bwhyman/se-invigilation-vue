@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { createMessageDialog } from '@/components/message'
 import router from '@/router'
 import { addInvigilationsService } from '@/services/CollegeService'
 import { IMPORT } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
-import { useMessageStore } from '@/stores/MessageStore'
 import { useUserStore } from '@/stores/UserStore'
 import type { Invigilation } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
@@ -34,8 +34,7 @@ const readInvis = async (event: Event) => {
       })
     })
     .catch((error) => {
-      const messageStore = useMessageStore()
-      messageStore.messageS = error as string
+      createMessageDialog(error as string)
     })
     .finally(() => {
       element.value = ''
@@ -59,11 +58,9 @@ watch(inviTypeR, (newValue) => {
 
 const addInvis = () => {
   addInvigilationsService(invisR.value).then(() => {
-    const { messageS, closeF } = storeToRefs(useMessageStore())
-    messageS.value = '导入成功'
-    closeF.value = () => {
+    createMessageDialog('导入成功', () => {
       router.push('/college/imported')
-    }
+    })
   })
 }
 </script>

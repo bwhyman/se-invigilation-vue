@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { createMessageDialog } from '@/components/message'
 import router from '@/router'
 import { listUserDingIdsService, sendInviRemarkNoticeService } from '@/services/CollegeService'
 import { getInviChineseDayweek, getInviWeek } from '@/services/Utils'
-import { useMessageStore } from '@/stores/MessageStore'
 import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation, NoticeRemark } from '@/types'
 import { render } from 'vue'
@@ -30,15 +30,12 @@ const message = ref(
 //
 const sendF = async () => {
   const users = await listUserDingIdsService(userids)
-
-  const messageStore = useMessageStore()
-  const { messageS, closeF } = storeToRefs(messageStore)
   if (users.length == 0) {
-    messageS.value = '获取用户钉钉账号失败'
+    createMessageDialog('获取用户钉钉账号失败')
   }
   const inviids = invis.map((i) => i.id!)
   if (inviids.length == 0) {
-    messageS.value = '获取监考信息失败'
+    createMessageDialog('获取监考信息失败')
   }
   const notice: NoticeRemark = {
     dingUserIds: users.map((u) => u.dingUserId).join(','),
@@ -47,10 +44,9 @@ const sendF = async () => {
   }
   const result = await sendInviRemarkNoticeService(notice)
   if (result && result.length > 0) {
-    messageS.value = `备注通知发送成功。${result}`
-    closeF.value = () => {
+    createMessageDialog(`备注通知发送成功。${result}`, () => {
       router.go(0)
-    }
+    })
   }
 }
 

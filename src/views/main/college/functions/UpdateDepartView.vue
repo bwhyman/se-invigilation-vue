@@ -1,17 +1,16 @@
 <script setup lang="ts">
+import { createMessageDialog } from '@/components/message'
 import {
   getUserService,
   listDepartmentsService,
   updateUserDepartmentService
 } from '@/services/CollegeService'
-import { useMessageStore } from '@/stores/MessageStore'
 import { useUserStore } from '@/stores/UserStore'
 import type { Department, User, UserDepartment } from '@/types'
 
 const userR = ref<User>()
 const accountR = ref('')
 const departmentR = ref('')
-const messageStore = useMessageStore()
 const userStore = useUserStore()
 const departmentsR = ref<Department[]>([])
 
@@ -21,7 +20,7 @@ const searchF = async () => {
   const u = results[0]
   departmentsR.value = results[1]
   if (!u) {
-    storeToRefs(messageStore).messageS.value = '指定工号的教师不存在'
+    createMessageDialog('指定工号的教师不存在')
     return
   }
   userR.value = u
@@ -30,7 +29,7 @@ const searchF = async () => {
 const update = () => {
   const depart = departmentsR.value.find((d) => d.id == departmentR.value)
   if (!depart) {
-    storeToRefs(messageStore).messageS.value = '选择部门错误'
+    createMessageDialog('选择部门错误')
     return
   }
   const dep: UserDepartment = {
@@ -41,7 +40,7 @@ const update = () => {
   }
   const user: User = { id: userR.value?.id, department: dep }
   updateUserDepartmentService(user).then(() => {
-    storeToRefs(messageStore).messageS.value = '部门更新成功'
+    createMessageDialog('部门更新成功')
     userR.value = undefined
     accountR.value = ''
     departmentR.value = ''

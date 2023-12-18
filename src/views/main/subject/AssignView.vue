@@ -20,15 +20,13 @@ import { CLOSED } from '@/services/Const'
 import AssignTable from './component/AssignTable.vue'
 import { useUserStore } from '@/stores/UserStore'
 import router from '@/router'
-import { useMessageStore } from '@/stores/MessageStore'
 import { getSettingsService, noticeDingCancelService } from '@/services/CommonService'
 import { useSettingStore } from '@/stores/SettingStore'
 import InviMessage from '../component/InviInfo.vue'
 import { getDepartmentCommentService } from '@/services/SubjectService'
+import { createMessageDialog } from '@/components/message'
 
 const props = defineProps<{ inviid: string }>()
-const messageStore = useMessageStore()
-
 //
 const selectedUsers = ref<InviAssignUser[]>([])
 
@@ -36,7 +34,7 @@ const resultInit = await Promise.all([getInviService(props.inviid), getSettingsS
 const currentInvi = resultInit[0]
 if (!currentInvi) {
   const msg = '获取监考信息错误!'
-  storeToRefs(messageStore).messageS.value = msg
+  createMessageDialog(msg)
   throw new Error(msg)
 }
 
@@ -205,8 +203,7 @@ const getDisabledC = computed(() => (user: InviAssignUser) => {
 //
 const submitUsers = async () => {
   if (selectedUsers.value.length != currentInvi.amount) {
-    const { messageS } = storeToRefs(messageStore)
-    messageS.value = '分配教师数与所需监考数不匹配'
+    createMessageDialog('分配教师数与所需监考数不匹配')
     return
   }
 
@@ -227,11 +224,9 @@ const submitUsers = async () => {
   await noticeDingCancelService(currentInvi.id!)
   await addAssignUsersService(currentInvi.id!, assignUsersR.value)
 
-  const { messageS, closeF } = storeToRefs(messageStore)
-  messageS.value = '分配结果已保存'
-  closeF.value = () => {
+  createMessageDialog('分配结果已保存', () => {
     router.push(`/subject/notices/${props.inviid}`)
-  }
+  })
   // const userss: User[] = []
 
   // assignUsersR.value.users!.forEach((asuser) => {

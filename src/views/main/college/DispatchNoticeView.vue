@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { createMessageDialog } from '@/components/message'
 import router from '@/router'
 import { listDispatchersService, noticeDispatcherService } from '@/services/CollegeService'
 import { getSettingsService } from '@/services/CommonService'
-import { useMessageStore } from '@/stores/MessageStore'
 import { useSettingStore } from '@/stores/SettingStore'
 import type { Notice, User } from '@/types'
 const props = defineProps<{ depid: string }>()
@@ -24,15 +24,13 @@ const noticeDispatchersF = () => {
     noticeMessage: message
   }
   noticeDispatcherService(notice).then((r) => {
-    const { messageS, closeF } = storeToRefs(useMessageStore())
     if (r?.errcode != 0) {
-      messageS.value = `发送通知错误`
+      createMessageDialog(`发送通知错误`)
       return
     }
-    messageS.value = `发送通知成功。task_id: ${r.task_id}`
-    closeF.value = () => {
+    createMessageDialog(`发送通知成功。task_id: ${r.task_id}`, () => {
       router.push('/college/imported')
-    }
+    })
   })
 }
 </script>

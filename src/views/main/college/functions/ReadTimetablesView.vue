@@ -1,15 +1,14 @@
 <script setup lang="ts">
+import { createMessageDialog } from '@/components/message'
 import {
   addTimetableService,
   addTimetablesService,
   listCollegeUsersService,
   getUserService
 } from '@/services/CollegeService'
-import { useMessageStore } from '@/stores/MessageStore'
 import type { ImportTimetable, Timetable, User } from '@/types'
 
 const users: User[] = []
-const messageStore = useMessageStore()
 const timetables: Timetable[] = []
 const importTimetablesR = ref<ImportTimetable[]>([])
 
@@ -52,8 +51,7 @@ const addTimetables = () => {
   importTimetablesR.value = []
   addTimetablesService(timetables).then(() => {
     importTimetablesR.value = []
-    const { messageS } = storeToRefs(messageStore)
-    messageS.value = '导入完成'
+    createMessageDialog('导入完成')
   })
 }
 
@@ -84,11 +82,11 @@ const readSingleTimetable = async (event: Event) => {
 const addTimetable = async () => {
   const user = await getUserService(timetableUserAccountR.value)
   if (!user) {
-    storeToRefs(useMessageStore()).messageS.value = '未找到教师，请确定工号正确'
+    createMessageDialog('未找到教师，请确定工号正确')
     return
   }
   if (!user.department?.depId) {
-    storeToRefs(useMessageStore()).messageS.value = '教师没有部门，无法提交'
+    createMessageDialog('教师没有部门，无法提交')
     return
   }
   //
@@ -102,7 +100,7 @@ const addTimetable = async () => {
   importTimetablesR.value = []
 
   addTimetableService(timetableUserAccountR.value, timetables).then(() => {
-    storeToRefs(useMessageStore()).messageS.value = '课表导入成功'
+    createMessageDialog('课表导入成功')
   })
 }
 </script>

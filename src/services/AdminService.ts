@@ -1,9 +1,8 @@
 import axios from '@/axios'
 import type { Department, DingUser, ResultVO, User } from '@/types'
-import { useMessageStore } from '../stores/MessageStore'
 import { useUsersStore } from '@/stores/UsersStore'
+import { createMessageDialog } from '@/components/message'
 
-const messageStore = useMessageStore()
 const usersStore = useUsersStore()
 
 const ADMIN = 'admin'
@@ -15,8 +14,7 @@ export const addCollegeService = async (name: string) => {
       name: name
     }
   )
-
-  storeToRefs(messageStore).messageS.value = resp.data.data?.department.name ?? ''
+  createMessageDialog(resp.data.data?.department.name ?? '')
 }
 
 //

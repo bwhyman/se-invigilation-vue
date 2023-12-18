@@ -1,20 +1,17 @@
 <script setup lang="ts">
+import { createMessageDialog } from '@/components/message'
 import { addDepartmentCommentService, getDepartmentCommentService } from '@/services/SubjectService'
-import { useMessageStore } from '@/stores/MessageStore'
 
 const comment = await getDepartmentCommentService()
-
 const commentR = ref(comment)
 const sendF = async () => {
-  const { messageS } = storeToRefs(useMessageStore())
-
   if (commentR.value.length == 0) {
-    messageS.value = '备注信息为空'
+    createMessageDialog('备注信息为空')
     return
   }
 
   await addDepartmentCommentService(commentR.value)
-  messageS.value = '备注信息已保存'
+  createMessageDialog('备注信息已保存')
 }
 </script>
 <template>

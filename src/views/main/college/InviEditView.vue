@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { createMessageDialog } from '@/components/message'
 import router from '@/router'
 import {
   delInviService,
@@ -8,7 +9,6 @@ import {
 } from '@/services/CollegeService'
 import { noticeDingCancelService } from '@/services/CommonService'
 import { IMPORT } from '@/services/Const'
-import { useMessageStore } from '@/stores/MessageStore'
 import type { Invigilation } from '@/types'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -62,10 +62,9 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   inviR.time!.endtime = formR.value.etime
   inviR.status = IMPORT
   updateInviService(inviR).then(() => {
-    storeToRefs(useMessageStore()).messageS.value = '修改成功'
-    storeToRefs(useMessageStore()).closeF.value = () => {
+    createMessageDialog('修改成功', () => {
       router.push('/college/imported')
-    }
+    })
 
     inviR = { course: {}, time: {} }
     formR.value = {

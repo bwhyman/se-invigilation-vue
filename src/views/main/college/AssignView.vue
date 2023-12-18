@@ -10,10 +10,10 @@ import {
 } from '@/services/CollegeService'
 import { getSettingsService, noticeDingCancelService } from '@/services/CommonService'
 import { stringInviTime } from '@/services/Utils'
-import { useMessageStore } from '@/stores/MessageStore'
 import { useUserStore } from '@/stores/UserStore'
 import type { AssignUser, Department, Invigilation, User } from '@/types'
 import InviMessage from '../component/InviInfo.vue'
+import { createMessageDialog } from '@/components/message'
 
 const props = defineProps<{ inviid: string; name: string }>()
 
@@ -25,9 +25,8 @@ const results = await Promise.all([
 
 const inviR = results[0]
 if (!inviR) {
-  const messageStore = useMessageStore()
   const msg = '获取监考信息错误!'
-  storeToRefs(messageStore).messageS.value = msg
+  createMessageDialog(msg)
   throw new Error(msg)
 }
 const usersR = ref<User[]>([])
@@ -66,11 +65,9 @@ const assignF = async () => {
 
   await noticeDingCancelService(invi!.id!)
   await addAssignService(inviR.id!, assignUser)
-  const messageStore = useMessageStore()
-  storeToRefs(messageStore).messageS.value = '提交成功'
-  storeToRefs(messageStore).closeF.value = () => {
+  createMessageDialog('提交成功', () => {
     router.push(`/college/invinotice/${inviR.id}`)
-  }
+  })
 }
 const searchF = async () => {
   if (selfSearchR.value) return

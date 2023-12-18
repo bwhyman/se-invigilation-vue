@@ -1,19 +1,18 @@
 <script setup lang="ts">
+import { createMessageDialog } from '@/components/message'
 import { getUserService, updateUserRoleService } from '@/services/CollegeService'
 import { ROLES } from '@/services/Const'
-import { useMessageStore } from '@/stores/MessageStore'
 import type { User } from '@/types'
 
 const userR = ref<User>()
 const accountR = ref('')
 const roleR = ref('')
-const messageStore = useMessageStore()
 
 const searchF = async () => {
   if (accountR.value.length == 0) return
   const u = await getUserService(accountR.value)
   if (!u) {
-    storeToRefs(messageStore).messageS.value = '指定工号的教师不存在'
+    createMessageDialog('指定工号的教师不存在')
     return
   }
   userR.value = u
@@ -24,7 +23,7 @@ const update = () => {
   u.id = userR.value?.id
   u.role = roleR.value
   updateUserRoleService(u).then(() => {
-    storeToRefs(messageStore).messageS.value = '角色更新成功'
+    createMessageDialog('角色更新成功')
     userR.value = undefined
     accountR.value = ''
   })

@@ -3,13 +3,13 @@ import router from '@/router'
 import { listImportedService, updateInvisService } from '@/services/CollegeService'
 import { DISPATCH } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
-import { useMessageStore } from '@/stores/MessageStore'
 import { useUserStore } from '@/stores/UserStore'
 import type { Department, Invigilation, Page } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 import DepartmentView from './DepartmentView.vue'
 import OpterationMenuView from './operations/OpterationMenuView.vue'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
+import { createMessageDialog } from '@/components/message'
 
 await listImportedService()
 const inviS = storeToRefs(useInvigilationsStore()).invigilationsImportS
@@ -57,11 +57,9 @@ const updateInvis = () => {
 
   //
   updateInvisService(invis).then(() => {
-    const { messageS, closeF } = storeToRefs(useMessageStore())
-    messageS.value = '下发成功!'
-    closeF.value = () => {
+    createMessageDialog('下发成功!', () => {
       router.push(`/college/noticedepartments/${departmentR.value?.id}`)
-    }
+    })
   })
 }
 
