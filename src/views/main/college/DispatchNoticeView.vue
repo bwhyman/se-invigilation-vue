@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess, createMessageDialog } from '@/components/message'
 import router from '@/router'
 import { listDispatchersService, noticeDispatcherService } from '@/services/CollegeService'
 import { getSettingsService } from '@/services/CommonService'
@@ -15,7 +15,7 @@ const results = await Promise.all([listDispatchersService(props.depid), getSetti
 
 dispatchersR.value = results[0]
 
-const noticeDispatchersF = () => {
+const noticeDispatchersF = async () => {
   const settingStore = useSettingStore()
   const weburl = settingStore.getWebUrl()
   const message = `已下发新监考信息，请及时分配。\n${weburl}`
@@ -28,10 +28,14 @@ const noticeDispatchersF = () => {
       createMessageDialog(`发送通知错误`)
       return
     }
-    createMessageDialog(`发送通知成功。task_id: ${r.task_id}`, () => {
-      router.push('/college/imported')
-    })
   })
+  const result = await noticeDispatcherService(notice)
+  if (result?.errcode != 0) {
+    createMessageDialog('发送通知错误，请重新尝试')
+    return
+  }
+  createElNotificationSuccess(`发送通知成功。task_id: ${result.task_id}`)
+  router.push('/college/imported')
 }
 </script>
 <template>

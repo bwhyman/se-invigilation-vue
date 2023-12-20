@@ -113,7 +113,11 @@ const noticeAssignersF = async () => {
     <el-col style="margin-bottom: 10px">{{ noticeMessage }}</el-col>
   </el-row>
   <el-row class="my-row">
-    <el-col>已完成分配。钉钉通知/并添加到用户日程？</el-col>
+    <el-col>
+      分配结果已保存。
+      <br />
+      钉钉通知/并添加到用户日程？
+    </el-col>
     <el-col>
       <el-checkbox-group v-model="selectUsersR">
         <el-checkbox v-for="(user, index) of assignersR" :key="index" :label="user" size="large">

@@ -9,7 +9,7 @@ import InviTable from '@/views/main/component/InviTable.vue'
 import DepartmentView from './DepartmentView.vue'
 import OpterationMenuView from './operations/OpterationMenuView.vue'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
-import { createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess } from '@/components/message'
 
 await listImportedService()
 const inviS = storeToRefs(useInvigilationsStore()).invigilationsImportS
@@ -41,7 +41,7 @@ const buttonTypeC = computed(() => (id: string) => {
 })
 
 //
-const updateInvis = () => {
+const updateInvis = async () => {
   const invis: Invigilation[] = []
   selectR.value.forEach((invi) => {
     invis.push({
@@ -56,11 +56,9 @@ const updateInvis = () => {
   })
 
   //
-  updateInvisService(invis).then(() => {
-    createMessageDialog('下发成功!', () => {
-      router.push(`/college/noticedepartments/${departmentR.value?.id}`)
-    })
-  })
+  await updateInvisService(invis)
+  createElNotificationSuccess('监考已下发')
+  router.push(`/college/noticedepartments/${departmentR.value?.id}`)
 }
 
 const departChange = (dep: Department) => {

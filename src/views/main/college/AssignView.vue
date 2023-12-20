@@ -12,8 +12,9 @@ import { getSettingsService, noticeDingCancelService } from '@/services/CommonSe
 import { stringInviTime } from '@/services/Utils'
 import { useUserStore } from '@/stores/UserStore'
 import type { AssignUser, Department, Invigilation, User } from '@/types'
-import InviMessage from '../component/InviInfo.vue'
+import InviMessage from '@/views/main/component/InviInfo.vue'
 import { createMessageDialog } from '@/components/message'
+import { ElLoading } from 'element-plus'
 
 const props = defineProps<{ inviid: string; name: string }>()
 
@@ -45,8 +46,13 @@ watch(departmentR, async () => {
 const createUserR = useUserStore().userS
 
 const assignF = async () => {
-  const user = usersR.value.find((u) => u.id == selectUserR.value)
+  const loading = ElLoading.service({
+    lock: true,
+    text: 'Loading',
+    background: 'rgba(0, 0, 0, 0.7)'
+  })
 
+  const user = usersR.value.find((u) => u.id == selectUserR.value)
   const invi: Invigilation = { id: inviR.id }
   invi.department = {
     depId: user?.department?.depId,
@@ -63,11 +69,13 @@ const assignF = async () => {
   assignUser.executor?.push(stringInviTime({ id: user?.id, name: user?.name }))
   assignUser.users?.push({ id: user?.id, name: user?.name })
 
-  await noticeDingCancelService(invi!.id!)
-  await addAssignService(inviR.id!, assignUser)
-  createMessageDialog('提交成功', () => {
+  try {
+    await noticeDingCancelService(invi!.id!)
+    await addAssignService(inviR.id!, assignUser)
     router.push(`/college/invinotice/${inviR.id}`)
-  })
+  } finally {
+    loading.close()
+  }
 }
 const searchF = async () => {
   if (selfSearchR.value) return

@@ -3,7 +3,7 @@ import { addExcludeRuleService, listUsersService } from '@/services/SubjectServi
 import type { ExcludeRule, User } from '@/types'
 import { Plus } from '@element-plus/icons-vue'
 import { dayOfWeeks, periodOfDays } from '@/services/ExcludeRule'
-import { createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess, createMessageDialog } from '@/components/message'
 
 const dialogFormVisible = ref(false)
 const usersR = ref<User[]>([])
@@ -83,6 +83,7 @@ const submitF = async () => {
 
   const rule: ExcludeRule = JSON.parse(JSON.stringify(excludeRuleR.value))
   await addExcludeRuleService(rule)
+  createElNotificationSuccess('规则添加成功')
 }
 </script>
 <template>

@@ -24,7 +24,8 @@ import { getSettingsService, noticeDingCancelService } from '@/services/CommonSe
 import { useSettingStore } from '@/stores/SettingStore'
 import InviMessage from '../component/InviInfo.vue'
 import { getDepartmentCommentService } from '@/services/SubjectService'
-import { createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess, createMessageDialog } from '@/components/message'
+import { ElLoading } from 'element-plus'
 
 const props = defineProps<{ inviid: string }>()
 //
@@ -41,7 +42,7 @@ if (!currentInvi) {
 const settingsStore = useSettingStore()
 //
 const userR = storeToRefs(useUserStore()).userS
-const assignUsersR = ref<AssignUser>({ executor: [], users: [] })
+const assignUsersR = ref<AssignUser>({})
 
 // 当前分配的监考信息
 let week = getInviWeek(currentInvi.date!, settingsStore.getFirstWeek())
@@ -207,6 +208,12 @@ const submitUsers = async () => {
     return
   }
 
+  const loading = ElLoading.service({
+    lock: true,
+    text: 'Loading',
+    background: 'rgba(0, 0, 0, 0.7)'
+  })
+
   if (currentInvi.calendarId) {
     const userIds: string[] = []
     currentInvi.executor!.forEach((ex) => {
@@ -215,18 +222,22 @@ const submitUsers = async () => {
     })
   }
   assignUsersR.value.allocator = stringInviTime({ id: userR.value.id, name: userR.value.name })
-
+  assignUsersR.value.executor = []
+  assignUsersR.value.users = []
   selectedUsers.value.forEach((us) => {
     assignUsersR.value.executor?.push(stringInviTime({ id: us.id, name: us.name }))
     assignUsersR.value.users?.push({ id: us.id })
   })
 
-  await noticeDingCancelService(currentInvi.id!)
-  await addAssignUsersService(currentInvi.id!, assignUsersR.value)
-
-  createMessageDialog('分配结果已保存', () => {
+  try {
+    await noticeDingCancelService(currentInvi.id!)
+    await addAssignUsersService(currentInvi.id!, assignUsersR.value)
+    createElNotificationSuccess('监考已分配')
     router.push(`/subject/notices/${props.inviid}`)
-  })
+  } finally {
+    loading.close()
+  }
+
   // const userss: User[] = []
 
   // assignUsersR.value.users!.forEach((asuser) => {

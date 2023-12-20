@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { addInviSerivce } from '@/services/CollegeService'
 import { IMPORT } from '@/services/Const'
@@ -37,22 +37,20 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   inviR.value.collId = userS.value.department?.collId
   inviR.value.status = IMPORT
   inviR.value.importer = stringInviTime({ id: userS.value.id, name: userS.value.name })
-  addInviSerivce(inviR.value).then(() => {
-    inviR.value = { course: {}, time: {} }
-    formR.value = {
-      courseName: '',
-      teacherName: '',
-      clazz: '',
-      date: '',
-      stime: '',
-      etime: '',
-      location: '',
-      amount: 1
-    }
-    createMessageDialog('导入成功', () => {
-      router.push('/college/imported')
-    })
-  })
+  await addInviSerivce(inviR.value)
+  inviR.value = { course: {}, time: {} }
+  formR.value = {
+    courseName: '',
+    teacherName: '',
+    clazz: '',
+    date: '',
+    stime: '',
+    etime: '',
+    location: '',
+    amount: 1
+  }
+  createElNotificationSuccess('添加成功')
+  router.push('/college/imported')
 }
 
 const locations = [{ value: '丹青楼' }, { value: '锦绣楼' }, { value: '成栋楼' }]

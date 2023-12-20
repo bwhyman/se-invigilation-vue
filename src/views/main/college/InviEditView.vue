@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import {
   delInviService,
@@ -61,23 +61,21 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   inviR.time!.starttime = formR.value.stime
   inviR.time!.endtime = formR.value.etime
   inviR.status = IMPORT
-  updateInviService(inviR).then(() => {
-    createMessageDialog('修改成功', () => {
-      router.push('/college/imported')
-    })
+  await updateInviService(inviR)
 
-    inviR = { course: {}, time: {} }
-    formR.value = {
-      courseName: '',
-      teacherName: '',
-      clazz: '',
-      date: '',
-      stime: '',
-      etime: '',
-      location: '',
-      amount: 1
-    }
-  })
+  createElNotificationSuccess('修改成功')
+  router.push('/college/imported')
+  inviR = { course: {}, time: {} }
+  formR.value = {
+    courseName: '',
+    teacherName: '',
+    clazz: '',
+    date: '',
+    stime: '',
+    etime: '',
+    location: '',
+    amount: 1
+  }
 }
 
 const locations = [{ value: '丹青楼' }, { value: '锦绣楼' }, { value: '成栋楼' }]
@@ -164,12 +162,9 @@ const delInvi = () => {
     type: 'warning'
   })
     .then(async () => {
-      ElMessage({
-        type: 'success',
-        message: 'Delete completed'
-      })
       await noticeDingCancelService(invi!.id!)
       await delInviService(invi!.id!)
+      createElNotificationSuccess('监考已删除')
       router.push(`/college/imported`)
     })
     .catch(() => {
@@ -187,12 +182,9 @@ const resetInvi = () => {
     type: 'warning'
   })
     .then(async () => {
-      ElMessage({
-        type: 'success',
-        message: 'Delete completed'
-      })
       await noticeDingCancelService(invi!.id!)
       await resetInviService(invi!.id!)
+      createElNotificationSuccess('监考已重置')
       router.push(`/college/imported`)
     })
     .catch(() => {

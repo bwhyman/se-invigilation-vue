@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess } from '@/components/message'
 import { listUsersService, updateUserInviStatusService } from '@/services/SubjectService'
 import type { User } from '@/types'
 
@@ -20,14 +20,13 @@ const changeStatus = (user: User) => {
 }
 
 //
-const updateUserInviStatus = () => {
+const updateUserInviStatus = async () => {
   const users: User[] = []
   userStatusR.value.forEach((u) => {
     users.push({ id: u.id, inviStatus: u.inviStatus })
   })
-  updateUserInviStatusService(users).then(() => {
-    createMessageDialog('更新成功')
-  })
+  await updateUserInviStatusService(users)
+  createElNotificationSuccess('更新成功')
   btnR.value = true
 }
 </script>

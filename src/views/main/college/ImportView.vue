@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess, createMessageDialog } from '@/components/message'
 import router from '@/router'
 import { addInvigilationsService } from '@/services/CollegeService'
 import { IMPORT } from '@/services/Const'
@@ -56,12 +56,10 @@ watch(inviTypeR, (newValue) => {
   })
 })
 
-const addInvis = () => {
-  addInvigilationsService(invisR.value).then(() => {
-    createMessageDialog('导入成功', () => {
-      router.push('/college/imported')
-    })
-  })
+const addInvis = async () => {
+  await addInvigilationsService(invisR.value)
+  createElNotificationSuccess('导入成功')
+  router.push('/college/imported')
 }
 </script>
 <template>
