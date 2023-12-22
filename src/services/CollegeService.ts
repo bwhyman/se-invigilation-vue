@@ -2,6 +2,7 @@ import type {
   AssignUser,
   Department,
   DingNoticeResponse,
+  DingUser,
   InviCount,
   Invigilation,
   Notice,
@@ -364,4 +365,10 @@ export const getUserByNameServie = async (name: string) => {
 export const listDepartmentUsersService = async (depid: string) => {
   const resp = await axios.get<ResultVO<{ users: User[] }>>(`${COLLEGE}/department/${depid}/users`)
   return resp.data.data?.users ?? []
+}
+
+// 基于钉钉注册手机号，获取用户信息
+export const getDingUserService = async (mobile: string) => {
+  const resp = await axios.get<ResultVO<{ dinguser: DingUser }>>(`${COLLEGE}/mobiles/${mobile}`)
+  return resp.data.data?.dinguser
 }

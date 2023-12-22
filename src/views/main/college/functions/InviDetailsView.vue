@@ -29,6 +29,8 @@ const exportF = async () => {
 
     details.push(detail)
   })
+  // 按部门排序
+  details.sort((x, y) => x.departmentName!.localeCompare(y.departmentName!, 'en')!)
   const { exportInvisDetails } = await import('@/services/excel/Invis2Excel')
   exportInvisDetails(results[1], details)
 }

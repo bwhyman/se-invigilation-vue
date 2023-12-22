@@ -18,11 +18,15 @@ const components: { name: string; component: Component }[] = [
   },
   {
     name: '更新教师部门',
-    component: defineAsyncComponent(() => import('./UpdateDepartView.vue'))
+    component: defineAsyncComponent(() => import('./UpdateUserDepart.vue'))
   },
   {
     name: '更新教师角色',
     component: defineAsyncComponent(() => import('./UpdateRolesView.vue'))
+  },
+  {
+    name: '添加用户',
+    component: defineAsyncComponent(() => import('./AddUserView.vue'))
   }
 ]
 
@@ -30,12 +34,14 @@ const currentComponentR = ref()
 const currentComponentC = computed(
   () => components.find((com) => com.name == currentComponentR.value)?.component
 )
+const typeC = computed(() => (name: string) => (name == currentComponentR.value ? 'danger' : ''))
 </script>
 <template>
   <el-row class="my-row">
     <el-col>
       <el-tag
         v-for="(com, index) of components"
+        :type="typeC(com.name)"
         :key="index"
         @click="currentComponentR = com.name"
         style="cursor: pointer; margin-right: 10px">

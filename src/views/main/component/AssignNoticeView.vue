@@ -11,8 +11,8 @@ import type { Invigilation, Notice, User } from '@/types'
 import { SUBJECT_ADMIN, COLLEGE_ADMIN } from '@/services/Const'
 import router from '@/router'
 import { getCollegeInviService } from '@/services/CollegeService'
-import { ElLoading } from 'element-plus'
-import { createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess, createMessageDialog } from '@/components/message'
+import { createElLoading } from '@/components/loading'
 
 const props = defineProps<{ inviid: string }>()
 
@@ -67,7 +67,7 @@ notice.userIds = userIds.join(',')
 const noticeMessage = `监考时间: ${notice.date}第${week}周${dayweek} ${notice.stime}~${notice.etime}
 监考课程：${invigilationR.value?.course?.courseName}
 监考地点：${invigilationR.value?.course?.location}
-监考教师：${userNames.join(';')}`
+监考教师：${userNames.join('; ')}`
 notice.noticeMessage = noticeMessage
 
 const noticeAssignersF = async () => {
@@ -84,11 +84,7 @@ const noticeAssignersF = async () => {
   const remindMinutes = (x - z.getTime()) / (1000 * 60)
   notice.remindMinutes = remindMinutes
 
-  const loading = ElLoading.service({
-    lock: true,
-    text: 'Loading',
-    background: 'rgba(0, 0, 0, 0.7)'
-  })
+  const loading = createElLoading()
   let msg
   try {
     msg = await noticeUsersService(notice)
@@ -96,16 +92,14 @@ const noticeAssignersF = async () => {
     loading.close()
   }
   //
-  const closeF = () => {
-    const role = sessionStorage.getItem('role')
-    if (role == SUBJECT_ADMIN) {
-      router.push('/subject/dispatched')
-    }
-    if (role == COLLEGE_ADMIN) {
-      router.push('/college/imported')
-    }
+  const role = sessionStorage.getItem('role')
+  if (role == SUBJECT_ADMIN) {
+    router.push('/subject/dispatched')
   }
-  msg && createMessageDialog(`通知发送成功。编号：${msg}`, closeF)
+  if (role == COLLEGE_ADMIN) {
+    router.push('/college/imported')
+  }
+  msg && createElNotificationSuccess(`通知发送成功。编号：${msg}`)
 }
 </script>
 <template>
@@ -116,7 +110,7 @@ const noticeAssignersF = async () => {
     <el-col>
       分配结果已保存。
       <br />
-      钉钉通知/并添加到用户日程？
+      钉钉通知并添加到用户日程？
     </el-col>
     <el-col>
       <el-checkbox-group v-model="selectUsersR">

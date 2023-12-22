@@ -25,7 +25,7 @@ import { useSettingStore } from '@/stores/SettingStore'
 import InviMessage from '../component/InviInfo.vue'
 import { getDepartmentCommentService } from '@/services/SubjectService'
 import { createElNotificationSuccess, createMessageDialog } from '@/components/message'
-import { ElLoading } from 'element-plus'
+import { createElLoading } from '@/components/loading'
 
 const props = defineProps<{ inviid: string }>()
 //
@@ -208,11 +208,7 @@ const submitUsers = async () => {
     return
   }
 
-  const loading = ElLoading.service({
-    lock: true,
-    text: 'Loading',
-    background: 'rgba(0, 0, 0, 0.7)'
-  })
+  const loading = createElLoading()
 
   if (currentInvi.calendarId) {
     const userIds: string[] = []

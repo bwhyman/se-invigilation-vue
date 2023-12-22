@@ -3,7 +3,8 @@ import { listExcludeRulesService } from '@/services/SubjectService'
 import { useExcludeRulesStore } from '@/stores/ExcludeRuleStore'
 import { dayOfWeeksC, periodOfDaysC } from '@/services/ExcludeRule'
 import AddRuleDialog from './AddRuleDialog.vue'
-import DelRuleButton from './DelRuleButton.vue'
+import { Delete } from '@element-plus/icons-vue'
+import { createDialog } from './index'
 
 await listExcludeRulesService()
 const excludeRules = storeToRefs(useExcludeRulesStore()).excludeRules
@@ -32,7 +33,7 @@ const excludeRules = storeToRefs(useExcludeRulesStore()).excludeRules
         </el-table-column>
         <el-table-column width="60">
           <template #default="scope">
-            <DelRuleButton :rule="scope.row" />
+            <el-button type="danger" @click="createDialog(scope.row)" :icon="Delete" circle />
           </template>
         </el-table-column>
       </el-table>

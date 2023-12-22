@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import LoadingVue from '@/components/LoadingVue.vue'
+import LoadingVue from '@/components/loading/LoadingVue.vue'
 </script>
 <template>
   <suspense>
@@ -42,5 +42,8 @@ body {
   background-color: white;
   border-radius: 5px;
   padding: 25px 10px 10px 10px;
+}
+.my-col {
+  margin-bottom: 10px;
 }
 </style>

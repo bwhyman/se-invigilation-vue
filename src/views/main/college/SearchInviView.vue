@@ -11,9 +11,9 @@ import {
 } from '@/services/Utils'
 import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation } from '@/types'
-import { Bell } from '@element-plus/icons-vue'
+import { Bell, Message } from '@element-plus/icons-vue'
 import TotalNumber from '../component/TotalNumber.vue'
-import RemarkButton from './remarks/RemarkButton.vue'
+import { createDialog } from './remarks'
 
 const UNDISPATCHED = 0
 const UNASSIGNED = 1
@@ -96,6 +96,21 @@ const noticeF = (depid: string) => {
 const exportF = async () => {
   const { exportInvisDetailsDate } = await import('@/services/excel/Invis2Excel')
   exportInvisDetailsDate(invis, dateRangeR.value[0], dateRangeR.value[1])
+}
+
+const remarkTypeC = computed(
+  () => (invi: Invigilation) =>
+    invi.remark ? { type: 'success', message: invi.remark } : { type: 'primary' }
+)
+//
+const listSameInvis = (invi: Invigilation) => {
+  const sameInvis = invisR.value.filter(
+    (i) =>
+      i.course?.courseName?.trim() == invi.course?.courseName?.trim() &&
+      i.date == invi.date &&
+      i.time?.starttime == invi.time?.starttime
+  )
+  createDialog(sameInvis)
 }
 </script>
 <template>
@@ -203,7 +218,13 @@ const exportF = async () => {
         </el-table-column>
         <el-table-column width="80">
           <template #default="scope">
-            <RemarkButton v-if="inviStatusR == ALL" :current-invi="scope.row" :invis="invisR" />
+            <el-button
+              v-if="inviStatusR == ALL"
+              :title="remarkTypeC(scope.row).message"
+              :type="remarkTypeC(scope.row).type"
+              :icon="Message"
+              circle
+              @click="listSameInvis(scope.row)" />
             <el-button
               v-if="inviStatusR == UNASSIGNED"
               type="primary"

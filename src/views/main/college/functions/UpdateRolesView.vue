@@ -1,52 +1,30 @@
 <script setup lang="ts">
 import { createMessageDialog } from '@/components/message'
-import { getUserService, updateUserRoleService } from '@/services/CollegeService'
+import { updateUserRoleService } from '@/services/CollegeService'
 import { ROLES } from '@/services/Const'
 import type { User } from '@/types'
+import DepartmentUser from './finduser/DepartmentUser.vue'
 
-const userR = ref<User>()
-const accountR = ref('')
+const exposeR = ref<{ selectUser: User; clear: Function }>()
 const roleR = ref('')
 
-const searchF = async () => {
-  if (accountR.value.length == 0) return
-  const u = await getUserService(accountR.value)
-  if (!u) {
-    createMessageDialog('指定工号的教师不存在')
-    return
-  }
-  userR.value = u
-}
-
-const update = () => {
+const update = async () => {
   const u: User = {}
-  u.id = userR.value?.id
+  u.id = exposeR.value?.selectUser.id
   u.role = roleR.value
-  updateUserRoleService(u).then(() => {
-    createMessageDialog('角色更新成功')
-    userR.value = undefined
-    accountR.value = ''
-  })
+  await updateUserRoleService(u)
+
+  createMessageDialog('角色更新成功')
+  exposeR.value?.clear()
+  exposeR.value!.selectUser! = {}
 }
 </script>
 <template>
-  <el-row class="my-row">
-    <el-col>基于工号查询教师，修改教师角色</el-col>
-    <el-col :span="8">
-      <el-form :inline="true">
-        <el-form-item>
-          <el-input v-model="accountR" placeholder="教师工号"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="success" :disabled="accountR.length == 0" @click="searchF">
-            提交
-          </el-button>
-        </el-form-item>
-      </el-form>
+  <el-row class="my-row" style="align-items: flex-end">
+    <el-col :span="12">
+      <DepartmentUser ref="exposeR" />
     </el-col>
-    <el-col :span="16" v-if="userR">
-      {{ userR?.name }} / {{ userR?.department?.departmentName }}
-
+    <el-col :span="12" v-if="exposeR?.selectUser.id">
       <el-select
         v-model="roleR"
         placeholder="选择角色"

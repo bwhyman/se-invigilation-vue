@@ -14,7 +14,7 @@ import { useUserStore } from '@/stores/UserStore'
 import type { AssignUser, Department, Invigilation, User } from '@/types'
 import InviMessage from '@/views/main/component/InviInfo.vue'
 import { createMessageDialog } from '@/components/message'
-import { ElLoading } from 'element-plus'
+import { createElLoading } from '@/components/loading'
 
 const props = defineProps<{ inviid: string; name: string }>()
 
@@ -46,11 +46,7 @@ watch(departmentR, async () => {
 const createUserR = useUserStore().userS
 
 const assignF = async () => {
-  const loading = ElLoading.service({
-    lock: true,
-    text: 'Loading',
-    background: 'rgba(0, 0, 0, 0.7)'
-  })
+  const loading = createElLoading()
 
   const user = usersR.value.find((u) => u.id == selectUserR.value)
   const invi: Invigilation = { id: inviR.id }
