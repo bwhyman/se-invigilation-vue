@@ -1,38 +1,12 @@
 <script setup lang="ts">
-import {
-  listCollegeUsersService,
-  listCollegeInviDetailsService,
-  listCollegeCountsService
-} from '@/services/CollegeService'
+import { listCollegeInviDetailsService, listCollegeCountsService } from '@/services/CollegeService'
 import type { InviDetail } from '@/types'
 
 const exportF = async () => {
-  const results = await Promise.all([
-    listCollegeUsersService(),
-    listCollegeInviDetailsService(),
-    listCollegeCountsService()
-  ])
-
-  const users = results[0]
-  const counts = results[2]
-
-  const details: InviDetail[] = []
-
-  users.forEach((user) => {
-    const userCount = counts.find((c) => c.userId == user.id)
-    const detail: InviDetail = {
-      name: user.name,
-      departmentName: user.department?.departmentName,
-      account: user.account
-    }
-    detail.count = userCount?.count ?? 0
-
-    details.push(detail)
-  })
-  // 按部门排序
-  details.sort((x, y) => x.departmentName!.localeCompare(y.departmentName!, 'en')!)
+  const results = await Promise.all([listCollegeInviDetailsService(), listCollegeCountsService()])
+  const details: InviDetail[] = results[1]
   const { exportInvisDetails } = await import('@/services/excel/Invis2Excel')
-  exportInvisDetails(results[1], details)
+  exportInvisDetails(results[0], details)
 }
 </script>
 <template>

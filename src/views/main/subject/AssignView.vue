@@ -233,20 +233,6 @@ const submitUsers = async () => {
   } finally {
     loading.close()
   }
-
-  // const userss: User[] = []
-
-  // assignUsersR.value.users!.forEach((asuser) => {
-  //   const u = usersS.find((u) => u.id == asuser.id)
-  //   u && userss.push(u)
-  // })
-  // const msg = await noticeDingService(userR.value, userss, currentInvi)
-
-  // const { messageS, closeF } = storeToRefs(messageStore)
-  // messageS.value = `分配结果已保存。通知已发送\n编号：${msg}`
-  // closeF.value = () => {
-  //   router.push(`/subject/dispatched`)
-  // }
 }
 </script>
 <template>
@@ -283,7 +269,7 @@ const submitUsers = async () => {
       <el-tag size="large">当前</el-tag>
     </el-col>
     <el-col style="margin-bottom: 10px">
-      <AssignTable :users="currentUsersR" :dayweek="dayweekCN">
+      <AssignTable :users="currentUsersR" :dayweek="dayweekCN" :hasRules="rulesR.length > 0">
         <template #userAssign="userAssign">
           <el-button
             style="width: 60px"
@@ -306,7 +292,7 @@ const submitUsers = async () => {
       </el-button>
     </el-col>
     <el-col style="margin-bottom: 10px">
-      <AssignTable :users="groupUsers" :dayweek="dayweekCN">
+      <AssignTable :users="groupUsers" :dayweek="dayweekCN" :hasRules="rulesR.length > 0">
         <template #userAssign="userAssign">
           <el-button
             style="width: 60px"
@@ -323,7 +309,7 @@ const submitUsers = async () => {
       <el-tag type="warning" size="large">冲突</el-tag>
     </el-col>
     <el-col style="margin-bottom: 10px">
-      <AssignTable :users="confUsersR" :dayweek="dayweekCN">
+      <AssignTable :users="confUsersR" :dayweek="dayweekCN" :hasRules="rulesR.length > 0">
         <template #userAssign="userAssign">
           <el-button
             style="width: 60px"

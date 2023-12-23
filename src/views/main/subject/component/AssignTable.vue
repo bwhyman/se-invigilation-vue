@@ -5,6 +5,7 @@ import { dayOfWeeksC, periodOfDaysC } from '@/services/ExcludeRule'
 const props = defineProps<{
   users: InviAssignUser[]
   dayweek: string
+  hasRules: boolean
 }>()
 </script>
 <template>
@@ -33,7 +34,7 @@ const props = defineProps<{
         </p>
       </template>
     </el-table-column>
-    <el-table-column width="300" label="当日监考">
+    <el-table-column label="当日监考">
       <template #default="scope">
         <p :class="{ red: scope.row.reason == 'invi' }">
           <template v-for="(invi, index) of scope.row.invis as Invigilation[]" :key="index">
@@ -45,7 +46,7 @@ const props = defineProps<{
         </p>
       </template>
     </el-table-column>
-    <el-table-column label="排除规则">
+    <el-table-column label="排除规则" v-if="props.hasRules">
       <template #default="scope">
         <p :class="{ red: scope.row.reason == 'rule' }">
           <template v-for="(rule, index) of scope.row.excludeRules as ExcludeRule[]" :key="index">

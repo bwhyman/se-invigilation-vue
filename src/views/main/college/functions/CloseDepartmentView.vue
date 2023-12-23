@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { createMessageDialog } from '@/components/message'
-import { listDepartmentsService, updateDepartmentInviStatus } from '@/services/CollegeService'
+import {
+  listDepartmentsService,
+  updateDepartmentInviStatusService
+} from '@/services/CollegeService'
 import type { Department } from '@/types'
 
 let departments = await listDepartmentsService()
@@ -16,16 +19,15 @@ const changeStatus = (depart: Department) => {
   depart.inviStatus = depart.inviStatus == 1 ? 0 : 1
 }
 
-const updateUserInviStatus = () => {
+const updateUserInviStatus = async () => {
   const deps: Department[] = []
   departmentR.value.forEach((e) => {
     deps.push({ id: e.id, inviStatus: e.inviStatus })
   })
 
-  updateDepartmentInviStatus(deps).then((departs) => {
-    departmentR.value = departs
-    createMessageDialog('更新成功')
-  })
+  const departs = await updateDepartmentInviStatusService(deps)
+  departmentR.value = departs
+  createMessageDialog('更新成功')
 }
 </script>
 <template>

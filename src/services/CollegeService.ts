@@ -207,7 +207,7 @@ export const listDepartmentsService = async () => {
 }
 
 //
-export const updateDepartmentInviStatus = async (departs: Department[]) => {
+export const updateDepartmentInviStatusService = async (departs: Department[]) => {
   const resp = await axios.patch<ResultVO<{ departments: Department[] }>>(
     `${COLLEGE}/departments/invistatus`,
     departs

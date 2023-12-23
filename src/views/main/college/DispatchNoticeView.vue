@@ -23,12 +23,6 @@ const noticeDispatchersF = async () => {
     userIds: selDisR.value.join(','),
     noticeMessage: message
   }
-  noticeDispatcherService(notice).then((r) => {
-    if (r?.errcode != 0) {
-      createMessageDialog(`发送通知错误`)
-      return
-    }
-  })
   const result = await noticeDispatcherService(notice)
   if (result?.errcode != 0) {
     createMessageDialog('发送通知错误，请重新尝试')

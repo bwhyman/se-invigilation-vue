@@ -80,9 +80,9 @@ export const readTimetableExcel = (file: Blob) => {
             // 具体节
             const tempP = getPeriod(j - (i - 1))
             // 同一节中有多门课
-            for (let m = 0; m < sections.length; m += 5) {
+            for (let m = 0; m < sections.length; m += 6) {
               // 课程名称
-              const name = getCourseName(sections[m])
+              const name = getCourseName(sections[m + 1])
               //
               const weeks = formatWeeks(sections[m + 2])
               const wArrays: Timetable[] = []
@@ -93,8 +93,8 @@ export const readTimetableExcel = (file: Blob) => {
                 w.period = tempP
                 w.dayweek = k + 1
                 temp.courseName = name
-                temp.clazz = sections[m + 3]
-                temp.location = sections[m + 2]
+                temp.clazz = sections[m + 4]
+                temp.location = sections[m + 3]
                 w.course = temp
 
                 teach.courses.push(w)
@@ -135,6 +135,8 @@ const getWeeks = (weeks: string, wArrays: Timetable[]) => {
 
 // 提取课表中周的具体数字
 const formatWeeks = (weeks: string) => {
+  //console.log(weeks)
+
   weeks = weeks.replaceAll('单', '').replaceAll('双', '')
   return weeks.substring(0, weeks.indexOf('周'))
 }

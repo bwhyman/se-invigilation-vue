@@ -3,10 +3,11 @@ import { createMessageDialog } from '@/components/message'
 import {
   addTimetableService,
   addTimetablesService,
-  listCollegeUsersService,
-  getUserService
+  listCollegeUsersService
 } from '@/services/CollegeService'
 import type { ImportTimetable, Timetable, User } from '@/types'
+import DepartmentUser from './finduser/DepartmentUser.vue'
+import { createElLoading } from '@/components/loading'
 
 const users: User[] = []
 const timetables: Timetable[] = []
@@ -17,7 +18,7 @@ const readTimetables = async (event: Event) => {
   if (!element || !element.files) {
     return
   }
-
+  const loading = createElLoading()
   const { readCollegeTimetableExcel, readPostGTimetableExcel } = await import(
     '@/services/excel/TimetableExcel'
   )
@@ -27,13 +28,16 @@ const readTimetables = async (event: Event) => {
     readCollegeTimetableExcel(element.files[0]),
     readPostGTimetableExcel(element.files[0])
   ])
-
+  loading.close()
   users.push(...results[0])
   importTimetablesR.value = results[1]
   importTimetablesR.value.push(...results[2])
-
   console.log(importTimetablesR.value)
+  element.value = ''
+}
 
+const addTimetables = async () => {
+  const loading = createElLoading()
   const importTimes = importTimetablesR.value.filter((tb) => tb.courses.length != 0)
   users.forEach((user) => {
     const temp = importTimes.filter((tb) => tb.name == user.name)
@@ -44,19 +48,14 @@ const readTimetables = async (event: Event) => {
       })
     })
   })
-  element.value = ''
-}
-
-const addTimetables = () => {
   importTimetablesR.value = []
-  addTimetablesService(timetables).then(() => {
-    importTimetablesR.value = []
-    createMessageDialog('导入完成')
-  })
+  await addTimetablesService(timetables)
+  loading.close()
+  importTimetablesR.value = []
+  createMessageDialog('导入完成')
 }
 
-const timetableUserAccountR = ref('')
-
+const exposeR = ref<{ selectUser: User; clear: Function }>()
 //
 const readSingleTimetable = async (event: Event) => {
   const element = event.target as HTMLInputElement
@@ -65,43 +64,28 @@ const readSingleTimetable = async (event: Event) => {
   }
   const { readTimetableExcel } = await import('@/services/excel/TimetableExcel')
   importTimetablesR.value = await readTimetableExcel(element.files[0])
-  const importTimes = importTimetablesR.value.filter((tb) => tb.courses.length != 0)
-  users.forEach((user) => {
-    const temp = importTimes.filter((tb) => tb.name == user.name)
-    temp.forEach((t) => {
-      t.courses.forEach((t) => {
-        t.userId = user?.id
-        timetables.push(t)
-      })
-    })
-  })
-
   element.value = ''
 }
 
 const addTimetable = async () => {
-  const user = await getUserService(timetableUserAccountR.value)
-  if (!user) {
-    createMessageDialog('未找到教师，请确定工号正确')
-    return
-  }
-  if (!user.department?.depId) {
-    createMessageDialog('教师没有部门，无法提交')
+  if (!exposeR.value?.selectUser.id) {
+    createMessageDialog('选择教师错误')
     return
   }
   //
   timetables.length = 0
   importTimetablesR.value.forEach((tb) => {
     tb.courses.forEach((tb2) => {
-      tb2.userId = user.id
+      tb2.userId = exposeR.value?.selectUser?.id
       timetables.push(tb2)
     })
   })
   importTimetablesR.value = []
 
-  addTimetableService(timetableUserAccountR.value, timetables).then(() => {
-    createMessageDialog('课表导入成功')
-  })
+  await addTimetableService(exposeR.value?.selectUser?.id!, timetables)
+  createMessageDialog('课表导入成功')
+  exposeR.value?.clear()
+  exposeR.value!.selectUser! = {}
 }
 </script>
 <template>
@@ -127,23 +111,22 @@ const addTimetable = async () => {
       </el-button>
     </el-col>
   </el-row>
-  <el-row class="my-row">
+  <el-row class="my-row" style="align-items: flex-end">
     <el-col>
-      删除原课表，导入指定教师课表
-      <br />
-      <el-input
-        style="width: 200px; margin-right: 10px"
-        v-model="timetableUserAccountR"
-        placeholder="教师工号" />
+      <p>删除原课表，导入指定教师课表</p>
+    </el-col>
+    <el-col :span="12">
+      <DepartmentUser ref="exposeR" />
+    </el-col>
+    <el-col :span="12" v-if="exposeR?.selectUser.account" style="margin-bottom: 5px">
+      <input type="file" @change="readSingleTimetable" />
       <el-button
         type="success"
         @click="addTimetable"
-        :disabled="timetableUserAccountR.length == 0"
+        v-if="importTimetablesR.length > 0"
         style="margin-bottom: 10px">
         提交
       </el-button>
-      <br />
-      <input type="file" @change="readSingleTimetable" />
     </el-col>
   </el-row>
   <el-row class="my-row" v-if="importTimetablesR.length > 0">
