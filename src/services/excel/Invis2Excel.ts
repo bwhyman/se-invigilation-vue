@@ -61,20 +61,6 @@ export const exportInvisDetails = (invis: Invigilation[], details: InviDetail[])
 
 //
 export const exportInvisDetailsDate = (invis: Invigilation[], sdate: string, edate: string) => {
-  for (const invisx of invis) {
-    const invisSame = invis.filter(
-      (i) =>
-        i.date == invisx.date &&
-        i.time?.starttime == invisx.time?.starttime &&
-        i.course?.location == invisx.course?.location &&
-        i != invisx
-    )
-    for (const i of invisSame) {
-      i.executor && invisx.executor?.push(...i.executor)
-      invis.splice(invis.indexOf(i), 1)
-    }
-  }
-
   let index = 0
   const data: any[][] = invis.map((invi) => [
     getExcelCell(`${(index += 1)}`, 'right'),

@@ -60,14 +60,14 @@ axios.interceptors.response.use(
     }
 
     if (data.code >= 400) {
-      createMessageDialog(data.message ?? '')
+      data.message && createMessageDialog(data.message)
       return Promise.reject()
     }
     return resp
   },
   // 全局处理异常信息。即，http状态码不是200
   (error) => {
-    createMessageDialog(error.message ?? '')
+    error.message && createMessageDialog(error.message)
     return Promise.reject()
   }
 )

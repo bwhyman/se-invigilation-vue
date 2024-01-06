@@ -14,6 +14,7 @@ import type { Invigilation } from '@/types'
 import { Bell, Message } from '@element-plus/icons-vue'
 import TotalNumber from '../component/TotalNumber.vue'
 import { createDialog } from './remarks'
+import InvisDetailsDate from './InvisDetailsDate.vue'
 
 const UNDISPATCHED = 0
 const UNASSIGNED = 1
@@ -95,9 +96,36 @@ const noticeF = (depid: string) => {
 //
 const exportF = async () => {
   const { exportInvisDetailsDate } = await import('@/services/excel/Invis2Excel')
-  exportInvisDetailsDate(invis, dateRangeR.value[0], dateRangeR.value[1])
+  exportInvisDetailsDate(aggInvisR.value, dateRangeR.value[0], dateRangeR.value[1])
 }
 
+// 将监考信息聚合为实际可用信息，用于导出表格或渲染
+const aggInvisR = ref<Invigilation[]>([])
+watch(
+  invisR,
+  () => {
+    if (inviStatusR.value != ALL || invisR.value.length == 0) {
+      return
+    }
+    aggInvisR.value = JSON.parse(JSON.stringify(invisR.value))
+    for (const invisx of aggInvisR.value) {
+      const invisSame = aggInvisR.value.filter(
+        (i) =>
+          i.date == invisx.date &&
+          i.time?.starttime == invisx.time?.starttime &&
+          i.course?.location == invisx.course?.location &&
+          i != invisx
+      )
+      for (const i of invisSame) {
+        i.executor && invisx.executor?.push(...i.executor)
+        aggInvisR.value.splice(aggInvisR.value.indexOf(i), 1)
+      }
+    }
+  },
+  { immediate: true }
+)
+
+//
 const remarkTypeC = computed(
   () => (invi: Invigilation) =>
     invi.remark ? { type: 'success', message: invi.remark } : { type: 'primary' }
@@ -147,7 +175,7 @@ const listSameInvis = (invi: Invigilation) => {
       </el-radio-group>
     </el-col>
     <el-col :span="4" style="text-align: right">
-      <el-button type="primary" @click="exportF" :disabled="invisR.length == 0">
+      <el-button type="primary" @click="exportF" v-if="inviStatusR == ALL && invisR.length > 0">
         导出监考表格
       </el-button>
     </el-col>
@@ -236,6 +264,8 @@ const listSameInvis = (invi: Invigilation) => {
       </el-table>
     </el-col>
   </el-row>
+  <!--  -->
+  <InvisDetailsDate :invis="aggInvisR" v-if="inviStatusR == ALL && invisR.length > 0" />
 </template>
 <style scoped>
 .demo-date-picker {

@@ -22,10 +22,15 @@ export const readCollegeTimetableExcel = (file: Blob) => {
             const x = sheet[`${weekChars[k]}${j}`]
             if (!x || x.v.trim().length == 0) continue
             const sections = x.v.split('\n')
+            for (const sec of sections) {
+              if (sec.trim().length == 0) {
+                sections.splice(sections.indexOf(sec), 1)
+              }
+            }
             // 具体节
             const tempP = getPeriod(j - (i - 1))
             // 同一节中有多门课
-            for (let m = 0; m < sections.length; m += 5) {
+            for (let m = 0; m < sections.length; m += 4) {
               const name = getCourseName(sections[m])
               const weeks = formatWeeks(sections[m + 2])
               const wArrays: Timetable[] = []
@@ -77,14 +82,19 @@ export const readTimetableExcel = (file: Blob) => {
 
             if (!x || x.v.trim().length == 0) continue
             const sections = x.v.split('\n')
+            for (const sec of sections) {
+              if (sec.trim().length == 0) {
+                sections.splice(sections.indexOf(sec), 1)
+              }
+            }
             // 具体节
             const tempP = getPeriod(j - (i - 1))
             // 同一节中有多门课
-            for (let m = 0; m < sections.length; m += 6) {
+            for (let m = 0; m < sections.length; m += 4) {
               // 课程名称
-              const name = getCourseName(sections[m + 1])
+              const name = getCourseName(sections[m])
               //
-              const weeks = formatWeeks(sections[m + 2])
+              const weeks = formatWeeks(sections[m + 1])
               const wArrays: Timetable[] = []
               getWeeks(weeks, wArrays)
               wArrays.forEach((w) => {
@@ -93,8 +103,8 @@ export const readTimetableExcel = (file: Blob) => {
                 w.period = tempP
                 w.dayweek = k + 1
                 temp.courseName = name
-                temp.clazz = sections[m + 4]
-                temp.location = sections[m + 3]
+                temp.clazz = sections[m + 3]
+                temp.location = sections[m + 2]
                 w.course = temp
 
                 teach.courses.push(w)
