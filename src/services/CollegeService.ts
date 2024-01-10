@@ -372,3 +372,9 @@ export const getDingUserService = async (mobile: string) => {
   const resp = await axios.get<ResultVO<{ dinguser: DingUser }>>(`${COLLEGE}/mobiles/${mobile}`)
   return resp.data.data?.dinguser
 }
+
+//
+export const removeUserService = async (uid: string) => {
+  await axios.delete(`${COLLEGE}/users/${uid}`)
+  return true
+}

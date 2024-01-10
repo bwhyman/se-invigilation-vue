@@ -11,7 +11,7 @@ import { noticeDingCancelService } from '@/services/CommonService'
 import { IMPORT } from '@/services/Const'
 import type { Invigilation } from '@/types'
 import type { FormInstance, FormRules } from 'element-plus'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 
 const props = defineProps<{ inviid: string }>()
 let invi = await getCollegeInviService(props.inviid)
@@ -160,19 +160,11 @@ const delInvi = () => {
     confirmButtonText: 'OK',
     cancelButtonText: 'Cancel',
     type: 'warning'
+  }).then(async () => {
+    await Promise.all([noticeDingCancelService(invi!.id!), delInviService(invi!.id!)])
+    createElNotificationSuccess('监考已删除')
+    router.push(`/college/imported`)
   })
-    .then(async () => {
-      await noticeDingCancelService(invi!.id!)
-      await delInviService(invi!.id!)
-      createElNotificationSuccess('监考已删除')
-      router.push(`/college/imported`)
-    })
-    .catch(() => {
-      ElMessage({
-        type: 'info',
-        message: 'Delete canceled'
-      })
-    })
 }
 
 const resetInvi = () => {
@@ -180,19 +172,12 @@ const resetInvi = () => {
     confirmButtonText: 'OK',
     cancelButtonText: 'Cancel',
     type: 'warning'
+  }).then(async () => {
+    await noticeDingCancelService(invi!.id!)
+    await resetInviService(invi!.id!)
+    createElNotificationSuccess('监考已重置')
+    router.push(`/college/imported`)
   })
-    .then(async () => {
-      await noticeDingCancelService(invi!.id!)
-      await resetInviService(invi!.id!)
-      createElNotificationSuccess('监考已重置')
-      router.push(`/college/imported`)
-    })
-    .catch(() => {
-      ElMessage({
-        type: 'info',
-        message: 'Delete canceled'
-      })
-    })
 }
 </script>
 <template>
