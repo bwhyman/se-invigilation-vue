@@ -3,7 +3,6 @@ import type { User } from '@/types'
 import DepartmentUser from './finduser/DepartmentUser.vue'
 import { removeUserService } from '@/services/CollegeService'
 import { createElNotificationSuccess, createMessageDialog } from '@/components/message'
-import { ElMessageBox } from 'element-plus'
 
 const exposeR = ref<{ selectUser: User; clear: Function }>()
 

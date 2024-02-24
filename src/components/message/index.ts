@@ -1,5 +1,4 @@
 import { render } from 'vue'
-import { ElNotification } from 'element-plus'
 
 // 创建函数式组件
 export const createMessageDialog = (msg: string, close: Function = () => {}) => {

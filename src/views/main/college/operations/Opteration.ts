@@ -4,7 +4,6 @@ import { cutInviService } from '@/services/CollegeService'
 import { IMPORT } from '@/services/Const'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 import type { Invigilation } from '@/types'
-import { ElMessage, ElMessageBox } from 'element-plus'
 
 //
 export const editF = (invi: Invigilation) => {

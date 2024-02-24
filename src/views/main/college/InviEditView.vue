@@ -11,7 +11,6 @@ import { noticeDingCancelService } from '@/services/CommonService'
 import { IMPORT } from '@/services/Const'
 import type { Invigilation } from '@/types'
 import type { FormInstance, FormRules } from 'element-plus'
-import { ElMessageBox } from 'element-plus'
 
 const props = defineProps<{ inviid: string }>()
 let invi = await getCollegeInviService(props.inviid)

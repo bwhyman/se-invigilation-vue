@@ -378,3 +378,9 @@ export const removeUserService = async (uid: string) => {
   await axios.delete(`${COLLEGE}/users/${uid}`)
   return true
 }
+
+//
+export const removeCollegeInvisService = async () => {
+  await axios.delete(`${COLLEGE}/colleges/invis`)
+  return true
+}

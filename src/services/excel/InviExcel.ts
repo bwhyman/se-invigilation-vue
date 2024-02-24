@@ -15,7 +15,7 @@ export const readInviExcel = (file: Blob) => {
         const invi = readInviRow(r, reject)
         if (!invi) return
         invi.status = IMPORT
-        if (invi.course!.location!.replace('，', ',').indexOf(',') != -1) {
+        if (~invi.course!.location!.replaceAll('，', ',').indexOf(',')) {
           const array = r['地点'].replace('，', ',').split(',') as string[]
           for (const loc of array) {
             const invi2 = JSON.parse(JSON.stringify(invi))
@@ -45,9 +45,7 @@ const readInviRow = (r: any, reject: any) => {
     return
   }
 
-  if (courseName.indexOf('[') != -1) {
-    courseName = courseName.substring(0, courseName.indexOf('['))
-  }
+  ~courseName.indexOf('[') && (courseName = courseName.substring(0, courseName.indexOf('[')))
   invi.course = {}
   invi.time = {}
 
@@ -55,9 +53,7 @@ const readInviRow = (r: any, reject: any) => {
 
   // teacher name
   let teacherName = r['授课教师']
-  if (teacherName.indexOf('[') != -1) {
-    teacherName = teacherName.substring(0, teacherName.indexOf('['))
-  }
+  ~teacherName.indexOf('[') && (teacherName = teacherName.substring(0, teacherName.indexOf('[')))
   invi.course.teacherName = teacherName
 
   // class

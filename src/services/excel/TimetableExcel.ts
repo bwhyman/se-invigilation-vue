@@ -124,7 +124,7 @@ export const readTimetableExcel = (file: Blob) => {
 
 // 获取课表中起止周
 const getWeeks = (weeks: string, wArrays: Timetable[]) => {
-  if (weeks.indexOf(',') !== -1) {
+  if (~weeks.indexOf(',')) {
     const weeksSplit = weeks.split(',')
     weeksSplit.forEach((w) => {
       getWeeks(w, wArrays)
@@ -135,7 +135,7 @@ const getWeeks = (weeks: string, wArrays: Timetable[]) => {
     wArrays.push({ startweek: Number(weeks), endweek: Number(weeks) })
     return
   }
-  if (weeks.indexOf('-') !== -1) {
+  if (~weeks.indexOf('-')) {
     const weeksSplit = weeks.split('-')
     wArrays.push({ startweek: Number(weeksSplit[0]), endweek: Number(weeksSplit[1]) })
     return
@@ -153,9 +153,7 @@ const formatWeeks = (weeks: string) => {
 
 // 获取课表课程名称
 const getCourseName = (str: string) => {
-  if (str.indexOf('[') !== -1) {
-    str = str.substring(0, str.indexOf('['))
-  }
+  ~str.indexOf('[') && (str = str.substring(0, str.indexOf('[')))
   return str
 }
 
