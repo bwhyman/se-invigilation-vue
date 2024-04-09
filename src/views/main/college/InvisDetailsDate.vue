@@ -4,6 +4,7 @@ import { Crop } from '@element-plus/icons-vue'
 const props = defineProps<{ invis: Invigilation[] }>()
 
 const teachersC = computed(() => (invi: Invigilation) => {
+  if (invi.executor == null) return ''
   let names = ''
   for (const teacher of invi.executor!) {
     names += teacher.userName + '; '

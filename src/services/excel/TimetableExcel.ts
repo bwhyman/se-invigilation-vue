@@ -203,7 +203,10 @@ export const readPostGTimetableExcel = (file: Blob) => {
           const cell = result.v.trim()
           // 节
           const period = `${j - 1}${j}`
-          const cellRows = cell.split(/\r\n+/)
+          // 23年度研究生课表分隔符
+          // const cellRows = cell.split(/\r\n+/)
+          // 24年度研究生课表分隔符
+          const cellRows = cell.split(/\n+/)
           for (let k = 0; k < cellRows.length; k += 2) {
             const row2 = cellRows[k + 1]
             // 教师名称
