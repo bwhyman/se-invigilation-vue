@@ -2,7 +2,7 @@ import type { ImportTimetable, Timetable } from '@/types'
 import * as XLSX from 'xlsx-js-style'
 
 export const readCollegeTimetableExcel = (file: Blob) => {
-  return new Promise<ImportTimetable[]>((resolve) => {
+  return new Promise<ImportTimetable[]>((resolve, reject) => {
     const reader = new FileReader()
     const teachers: ImportTimetable[] = []
     reader.onload = (e: ProgressEvent<FileReader>) => {
@@ -14,6 +14,11 @@ export const readCollegeTimetableExcel = (file: Blob) => {
         const teach: ImportTimetable = { name: '', courses: [] }
         // 获取教师姓名
         teach.name = sheet[`A${i}`].v.replace('东北林业大学', '').replace('教师课表', '').trim()
+        // const existName = teachers.find((t) => t.name == teach.name)?.name
+        // if (existName) {
+        //   reject(`本科课表中，教师：${teach.name}，重名存在2份课表！`)
+        //   return
+        // }
         const weekChars = ['B', 'C', 'D', 'E', 'F', 'G', 'H']
         // k,星期
         for (let k = 0; k < weekChars.length; k++) {
@@ -21,7 +26,18 @@ export const readCollegeTimetableExcel = (file: Blob) => {
           for (let j = i + 3; j <= i + 8; j++) {
             const x = sheet[`${weekChars[k]}${j}`]
             if (!x || x.v.trim().length == 0) continue
-            const sections = x.v.split('\n')
+
+            const sections = (x.v.split('\n') as string[]).filter((str) => str !== '')
+            const len = sections.length
+            if (len % 4 != 0) {
+              reject(
+                `本科课表中，课程片段行数应为4项的倍数，课程/班级/周/教室。<br>
+                教师：<span style="color: red">${teach.name}</span>，星期${k + 1}/${getPeriod(
+                  j - (i - 1)
+                )}节，读取到${len}行！`
+              )
+              return
+            }
             for (const sec of sections) {
               if (sec.trim().length == 0) {
                 sections.splice(sections.indexOf(sec), 1)
@@ -53,9 +69,9 @@ export const readCollegeTimetableExcel = (file: Blob) => {
       }
     }
     reader.onloadend = () => {
-      resolve(teachers)
+      resolve(teachers.filter((teach) => teach.courses.length != 0))
     }
-    reader.readAsBinaryString(file)
+    reader.readAsArrayBuffer(file)
   })
 }
 
@@ -118,7 +134,7 @@ export const readTimetableExcel = (file: Blob) => {
     reader.onloadend = () => {
       resolve(teachers)
     }
-    reader.readAsBinaryString(file)
+    reader.readAsArrayBuffer(file)
   })
 }
 
@@ -185,7 +201,7 @@ const getPeriod = (num: number) => {
 
 // 读取研究生课表
 export const readPostGTimetableExcel = (file: Blob) => {
-  return new Promise<ImportTimetable[]>((resolve) => {
+  return new Promise<ImportTimetable[]>((resolve, reject) => {
     const reader = new FileReader()
     const timetables: ImportTimetable[] = []
     reader.onload = (e: ProgressEvent<FileReader>) => {
@@ -206,7 +222,18 @@ export const readPostGTimetableExcel = (file: Blob) => {
           // 23年度研究生课表分隔符
           // const cellRows = cell.split(/\r\n+/)
           // 24年度研究生课表分隔符
-          const cellRows = cell.split(/\n+/)
+          const cellRows: string[] = cell.replaceAll('\r', '').split('\n')
+
+          if (cellRows.length % 2 != 0) {
+            reject(
+              `研究生课表中，课程片段行数应为2项的倍数，课程/教师。<br>
+              <span style="color: red">星期${i + 1}/第${period}节</span>，读取到${
+                cellRows.length
+              }行！`
+            )
+            return
+          }
+
           for (let k = 0; k < cellRows.length; k += 2) {
             const row2 = cellRows[k + 1]
             // 教师名称
@@ -247,6 +274,6 @@ export const readPostGTimetableExcel = (file: Blob) => {
     reader.onloadend = () => {
       resolve(timetables)
     }
-    reader.readAsBinaryString(file)
+    reader.readAsArrayBuffer(file)
   })
 }
