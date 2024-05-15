@@ -1,7 +1,7 @@
 import type { ImportTimetable, Timetable } from '@/types'
 import * as XLSX from 'xlsx-js-style'
 
-export const readCollegeTimetableExcel = (file: Blob) => {
+export const readTimetableExcel = (file: Blob, isCollege = true) => {
   return new Promise<ImportTimetable[]>((resolve, reject) => {
     const reader = new FileReader()
     const teachers: ImportTimetable[] = []
@@ -31,7 +31,7 @@ export const readCollegeTimetableExcel = (file: Blob) => {
             const len = sections.length
             if (len % 4 != 0) {
               reject(
-                `本科课表中，课程片段行数应为4项的倍数，课程/班级/周/教室。<br>
+                `本科课表中，课程片段行数应为4项的倍数，学院课表：课程/班级/周/教室；个人课表：课程/周/教室/班级。<br>
                 教师：<span style="color: red">${teach.name}</span>，星期${k + 1}/${getPeriod(
                   j - (i - 1)
                 )}节，读取到${len}行！`
@@ -47,8 +47,9 @@ export const readCollegeTimetableExcel = (file: Blob) => {
             const tempP = getPeriod(j - (i - 1))
             // 同一节中有多门课
             for (let m = 0; m < sections.length; m += 4) {
+              // 获取课程课程名称
               const name = getCourseName(sections[m])
-              const weeks = formatWeeks(sections[m + 2])
+              const weeks = isCollege ? formatWeeks(sections[m + 2]) : formatWeeks(sections[m + 1])
               const wArrays: Timetable[] = []
               getWeeks(weeks, wArrays)
               wArrays.forEach((w) => {
@@ -57,8 +58,8 @@ export const readCollegeTimetableExcel = (file: Blob) => {
                 w.period = tempP
                 w.dayweek = k + 1
                 temp.courseName = name
-                temp.clazz = sections[m + 1]
-                temp.location = sections[m + 3]
+                temp.clazz = isCollege ? sections[m + 1] : sections[m + 3]
+                temp.location = isCollege ? sections[m + 3] : sections[m + 2]
                 w.course = temp
                 teach.courses.push(w)
               })
@@ -70,69 +71,6 @@ export const readCollegeTimetableExcel = (file: Blob) => {
     }
     reader.onloadend = () => {
       resolve(teachers.filter((teach) => teach.courses.length != 0))
-    }
-    reader.readAsArrayBuffer(file)
-  })
-}
-
-//
-export const readTimetableExcel = (file: Blob) => {
-  return new Promise<ImportTimetable[]>((resolve) => {
-    const reader = new FileReader()
-    const teachers: ImportTimetable[] = []
-    reader.onload = (e: ProgressEvent<FileReader>) => {
-      const data = e.target?.result
-      const wb = XLSX.read(data, { type: 'binary' })
-      const sheet = wb.Sheets[wb.SheetNames[0]]
-      // 每名教师
-      for (let i = 1; i <= sheet['!rows']!.length; i += 10) {
-        const teach: ImportTimetable = { name: '', courses: [] }
-        // 获取教师姓名
-        teach.name = sheet[`A${i}`].v.replace('东北林业大学', '').replace('教师课表', '').trim()
-        const weekChars = ['B', 'C', 'D', 'E', 'F', 'G', 'H']
-        // k,星期
-        for (let k = 0; k < weekChars.length; k++) {
-          // j,节
-          for (let j = i + 3; j <= i + 8; j++) {
-            const x = sheet[`${weekChars[k]}${j}`]
-
-            if (!x || x.v.trim().length == 0) continue
-            const sections = x.v.split('\n')
-            for (const sec of sections) {
-              if (sec.trim().length == 0) {
-                sections.splice(sections.indexOf(sec), 1)
-              }
-            }
-            // 具体节
-            const tempP = getPeriod(j - (i - 1))
-            // 同一节中有多门课
-            for (let m = 0; m < sections.length; m += 4) {
-              // 课程名称
-              const name = getCourseName(sections[m])
-              //
-              const weeks = formatWeeks(sections[m + 1])
-              const wArrays: Timetable[] = []
-              getWeeks(weeks, wArrays)
-              wArrays.forEach((w) => {
-                const temp: { courseName?: string; location?: string; clazz?: string } = {}
-                w.teacherName = teach.name
-                w.period = tempP
-                w.dayweek = k + 1
-                temp.courseName = name
-                temp.clazz = sections[m + 3]
-                temp.location = sections[m + 2]
-                w.course = temp
-
-                teach.courses.push(w)
-              })
-            }
-          }
-        }
-        teachers.push(teach)
-      }
-    }
-    reader.onloadend = () => {
-      resolve(teachers)
     }
     reader.readAsArrayBuffer(file)
   })

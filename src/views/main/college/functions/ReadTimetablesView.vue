@@ -19,13 +19,13 @@ const readTimetables = async (event: Event) => {
     return
   }
 
-  const { readCollegeTimetableExcel, readPostGTimetableExcel } = await import(
+  const { readTimetableExcel, readPostGTimetableExcel } = await import(
     '@/services/excel/TimetableExcel'
   )
   try {
     const results = await Promise.all([
       listCollegeUsersService(),
-      readCollegeTimetableExcel(element.files[0]),
+      readTimetableExcel(element.files[0]),
       readPostGTimetableExcel(element.files[0])
     ])
 
@@ -65,7 +65,7 @@ const readSingleTimetable = async (event: Event) => {
     return
   }
   const { readTimetableExcel } = await import('@/services/excel/TimetableExcel')
-  importTimetablesR.value = await readTimetableExcel(element.files[0])
+  importTimetablesR.value = await readTimetableExcel(element.files[0], false)
   element.value = ''
 }
 

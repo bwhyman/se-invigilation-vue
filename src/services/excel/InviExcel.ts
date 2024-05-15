@@ -31,7 +31,7 @@ export const readInviExcel = (file: Blob) => {
     reader.onloadend = () => {
       resolve(invis)
     }
-    reader.readAsBinaryString(file)
+    reader.readAsArrayBuffer(file)
   })
 }
 

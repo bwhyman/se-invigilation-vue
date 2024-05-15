@@ -57,7 +57,9 @@ watch(inviTypeR, (newValue) => {
 })
 
 const addInvis = async () => {
-  await addInvigilationsService(invisR.value)
+  const result = invisR.value
+  invisR.value = []
+  await addInvigilationsService(result)
   createElNotificationSuccess('导入成功')
   router.push('/college/imported')
 }
