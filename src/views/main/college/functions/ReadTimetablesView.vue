@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess } from '@/components/message'
 import {
   addTimetableService,
   addTimetablesService,
@@ -54,7 +54,7 @@ const addTimetables = async () => {
   await addTimetablesService(timetables)
   loading.close()
   importTimetablesR.value = []
-  createMessageDialog('导入完成')
+  createElNotificationSuccess('导入完成')
 }
 
 const exposeR = ref<{ selectUser: User; clear: Function }>()
@@ -71,8 +71,7 @@ const readSingleTimetable = async (event: Event) => {
 
 const addTimetable = async () => {
   if (!exposeR.value?.selectUser.id) {
-    createMessageDialog('选择教师错误')
-    return
+    throw '选择教师失败'
   }
   //
   timetables.length = 0
@@ -85,7 +84,7 @@ const addTimetable = async () => {
   importTimetablesR.value = []
 
   await addTimetableService(exposeR.value?.selectUser?.id!, timetables)
-  createMessageDialog('课表导入成功')
+  createElNotificationSuccess('课表导入成功')
   exposeR.value?.clear()
   exposeR.value!.selectUser! = {}
 }

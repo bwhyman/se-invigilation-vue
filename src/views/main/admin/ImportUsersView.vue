@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess } from '@/components/message'
 import { addUsersService, getDingUsersService, listCollegesService } from '@/services/AdminService'
 import type { Department, DingUser, User } from '@/types'
 
@@ -52,7 +52,7 @@ const readUserFile = async (event: Event) => {
     unknownUsers.forEach((u) => (names += u.name + ';'))
     console.log(names)
     setTimeout(() => {
-      createMessageDialog(`钉钉用户存在而表格不存在: ${names}`)
+      throw `钉钉用户存在而表格不存在: ${names}`
     }, 1000)
   }
   element.value = ''
@@ -63,7 +63,7 @@ const addUsersF = async () => {
     collegeName: selectCollegeR.value?.name!,
     users: allUsersR.value
   })
-  createMessageDialog('添加用户成功')
+  createElNotificationSuccess('添加用户成功')
 }
 </script>
 <template>

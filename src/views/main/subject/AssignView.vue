@@ -24,7 +24,7 @@ import { getSettingsService, noticeDingCancelService } from '@/services/CommonSe
 import { useSettingStore } from '@/stores/SettingStore'
 import InviMessage from '../component/InviInfo.vue'
 import { getDepartmentCommentService } from '@/services/SubjectService'
-import { createElNotificationSuccess, createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess } from '@/components/message'
 import { createElLoading } from '@/components/loading'
 
 const props = defineProps<{ inviid: string }>()
@@ -34,9 +34,7 @@ const selectedUsers = ref<InviAssignUser[]>([])
 const resultInit = await Promise.all([getInviService(props.inviid), getSettingsService()])
 const currentInvi = resultInit[0]
 if (!currentInvi) {
-  const msg = '获取监考信息错误!'
-  createMessageDialog(msg)
-  throw new Error(msg)
+  throw '获取监考信息错误!'
 }
 
 const settingsStore = useSettingStore()
@@ -204,8 +202,7 @@ const getDisabledC = computed(() => (user: InviAssignUser) => {
 //
 const submitUsers = async () => {
   if (selectedUsers.value.length != currentInvi.amount) {
-    createMessageDialog('分配教师数与所需监考数不匹配')
-    return
+    throw '分配教师数与所需监考数不匹配'
   }
 
   const loading = createElLoading()
@@ -237,101 +234,103 @@ const submitUsers = async () => {
 </script>
 <template>
   <!--  -->
-  <el-row class="my-row">
-    <el-col style="text-align: center">
-      <InviMessage :invi="currentInvi" />
-    </el-col>
-  </el-row>
-  <!--  -->
-  <el-row class="my-row">
-    <el-col :span="2">
-      <el-tag type="warning">说明</el-tag>
-    </el-col>
-    <el-col :span="22">
-      提交，保存监考分配记录，在下一步独立操作发送钉钉监考通知。
-      <br />
-      重复提交，将覆盖原分配记录，并保存新记录。
-      <br />
-      同一名教师可带自己研究生参加同一场监考，算2次监考。
-      <br />
-    </el-col>
-  </el-row>
-  <el-row class="my-row" v-if="departmentComment.length > 0">
-    <el-col :span="2">
-      <el-tag type="warning">备注</el-tag>
-    </el-col>
-    <el-col :span="22" style="white-space: pre-wrap">
-      {{ departmentComment }}
-    </el-col>
-  </el-row>
-  <el-row class="my-row" v-if="currentUsersR.length > 0">
-    <el-col>
-      <el-tag size="large">当前</el-tag>
-    </el-col>
-    <el-col style="margin-bottom: 10px">
-      <AssignTable :users="currentUsersR" :dayweek="dayweekCN" :hasRules="rulesR.length > 0">
-        <template #userAssign="userAssign">
-          <el-button
-            style="width: 60px"
-            :type="getDisabledC(userAssign.user!).type"
-            :disabled="getDisabledC(userAssign.user!).disabled"
-            @click="handleChange(userAssign.user!)">
-            {{ getDisripC(userAssign.user!) }}
-          </el-button>
-        </template>
-      </AssignTable>
-    </el-col>
-  </el-row>
-  <el-row class="my-row">
-    <el-col :span="6">
-      <el-tag type="success" size="large">建议</el-tag>
-    </el-col>
-    <el-col :span="2" :offset="16">
-      <el-button type="success" :disabled="selectedUsers.length < amountR" @click="submitUsers">
-        提交
-      </el-button>
-    </el-col>
-    <el-col style="margin-bottom: 10px">
-      <AssignTable :users="groupUsers" :dayweek="dayweekCN" :hasRules="rulesR.length > 0">
-        <template #userAssign="userAssign">
-          <el-button
-            style="width: 60px"
-            :type="getDisabledC(userAssign.user!).type"
-            :disabled="getDisabledC(userAssign.user!).disabled"
-            @click="handleChange(userAssign.user!)">
-            {{ getDisripC(userAssign.user!) }}
-          </el-button>
-        </template>
-      </AssignTable>
-    </el-col>
-
-    <el-col>
-      <el-tag type="warning" size="large">冲突</el-tag>
-    </el-col>
-    <el-col style="margin-bottom: 10px">
-      <AssignTable :users="confUsersR" :dayweek="dayweekCN" :hasRules="rulesR.length > 0">
-        <template #userAssign="userAssign">
-          <el-button
-            style="width: 60px"
-            :type="getDisabledC(userAssign.user!).type"
-            :disabled="getDisabledC(userAssign.user!).disabled"
-            @click="handleChange(userAssign.user!)">
-            {{ getDisripC(userAssign.user!) }}
-          </el-button>
-        </template>
-      </AssignTable>
-    </el-col>
-
-    <el-tag type="danger" size="large">关闭</el-tag>
-    <el-col>
-      <el-table :data="closedUsersR">
-        <el-table-column type="index" label="" width="50" />
-        <el-table-column>
-          <template #default="scope">
-            {{ scope.row.name }}
+  <template v-if="currentInvi">
+    <el-row class="my-row">
+      <el-col style="text-align: center">
+        <InviMessage :invi="currentInvi" />
+      </el-col>
+    </el-row>
+    <!--  -->
+    <el-row class="my-row">
+      <el-col :span="2">
+        <el-tag type="warning">说明</el-tag>
+      </el-col>
+      <el-col :span="22">
+        提交，保存监考分配记录，在下一步独立操作发送钉钉监考通知。
+        <br />
+        重复提交，将覆盖原分配记录，并保存新记录。
+        <br />
+        同一名教师可带自己研究生参加同一场监考，算2次监考。
+        <br />
+      </el-col>
+    </el-row>
+    <el-row class="my-row" v-if="departmentComment.length > 0">
+      <el-col :span="2">
+        <el-tag type="warning">备注</el-tag>
+      </el-col>
+      <el-col :span="22" style="white-space: pre-wrap">
+        {{ departmentComment }}
+      </el-col>
+    </el-row>
+    <el-row class="my-row" v-if="currentUsersR.length > 0">
+      <el-col>
+        <el-tag size="large">当前</el-tag>
+      </el-col>
+      <el-col style="margin-bottom: 10px">
+        <AssignTable :users="currentUsersR" :dayweek="dayweekCN" :hasRules="rulesR.length > 0">
+          <template #userAssign="userAssign">
+            <el-button
+              style="width: 60px"
+              :type="getDisabledC(userAssign.user!).type"
+              :disabled="getDisabledC(userAssign.user!).disabled"
+              @click="handleChange(userAssign.user!)">
+              {{ getDisripC(userAssign.user!) }}
+            </el-button>
           </template>
-        </el-table-column>
-      </el-table>
-    </el-col>
-  </el-row>
+        </AssignTable>
+      </el-col>
+    </el-row>
+    <el-row class="my-row">
+      <el-col :span="6">
+        <el-tag type="success" size="large">建议</el-tag>
+      </el-col>
+      <el-col :span="2" :offset="16">
+        <el-button type="success" :disabled="selectedUsers.length < amountR" @click="submitUsers">
+          提交
+        </el-button>
+      </el-col>
+      <el-col style="margin-bottom: 10px">
+        <AssignTable :users="groupUsers" :dayweek="dayweekCN" :hasRules="rulesR.length > 0">
+          <template #userAssign="userAssign">
+            <el-button
+              style="width: 60px"
+              :type="getDisabledC(userAssign.user!).type"
+              :disabled="getDisabledC(userAssign.user!).disabled"
+              @click="handleChange(userAssign.user!)">
+              {{ getDisripC(userAssign.user!) }}
+            </el-button>
+          </template>
+        </AssignTable>
+      </el-col>
+
+      <el-col>
+        <el-tag type="warning" size="large">冲突</el-tag>
+      </el-col>
+      <el-col style="margin-bottom: 10px">
+        <AssignTable :users="confUsersR" :dayweek="dayweekCN" :hasRules="rulesR.length > 0">
+          <template #userAssign="userAssign">
+            <el-button
+              style="width: 60px"
+              :type="getDisabledC(userAssign.user!).type"
+              :disabled="getDisabledC(userAssign.user!).disabled"
+              @click="handleChange(userAssign.user!)">
+              {{ getDisripC(userAssign.user!) }}
+            </el-button>
+          </template>
+        </AssignTable>
+      </el-col>
+
+      <el-tag type="danger" size="large">关闭</el-tag>
+      <el-col>
+        <el-table :data="closedUsersR">
+          <el-table-column type="index" label="" width="50" />
+          <el-table-column>
+            <template #default="scope">
+              {{ scope.row.name }}
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-col>
+    </el-row>
+  </template>
 </template>

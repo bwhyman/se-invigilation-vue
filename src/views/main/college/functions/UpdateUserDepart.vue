@@ -2,7 +2,7 @@
 import type { Department, User, UserDepartment } from '@/types'
 import DepartmentUser from './finduser/DepartmentUser.vue'
 import { listDepartmentsService, updateUserDepartmentService } from '@/services/CollegeService'
-import { createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess } from '@/components/message'
 import { useUserStore } from '@/stores/UserStore'
 const exposeR = ref<{ selectUser: User; clear: Function }>()
 
@@ -18,8 +18,7 @@ const updateF = async () => {
   const userStore = useUserStore()
   const depart = departmentsR.value.find((d) => d.id == departmentR.value?.id)
   if (!depart) {
-    createMessageDialog('选择部门错误')
-    return
+    throw '选择部门错误'
   }
   const dep: UserDepartment = {
     collId: userStore.userS.department?.collId,
@@ -29,7 +28,7 @@ const updateF = async () => {
   }
   const user: User = { id: exposeR.value?.selectUser.id, department: dep }
   await updateUserDepartmentService(user)
-  createMessageDialog('部门更新成功')
+  createElNotificationSuccess('部门更新成功')
   exposeR.value?.clear()
   exposeR.value!.selectUser! = {}
 }

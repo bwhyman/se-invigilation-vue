@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess } from '@/components/message'
 import {
   listDepartmentsService,
   updateDepartmentInviStatusService
@@ -27,7 +27,7 @@ const updateUserInviStatus = async () => {
 
   const departs = await updateDepartmentInviStatusService(deps)
   departmentR.value = departs
-  createMessageDialog('更新成功')
+  createElNotificationSuccess('更新成功')
 }
 </script>
 <template>

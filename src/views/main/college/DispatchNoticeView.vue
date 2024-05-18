@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createElNotificationSuccess, createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { listDispatchersService, noticeDispatcherService } from '@/services/CollegeService'
 import { getSettingsService } from '@/services/CommonService'
@@ -25,8 +25,7 @@ const noticeDispatchersF = async () => {
   }
   const result = await noticeDispatcherService(notice)
   if (result?.errcode != 0) {
-    createMessageDialog('发送通知错误，请重新尝试')
-    return
+    throw '发送钉钉通知错误，请重新尝试'
   }
   createElNotificationSuccess(`发送通知成功。task_id: ${result.task_id}`)
   router.push('/college/imported')

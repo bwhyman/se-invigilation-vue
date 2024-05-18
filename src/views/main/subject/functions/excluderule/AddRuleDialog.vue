@@ -3,7 +3,7 @@ import { addExcludeRuleService, listUsersService } from '@/services/SubjectServi
 import type { ExcludeRule, User } from '@/types'
 import { Plus } from '@element-plus/icons-vue'
 import { dayOfWeeks, periodOfDays } from '@/services/ExcludeRule'
-import { createElNotificationSuccess, createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess } from '@/components/message'
 
 const dialogFormVisible = ref(false)
 const usersR = ref<User[]>([])
@@ -71,12 +71,10 @@ const periodOfDayChangeF = () => {
 
 const submitF = async () => {
   if (!excludeRuleR.value.userId || excludeRuleR.value.userId?.length == 0) {
-    createMessageDialog('教师不能为空')
-    return
+    throw '教师不能为空'
   }
   if (excludeRuleR.value.startweek! > excludeRuleR.value.endweek!) {
-    createMessageDialog('开始周不能小于结束周')
-    return
+    throw '开始周不能小于结束周'
   }
   excludeRuleR.value.teacherName = usersR.value.find((u) => u.id == excludeRuleR.value.userId)?.name
   dialogFormVisible.value = false

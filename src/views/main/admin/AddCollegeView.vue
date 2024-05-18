@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess } from '@/components/message'
 import { addCollegeService } from '@/services/AdminService'
 
 const collegeNameR = ref('')
 const addCollegeF = async () => {
   await addCollegeService(collegeNameR.value)
-  createMessageDialog('添加成功')
+  createElNotificationSuccess('添加成功')
   collegeNameR.value = ''
 }
 </script>

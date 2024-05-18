@@ -11,7 +11,7 @@ import type { Invigilation, Notice, User } from '@/types'
 import { SUBJECT_ADMIN, COLLEGE_ADMIN } from '@/services/Const'
 import router from '@/router'
 import { getCollegeInviService } from '@/services/CollegeService'
-import { createElNotificationSuccess, createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess } from '@/components/message'
 import { createElLoading } from '@/components/loading'
 
 const props = defineProps<{ inviid: string }>()
@@ -72,8 +72,7 @@ notice.noticeMessage = noticeMessage
 
 const noticeAssignersF = async () => {
   if (invigilationR.value?.calendarId != null) {
-    createMessageDialog(`请勿重复发送通知。如需更改请返回分配页面重新分配监考`)
-    return
+    throw `请勿重复发送通知。如需更改请返回分配页面重新分配监考`
   }
 
   // 计算监考前一天9点

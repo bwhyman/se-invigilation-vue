@@ -2,13 +2,13 @@
 import type { User } from '@/types'
 import DepartmentUser from './finduser/DepartmentUser.vue'
 import { removeUserService } from '@/services/CollegeService'
-import { createElNotificationSuccess, createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess } from '@/components/message'
 
 const exposeR = ref<{ selectUser: User; clear: Function }>()
 
 const removeF = () => {
   if (!exposeR.value?.selectUser.id) {
-    createMessageDialog('用户为空，请选择用户')
+    throw '用户为空，请选择用户'
   }
   ElMessageBox.confirm(`删除用户 ${exposeR.value?.selectUser.name}，确定删除？`, 'Warning', {
     confirmButtonText: 'OK',

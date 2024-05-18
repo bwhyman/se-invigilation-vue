@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess } from '@/components/message'
 import { resetPasswordService } from '@/services/CollegeService'
 import type { User } from '@/types'
 import DepartmentUser from './finduser/DepartmentUser.vue'
@@ -8,7 +8,7 @@ const exposeR = ref<{ selectUser: User; clear: Function }>()
 
 const changeF = async () => {
   await resetPasswordService(exposeR.value?.selectUser.account!)
-  createMessageDialog('密码重置成功')
+  createElNotificationSuccess('密码重置成功')
   exposeR.value?.clear()
   exposeR.value!.selectUser! = {}
 }

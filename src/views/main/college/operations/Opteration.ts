@@ -1,4 +1,3 @@
-import { createMessageDialog } from '@/components/message'
 import router from '@/router'
 import { cutInviService } from '@/services/CollegeService'
 import { IMPORT } from '@/services/Const'
@@ -13,8 +12,7 @@ export const editF = (invi: Invigilation) => {
 
 export const assignF = (invi: Invigilation) => {
   if (invi.amount != 1) {
-    createMessageDialog('只能为监考人数为1的监考直接分配')
-    return
+    throw '只能为监考人数为1的监考直接分配'
   }
   storeToRefs(useInvigilationsStore()).currentInviS.value = invi
   const name = invi.course?.teacherName
@@ -25,8 +23,7 @@ export const assignF = (invi: Invigilation) => {
 //
 export const cutF = async (invi: Invigilation) => {
   if (invi.amount && invi.amount <= 1) {
-    createMessageDialog('监考人数必须大于1')
-    return
+    throw '监考人数必须大于1'
   }
 
   ElMessageBox.confirm('从当前监考剪裁一份新监考？', 'Warning', {

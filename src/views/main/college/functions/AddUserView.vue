@@ -7,7 +7,7 @@ import {
 import { useUserStore } from '@/stores/UserStore'
 import { ROLES, USER } from '@/services/Const'
 import type { Department, User } from '@/types'
-import { createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess } from '@/components/message'
 import { createElLoading } from '@/components/loading'
 
 const departmentsR = ref<Department[]>([])
@@ -19,8 +19,7 @@ const searchF = async () => {
   try {
     const dingUser = await getDingUserService(userR.value.mobile!)
     if (!dingUser?.userid || !dingUser.unionid) {
-      createMessageDialog('无法查询到钉钉用户')
-      return
+      throw '无法查询到钉钉用户'
     }
     userR.value.name = dingUser?.name
     userR.value.dingUserId = dingUser?.userid
@@ -45,13 +44,12 @@ const submitF = async () => {
     !userR.value.account ||
     !userR.value.department?.depId
   ) {
-    createMessageDialog('有必填项为空')
-    return
+    throw '有必填项为空'
   }
 
   await addUserService(userR.value)
   userR.value = {}
-  createMessageDialog('添加成功')
+  createElNotificationSuccess('添加成功')
 }
 </script>
 <template>

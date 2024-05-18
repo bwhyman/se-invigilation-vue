@@ -12,5 +12,7 @@ app.use(router)
 app.mount('#app')
 
 app.config.errorHandler = (err) => {
-  createMessageDialog(err as string)
+  const error = err as string
+  console.error(error)
+  createMessageDialog(error)
 }

@@ -19,19 +19,18 @@ if (userLocal) {
   userLocalR.value = JSON.parse(userLocal)
 }
 
-const login = () => {
-  let account = userR.value.account
-  let password = userR.value.password
-
-  loginService(
+const login = async () => {
+  const account = userR.value.account
+  const password = userR.value.password
+  userR.value.account = ''
+  userR.value.password = ''
+  await loginService(
     {
       account: account,
       password: password
     },
     freeR.value
   )
-  userR.value.account = ''
-  userR.value.password = ''
 }
 
 const freeLoginF = () => {

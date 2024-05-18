@@ -1,7 +1,7 @@
 import axios from '@/axios'
 import type { Department, DingUser, ResultVO, User } from '@/types'
 import { useUsersStore } from '@/stores/UsersStore'
-import { createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess } from '@/components/message'
 
 const usersStore = useUsersStore()
 
@@ -14,7 +14,7 @@ export const addCollegeService = async (name: string) => {
       name: name
     }
   )
-  createMessageDialog(resp.data.data?.department.name ?? '')
+  createElNotificationSuccess(resp.data.data?.department.name ?? '')
 }
 
 //

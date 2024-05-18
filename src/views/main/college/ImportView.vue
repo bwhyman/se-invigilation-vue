@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createElNotificationSuccess, createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { addInvigilationsService } from '@/services/CollegeService'
 import { IMPORT } from '@/services/Const'
@@ -32,9 +32,6 @@ const readInvis = async (event: Event) => {
         invi.status = IMPORT
         invi.importer = stringInviTime(userStore.userS)
       })
-    })
-    .catch((error) => {
-      createMessageDialog(error as string)
     })
     .finally(() => {
       element.value = ''

@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import { createMessageDialog } from '@/components/message'
+import { createElNotificationSuccess } from '@/components/message'
 import { addDepartmentCommentService, getDepartmentCommentService } from '@/services/SubjectService'
 
 const comment = await getDepartmentCommentService()
 const commentR = ref(comment)
 const sendF = async () => {
   if (commentR.value.length == 0) {
-    createMessageDialog('备注信息为空')
-    return
+    throw '备注信息为空'
   }
 
   await addDepartmentCommentService(commentR.value)
-  createMessageDialog('备注信息已保存')
+  createElNotificationSuccess('备注信息已保存')
 }
 </script>
 <template>
