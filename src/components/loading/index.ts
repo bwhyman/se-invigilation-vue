@@ -1,5 +1,3 @@
-import { ElLoading } from 'element-plus'
-
 export const createElLoading = (msg: string = 'Loading') => {
   return ElLoading.service({
     lock: true,

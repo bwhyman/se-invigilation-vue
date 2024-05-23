@@ -319,18 +319,20 @@ const submitUsers = async () => {
           </template>
         </AssignTable>
       </el-col>
-
-      <el-tag type="danger" size="large">关闭</el-tag>
-      <el-col>
-        <el-table :data="closedUsersR">
-          <el-table-column type="index" label="" width="50" />
-          <el-table-column>
-            <template #default="scope">
-              {{ scope.row.name }}
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-col>
+      <!-- closed -->
+      <template v-if="closedUsersR.length > 0">
+        <el-tag type="danger" size="large">关闭</el-tag>
+        <el-col>
+          <el-table :data="closedUsersR">
+            <el-table-column type="index" label="" width="50" />
+            <el-table-column>
+              <template #default="scope">
+                {{ scope.row.name }}
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-col>
+      </template>
     </el-row>
   </template>
 </template>
