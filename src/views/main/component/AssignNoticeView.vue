@@ -82,6 +82,8 @@ const noticeAssignersF = async () => {
   const y = x - 1000 * 60 * 60 * 24
   const z = new Date(y)
   z.setHours(9)
+  z.setMinutes(0)
+  z.setSeconds(0)
   const remindMinutes = (x - z.getTime()) / (1000 * 60)
   notice.remindMinutes = remindMinutes
 
