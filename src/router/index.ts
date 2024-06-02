@@ -42,14 +42,12 @@ const routes: RouteRecordRaw[] = [
         },
         children: [
           {
-            props: true,
             path: 'imported/:page?',
             alias: 'imported',
             component: () => import('@/views/main/college/ImportedListView.vue')
           },
 
           {
-            props: true,
             path: 'dispatched/:depid?/:page?',
             component: () => import('@/views/main/college/DispatchedListView.vue')
           },
@@ -66,22 +64,18 @@ const routes: RouteRecordRaw[] = [
             component: () => import('@/views/main/college/AddInviView.vue')
           },
           {
-            props: true,
             path: 'noticedepartments/:depid',
             component: () => import('@/views/main/college/DispatchNoticeView.vue')
           },
           {
-            props: true,
             path: 'inviedit/:inviid',
             component: () => import('@/views/main/college/InviEditView.vue')
           },
           {
-            props: true,
             path: 'assigns/:inviid/names/:name',
             component: () => import('@/views/main/college/AssignView.vue')
           },
           {
-            props: true,
             path: 'invinotice/:inviid',
             component: () => import('@/views/main/component/AssignNoticeView.vue')
           },
@@ -99,12 +93,10 @@ const routes: RouteRecordRaw[] = [
         },
         children: [
           {
-            props: true,
             path: 'dispatched/:page?',
             component: () => import('@/views/main/subject/DispatchedListView.vue')
           },
           {
-            props: true,
             path: 'assigned/:page?',
             component: () => import('@/views/main/subject/AssignedListView.vue')
           },
@@ -113,12 +105,10 @@ const routes: RouteRecordRaw[] = [
             component: () => import('@/views/main/subject/functions/IndexView.vue')
           },
           {
-            props: true,
             path: 'assigns/:inviid',
             component: () => import('@/views/main/subject/AssignView.vue')
           },
           {
-            props: true,
             path: 'notices/:inviid',
             component: () => import('@/views/main/component/AssignNoticeView.vue')
           }

@@ -6,11 +6,6 @@ import DepartmentView from './DepartmentView.vue'
 import router from '@/router'
 import { Edit } from '@element-plus/icons-vue'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
-interface Props {
-  depid?: string
-  page?: string
-}
-
 const inviS = ref<Invigilation[]>([])
 const pageR = ref<Page>({
   currentpage: 0,
@@ -20,21 +15,21 @@ const pageR = ref<Page>({
 
 const departTotalsR: { id: string; total: number }[] = []
 const route = useRoute()
+let params: { depid?: string; page?: string }
 watchEffect(async () => {
-  const { depid, page } = route.params as Props
-  if (!depid) return
-  const cpage = page ? parseInt(page) : 1
-
-  inviS.value = await listDepatchedsService(depid, cpage)
-  let depTotal = departTotalsR.find((dep) => dep.id == depid)
+  params = route.params
+  if (!params.depid) return
+  const cpage = params.page ? parseInt(params.page) : 1
+  inviS.value = await listDepatchedsService(params.depid, cpage)
+  let depTotal = departTotalsR.find((dep) => dep.id == params.depid)
   if (!depTotal) {
-    const x = (await getDepatchedTotalService(depid)) ?? 1
-    depTotal = { id: depid, total: x }
+    const x = (await getDepatchedTotalService(params.depid)) ?? 1
+    depTotal = { id: params.depid, total: x }
     departTotalsR.push(depTotal)
   }
   pageR.value.total = depTotal?.total
   pageR.value.currentpage = cpage
-  pageR.value.url = `/college/dispatched/${depid}`
+  pageR.value.url = `/college/dispatched/${params.depid}`
 })
 
 const departChange = (dep: Department) => {

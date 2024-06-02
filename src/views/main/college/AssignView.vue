@@ -15,11 +15,11 @@ import type { AssignUser, Department, Invigilation, User } from '@/types'
 import InviMessage from '@/views/main/component/InviInfo.vue'
 import { createElLoading } from '@/components/loading'
 
-const props = defineProps<{ inviid: string; name: string }>()
+const params = useRoute().params as { inviid: string; name: string }
 
 const results = await Promise.all([
-  getCollegeInviService(props.inviid),
-  getUserByNameServie(props.name),
+  getCollegeInviService(params.inviid),
+  getUserByNameServie(params.name),
   getSettingsService()
 ])
 
@@ -96,7 +96,7 @@ const searchF = async () => {
       <el-col style="margin-bottom: 10px" v-if="!selfSearchR">
         <p v-if="usersR.length == 0">
           未找到
-          <el-tag type="danger">{{ props.name }}</el-tag>
+          <el-tag type="danger">{{ params.name }}</el-tag>
           教师，请手动检索分配
         </p>
         <el-radio-group v-model="selectUserR" v-if="usersR.length > 0">

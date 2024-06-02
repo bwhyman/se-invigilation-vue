@@ -12,8 +12,8 @@ import { IMPORT } from '@/services/Const'
 import type { Invigilation } from '@/types'
 import type { FormInstance, FormRules } from 'element-plus'
 
-const props = defineProps<{ inviid: string }>()
-let invi = await getCollegeInviService(props.inviid)
+const params = useRoute().params as { inviid: string }
+let invi = await getCollegeInviService(params.inviid)
 const isAssigned = ref(false)
 const unlockedR = ref(true)
 
@@ -281,7 +281,7 @@ const resetInvi = () => {
   <el-row class="my-row">
     <el-col>
       <div style="margin-bottom: 10px">
-        删除监考，将向监考教师发送钉钉取消监考工作通知，及取消监考日程
+        删除监考，将向监考教师发送钉钉取消监考工作通知，取消监考日程，并删除监考数据。
       </div>
 
       <el-button type="danger" @click="delInvi">删除监考</el-button>

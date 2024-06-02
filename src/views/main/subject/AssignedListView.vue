@@ -6,9 +6,6 @@ import { Edit } from '@element-plus/icons-vue'
 import type { Invigilation, Page } from '@/types'
 import router from '@/router'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
-interface Props {
-  page?: string
-}
 
 const inviS = ref<Invigilation[]>([])
 const total = await getTotalsService(ASSIGN)
@@ -19,10 +16,10 @@ const pageR = ref<Page>({
   url: '/subject/assigned'
 })
 const route = useRoute()
-
+let params: { page?: string }
 watchEffect(async () => {
-  const { page } = route.params as Props
-  const cpage = page ? parseInt(page) : 1
+  params = route.params
+  const cpage = params.page ? parseInt(params.page) : 1
   inviS.value = await listInvisService(ASSIGN, cpage)
   pageR.value.currentpage = cpage
 })

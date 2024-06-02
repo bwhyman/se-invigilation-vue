@@ -5,13 +5,12 @@ import { listDispatchersService, noticeDispatcherService } from '@/services/Coll
 import { getSettingsService } from '@/services/CommonService'
 import { useSettingStore } from '@/stores/SettingStore'
 import type { Notice, User } from '@/types'
-const props = defineProps<{ depid: string }>()
-
+const params = useRoute().params as { depid: string }
 // notice
 const dispatchersR = ref<User[]>([])
 const selDisR = ref<string[]>([])
 
-const results = await Promise.all([listDispatchersService(props.depid), getSettingsService()])
+const results = await Promise.all([listDispatchersService(params.depid), getSettingsService()])
 
 dispatchersR.value = results[0]
 

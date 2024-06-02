@@ -6,7 +6,8 @@ import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 import type { Invigilation, Page } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 
-const props = defineProps<{ page?: string }>()
+const route = useRoute()
+let params: { page?: string }
 const inviS = ref<Invigilation[]>([])
 const total = await getTotalsService(DISPATCH)
 
@@ -17,9 +18,10 @@ const pageR = ref<Page>({
 })
 
 watch(
-  props,
+  route,
   async () => {
-    const cpage = props.page ? parseInt(props.page) : 1
+    params = route.params
+    const cpage = params.page ? parseInt(params.page) : 1
     inviS.value = await listInvisService(DISPATCH, cpage)
     pageR.value.currentpage = cpage
   },

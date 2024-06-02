@@ -27,11 +27,13 @@ import { getDepartmentCommentService } from '@/services/SubjectService'
 import { createElNotificationSuccess } from '@/components/message'
 import { createElLoading } from '@/components/loading'
 
-const props = defineProps<{ inviid: string }>()
+const params = useRoute().params as { inviid: string }
+console.log(params)
+
 //
 const selectedUsers = ref<InviAssignUser[]>([])
 
-const resultInit = await Promise.all([getInviService(props.inviid), getSettingsService()])
+const resultInit = await Promise.all([getInviService(params.inviid), getSettingsService()])
 const currentInvi = resultInit[0]
 if (!currentInvi) {
   throw '获取监考信息错误!'
@@ -226,7 +228,7 @@ const submitUsers = async () => {
     await noticeDingCancelService(currentInvi.id!)
     await addAssignUsersService(currentInvi.id!, assignUsersR.value)
     createElNotificationSuccess('监考已分配')
-    router.push(`/subject/notices/${props.inviid}`)
+    router.push(`/subject/notices/${params.inviid}`)
   } finally {
     loading.close()
   }

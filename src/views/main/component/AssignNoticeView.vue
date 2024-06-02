@@ -14,18 +14,17 @@ import { getCollegeInviService } from '@/services/CollegeService'
 import { createElNotificationSuccess } from '@/components/message'
 import { createElLoading } from '@/components/loading'
 
-const props = defineProps<{ inviid: string }>()
-
+const params = useRoute().params as { inviid: string }
 const role = sessionStorage.getItem('role')
 let getInvi
 if (role == COLLEGE_ADMIN) {
-  getInvi = getCollegeInviService(props.inviid)
+  getInvi = getCollegeInviService(params.inviid)
 } else if (role == SUBJECT_ADMIN) {
-  getInvi = getInviService(props.inviid)
+  getInvi = getInviService(params.inviid)
 }
 
 const results = await Promise.all([
-  listInviDetailUsersService(props.inviid),
+  listInviDetailUsersService(params.inviid),
   getInvi,
   getSettingsService()
 ])
