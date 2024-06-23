@@ -15,14 +15,14 @@ watch(exposeR, async () => {
 
 //
 const updateF = async () => {
-  const userStore = getSelfUserService()
+  const userS = getSelfUserService()
   const depart = departmentsR.value.find((d) => d.id == departmentR.value?.id)
   if (!depart) {
     throw '选择部门错误'
   }
   const dep: UserDepartment = {
-    collId: userStore.userS.department?.collId,
-    collegeName: userStore.userS.department?.collegeName,
+    collId: userS.department?.collId,
+    collegeName: userS.department?.collegeName,
     depId: depart.id,
     departmentName: depart.name
   }

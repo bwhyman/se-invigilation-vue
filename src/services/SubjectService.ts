@@ -24,13 +24,13 @@ const invisStore = useInvigilationsStore()
 
 // 加载专业内全部教师
 export const listUsersService = async () => {
-  let users = usersStore.usersS
-  if (users.length > 0) return users
+  const usersS = storeToRefs(usersStore).usersS
+  if (usersS.value.length > 0) return usersS
 
   const resp = await axios.get<ResultVO<{ users: User[] }>>(`${SUBJECT}/users`)
   //
-  usersStore.usersS = users = resp.data.data?.users ?? []
-  return users
+  usersS.value = resp.data.data?.users ?? []
+  return usersS
 }
 
 //

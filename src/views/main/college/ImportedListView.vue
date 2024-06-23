@@ -13,7 +13,7 @@ import { getSelfUserService } from '@/services/CommonService'
 const inviS = await listImportedService()
 const pageR = ref<Page>({
   currentpage: 1,
-  total: inviS.length,
+  total: inviS.value.length,
   url: '',
   noPage: true
 })

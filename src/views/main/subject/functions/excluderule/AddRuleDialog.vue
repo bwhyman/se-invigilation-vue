@@ -11,7 +11,7 @@ const excludeRuleR = ref<ExcludeRule>({})
 
 const openDialogF = async () => {
   dialogFormVisible.value = true
-  usersR.value = await listUsersService()
+  usersR.value = (await listUsersService()).value
 }
 const closedialF = () => {
   excludeRuleR.value = {}

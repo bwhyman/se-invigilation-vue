@@ -52,13 +52,13 @@ export const addInvigilationsService = async (invis: Invigilation[]) => {
 }
 
 export const listImportedService = async () => {
-  let invisImported = invisStore.invigilationsImportS
-  if (invisImported.length > 0) return invisImported
+  let invisImported = storeToRefs(invisStore).invigilationsImportS
+  if (invisImported.value.length > 0) return invisImported
 
   const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
     `${COLLEGE}/invilations/imported`
   )
-  invisStore.invigilationsImportS = invisImported = resp.data.data!.invis ?? []
+  invisImported.value = resp.data.data!.invis ?? []
 
   return invisImported
 }
@@ -79,7 +79,7 @@ export const getDepatchedTotalService = async (depid: string) => {
 
 export const listDepatchedsService = async (depid: string, page: number) => {
   const invisDepatchedS = invisStore.invigilationsDispatchMapS.get(`${depid}-${page}`)
-  if(invisDepatchedS) return invisDepatchedS
+  if (invisDepatchedS) return invisDepatchedS
   const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
     `${COLLEGE}/invilations/dispatched/${depid}/${page}`
   )
@@ -98,7 +98,10 @@ export const updateInvisService = async (invis: Invigilation[]) => {
     // @ts-ignore
     i.department && (i.department = JSON.stringify(i.department))
   })
-  const resp = await axios.patch<ResultVO<{ invis: Invigilation[] }>>(`${COLLEGE}/invigilations/dispatch`, invis)
+  const resp = await axios.patch<ResultVO<{ invis: Invigilation[] }>>(
+    `${COLLEGE}/invigilations/dispatch`,
+    invis
+  )
   invisStore.invigilationsImportS = resp.data.data?.invis ?? []
   return invisStore.invigilationsImportS
 }
@@ -384,8 +387,8 @@ export const removeCollegeInvisService = async () => {
   return true
 }
 
-// 
-export const removeDepartmentService = async(depid: string) => {
+//
+export const removeDepartmentService = async (depid: string) => {
   const resp = await axios.delete(`${COLLEGE}/departments/${depid}`)
   departmentsStore.clear()
 }

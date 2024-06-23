@@ -3,12 +3,12 @@ import { createElNotificationSuccess } from '@/components/message'
 import { listUsersService, updateUserInviStatusService } from '@/services/SubjectService'
 import type { User } from '@/types'
 
-const users = await listUsersService()
+const usersS = await listUsersService()
 //
 const btnR = ref(true)
 
 const userStatusR = ref<User[]>([])
-users.forEach((us) => {
+usersS.value.forEach((us) => {
   userStatusR.value.push({ id: us.id, inviStatus: us.inviStatus, name: us.name })
 })
 

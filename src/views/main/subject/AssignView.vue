@@ -73,7 +73,7 @@ const rulesR = allP[5]
 
 // 分别计算渲染
 const groupUsers: InviAssignUser[] = []
-const allUsers: User[] = [...usersS]
+const allUsers: User[] = [...usersS.value]
 const closedUsersR: User[] = []
 const confUsersR: InviAssignUser[] = []
 const currentUsersR: InviAssignUser[] = []
@@ -213,7 +213,7 @@ const submitUsers = async () => {
   if (currentInvi.calendarId) {
     const userIds: string[] = []
     currentInvi.executor!.forEach((ex) => {
-      const user = usersS.find((u) => u.id == ex.userId)
+      const user = usersS.value.find((u) => u.id == ex.userId)
       user && userIds.push(user.dingUserId!)
     })
   }
