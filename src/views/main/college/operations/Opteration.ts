@@ -1,20 +1,20 @@
 import router from '@/router'
 import { cutInviService } from '@/services/CollegeService'
+import { setCurrentInviService } from '@/services/CommonService'
 import { IMPORT } from '@/services/Const'
-import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 import type { Invigilation } from '@/types'
 
 //
 export const editF = (invi: Invigilation) => {
   router.push(`/college/inviedit/${invi.id}`)
-  useInvigilationsStore().currentInviS = invi
+  setCurrentInviService(invi)
 }
 
 export const assignF = (invi: Invigilation) => {
   if (invi.amount != 1) {
     throw '只能为监考人数为1的监考直接分配'
   }
-  storeToRefs(useInvigilationsStore()).currentInviS.value = invi
+  setCurrentInviService(invi)
   const name = invi.course?.teacherName
   const inviid = invi.id
   router.push(`/college/assigns/${inviid}/names/${name}`)

@@ -1,9 +1,10 @@
 import axios from '@/axios'
-import type { ResultVO, Setting, User } from '@/types'
+import type { Invigilation, ResultVO, Setting, User } from '@/types'
 import { COLLEGE_ADMIN, SUBJECT_ADMIN, SUPER_ADMIN } from './Const'
 import { useUserStore } from '@/stores/UserStore'
 import router from '@/router'
 import { useSettingStore } from '@/stores/SettingStore'
+import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 
 const userStore = useUserStore()
 
@@ -89,6 +90,12 @@ export const noticeDingCancelService = async (inviid: string) => {
   await axios.delete(`invinotices/${inviid}`)
 }
 
+//
 export const getSelfUserService = () => {
   return userStore.userS
+}
+//
+export const setCurrentInviService = (invi: Invigilation) => {
+  const store = useInvigilationsStore()
+  storeToRefs(store).currentInviS.value = invi
 }

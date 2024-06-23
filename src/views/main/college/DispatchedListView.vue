@@ -5,7 +5,7 @@ import InviTable from '@/views/main/component/InviTable.vue'
 import DepartmentView from './DepartmentView.vue'
 import router from '@/router'
 import { Edit } from '@element-plus/icons-vue'
-import { useInvigilationsStore } from '@/stores/InvigilationsStore'
+import { setCurrentInviService } from '@/services/CommonService'
 const inviS = ref<Invigilation[]>([])
 const pageR = ref<Page>({
   currentpage: 0,
@@ -39,7 +39,7 @@ const departChange = (dep: Department) => {
 const editF = (inviid: string) => {
   router.push(`/college/inviedit/${inviid}`)
   const invi = inviS.value.find((i) => i.id == inviid)
-  storeToRefs(useInvigilationsStore()).currentInviS.value = invi
+  invi && setCurrentInviService(invi)
 }
 </script>
 <template>

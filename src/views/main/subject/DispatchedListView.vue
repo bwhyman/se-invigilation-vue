@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import router from '@/router'
+import { setCurrentInviService } from '@/services/CommonService'
 import { DISPATCH } from '@/services/Const'
 import { getTotalsService, listInvisService } from '@/services/SubjectService'
-import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 import type { Invigilation, Page } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 
@@ -30,7 +30,7 @@ watch(
 
 //
 const assignF = (invi: Invigilation) => {
-  useInvigilationsStore().currentInviS = invi
+  setCurrentInviService(invi)
   router.push(`/subject/assigns/${invi.id}`)
 }
 </script>

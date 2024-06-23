@@ -5,7 +5,7 @@ import { ASSIGN } from '@/services/Const'
 import { Edit } from '@element-plus/icons-vue'
 import type { Invigilation, Page } from '@/types'
 import router from '@/router'
-import { useInvigilationsStore } from '@/stores/InvigilationsStore'
+import { setCurrentInviService } from '@/services/CommonService'
 
 const inviS = ref<Invigilation[]>([])
 const total = await getTotalsService(ASSIGN)
@@ -25,7 +25,7 @@ watchEffect(async () => {
 })
 
 const editF = (invi: Invigilation) => {
-  useInvigilationsStore().currentInviS = invi
+  setCurrentInviService(invi)
   router.push(`/subject/assigns/${invi.id}`)
 }
 </script>

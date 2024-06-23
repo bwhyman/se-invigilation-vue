@@ -36,7 +36,7 @@ export const listUsersService = async () => {
 //
 export const listInvisService = async (status: number, page: number) => {
   let invis = invisStore.invigilationsDispatchMapS.get(`${status}-${page}`)
-  if(invis) return invis
+  if (invis) return invis
 
   const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
     `${SUBJECT}/invis/status/${status}/${page}`
