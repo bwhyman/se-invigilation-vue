@@ -24,7 +24,7 @@ const searchF = async () => {
     userR.value.name = dingUser?.name
     userR.value.dingUserId = dingUser?.userid
     userR.value.dingUnionId = dingUser?.unionid
-    departmentsR.value = await listDepartmentsService()
+    departmentsR.value = (await listDepartmentsService()).value
   } finally {
     loading.close()
   }

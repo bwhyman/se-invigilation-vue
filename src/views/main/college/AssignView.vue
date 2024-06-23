@@ -80,7 +80,7 @@ const searchF = async () => {
   selfSearchR.value = true
   selectUserR.value = undefined
   usersR.value.length = 0
-  departmentsR.value = await listDepartmentsService()
+  departmentsR.value = (await listDepartmentsService()).value
 }
 </script>
 <template>

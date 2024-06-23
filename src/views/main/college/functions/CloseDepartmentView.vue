@@ -6,9 +6,7 @@ import {
 } from '@/services/CollegeService'
 import type { Department } from '@/types'
 
-let departments = await listDepartmentsService()
-
-const departmentR = ref(departments)
+const departmentR = await listDepartmentsService()
 
 // 更新专业监考下发显示
 const btnR = ref(true)

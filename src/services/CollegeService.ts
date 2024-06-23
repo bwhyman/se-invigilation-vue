@@ -9,7 +9,8 @@ import type {
   NoticeRemark,
   ResultVO,
   Timetable,
-  User
+  User,
+  UserDepartment
 } from '@/types'
 import axios from '@/axios'
 import { useDepartmentsStore } from '@/stores/DepartmentStore'
@@ -198,14 +199,13 @@ export const resetInviService = async (inviid: string) => {
 
 //
 export const listDepartmentsService = async () => {
-  const departments = departmentsStore.departments
-  if (departments.length > 0) {
+  const departments = storeToRefs(departmentsStore).departments
+  if (departments.value.length > 0) {
     return departments
   }
   const resp = await axios.get<ResultVO<{ departments: Department[] }>>(`${COLLEGE}/departments`)
-  const departs = resp.data.data?.departments ?? []
-  departmentsStore.departments = departs
-  return departs
+  departments.value = resp.data.data?.departments ?? []
+  return departments
 }
 
 //
@@ -389,6 +389,19 @@ export const removeCollegeInvisService = async () => {
 
 //
 export const removeDepartmentService = async (depid: string) => {
-  const resp = await axios.delete(`${COLLEGE}/departments/${depid}`)
-  departmentsStore.clear()
+  const resp = await axios.delete<ResultVO<{ departments: Department[] }>>(
+    `${COLLEGE}/departments/${depid}`
+  )
+  storeToRefs(departmentsStore).departments.value = resp.data.data?.departments ?? []
+  storeToRefs(departmentsStore).departmentsOpened.value = []
+}
+// 更新部门名称
+export const updateDepartmentNameService = async (depart: UserDepartment) => {
+  const resp = await axios.patch<ResultVO<{ departments: Department[] }>>(
+    `${COLLEGE}/departments/${depart.depId}`,
+    depart
+  )
+  storeToRefs(departmentsStore).departments.value = resp.data.data?.departments ?? []
+  storeToRefs(departmentsStore).departmentsOpened.value = []
+  return true
 }

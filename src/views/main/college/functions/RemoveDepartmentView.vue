@@ -15,7 +15,7 @@ const removeF = async () => {
 }
 </script>
 <template>
-  <el-row class="my-row" style="align-items: flex-end">
+  <el-row class="my-row">
     <el-col style="margin-bottom: 10px">
       所有用户必须置于部门管理下，因此无法移除用户不为空的部门。请将部门下用户更新到其他部门再移除。
     </el-col>

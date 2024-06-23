@@ -37,6 +37,10 @@ const components: { name: string; component: Component }[] = [
     component: defineAsyncComponent(() => import('./RemoveDepartmentView.vue'))
   },
   {
+    name: '更新部门',
+    component: defineAsyncComponent(() => import('./UpdateDepartNameView.vue'))
+  },
+  {
     name: '移除全部监考信息',
     component: defineAsyncComponent(() => import('./RemoveCollegeInvis.vue'))
   }

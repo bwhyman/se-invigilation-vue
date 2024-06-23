@@ -10,7 +10,7 @@ const departmentR = ref<Department>()
 const departmentsR = ref<Department[]>([])
 
 watch(exposeR, async () => {
-  departmentsR.value = await listDepartmentsService()
+  departmentsR.value = (await listDepartmentsService()).value
 })
 
 //
