@@ -3,7 +3,7 @@ import type { Department, User, UserDepartment } from '@/types'
 import DepartmentUser from './finduser/DepartmentUser.vue'
 import { listDepartmentsService, updateUserDepartmentService } from '@/services/CollegeService'
 import { createElNotificationSuccess } from '@/components/message'
-import { useUserStore } from '@/stores/UserStore'
+import { getSelfUserService } from '@/services/CommonService'
 const exposeR = ref<{ selectUser: User; clear: Function }>()
 
 const departmentR = ref<Department>()
@@ -15,7 +15,7 @@ watch(exposeR, async () => {
 
 //
 const updateF = async () => {
-  const userStore = useUserStore()
+  const userStore = getSelfUserService()
   const depart = departmentsR.value.find((d) => d.id == departmentR.value?.id)
   if (!depart) {
     throw '选择部门错误'

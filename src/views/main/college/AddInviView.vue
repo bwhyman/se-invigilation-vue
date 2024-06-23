@@ -2,13 +2,13 @@
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { addInviSerivce } from '@/services/CollegeService'
+import { getSelfUserService } from '@/services/CommonService'
 import { IMPORT } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
-import { useUserStore } from '@/stores/UserStore'
 import type { Invigilation } from '@/types'
 import type { FormInstance, FormRules } from 'element-plus'
 
-const userS = storeToRefs(useUserStore()).userS
+const userS = getSelfUserService()
 
 const inviR = ref<Invigilation>({ course: {}, time: {} })
 
@@ -34,9 +34,9 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   inviR.value.time!.starttime = formR.value.stime
   inviR.value.time!.endtime = formR.value.etime
 
-  inviR.value.collId = userS.value.department?.collId
+  inviR.value.collId = userS.department?.collId
   inviR.value.status = IMPORT
-  inviR.value.importer = stringInviTime({ id: userS.value.id, name: userS.value.name })
+  inviR.value.importer = stringInviTime({ id: userS.id, name: userS.name })
   await addInviSerivce(inviR.value)
   inviR.value = { course: {}, time: {} }
   formR.value = {

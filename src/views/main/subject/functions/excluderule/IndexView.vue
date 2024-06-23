@@ -6,8 +6,7 @@ import AddRuleDialog from './AddRuleDialog.vue'
 import { Delete } from '@element-plus/icons-vue'
 import { createDialog } from './index'
 
-await listExcludeRulesService()
-const excludeRules = storeToRefs(useExcludeRulesStore()).excludeRules
+const excludeRules = await listExcludeRulesService()
 </script>
 <template>
   <el-row class="my-row">

@@ -18,10 +18,12 @@ import {
 import type { Invigilation, User, InviAssignUser, AssignUser } from '@/types'
 import { CLOSED } from '@/services/Const'
 import AssignTable from './component/AssignTable.vue'
-import { useUserStore } from '@/stores/UserStore'
 import router from '@/router'
-import { getSettingsService, noticeDingCancelService } from '@/services/CommonService'
-import { useSettingStore } from '@/stores/SettingStore'
+import {
+  getSelfUserService,
+  getSettingsService,
+  noticeDingCancelService
+} from '@/services/CommonService'
 import InviMessage from '../component/InviInfo.vue'
 import { getDepartmentCommentService } from '@/services/SubjectService'
 import { createElNotificationSuccess } from '@/components/message'
@@ -38,9 +40,9 @@ if (!currentInvi) {
   throw '获取监考信息错误!'
 }
 
-const settingsStore = useSettingStore()
+const settingsStore = resultInit[1]
 //
-const userR = storeToRefs(useUserStore()).userS
+const userR = getSelfUserService()
 const assignUsersR = ref<AssignUser>({})
 
 // 当前分配的监考信息
@@ -215,7 +217,7 @@ const submitUsers = async () => {
       user && userIds.push(user.dingUserId!)
     })
   }
-  assignUsersR.value.allocator = stringInviTime({ id: userR.value.id, name: userR.value.name })
+  assignUsersR.value.allocator = stringInviTime({ id: userR.id, name: userR.name })
   assignUsersR.value.executor = []
   assignUsersR.value.users = []
   selectedUsers.value.forEach((us) => {

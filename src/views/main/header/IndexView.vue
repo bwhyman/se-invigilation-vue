@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { Setting, SwitchButton, Sunrise } from '@element-plus/icons-vue'
 import { COLLEGE_ADMIN, SUBJECT_ADMIN } from '@/services/Const'
-import { useUserStore } from '@/stores/UserStore'
 import router from '@/router'
 import type { Component } from 'vue'
+import { getSelfUserService } from '@/services/CommonService'
 
 const role = sessionStorage.getItem('role')
-const user = storeToRefs(useUserStore()).userS
+const user = getSelfUserService()
 
 let nemuComponent: Component
 

@@ -4,11 +4,11 @@ import {
   getDingUserService,
   listDepartmentsService
 } from '@/services/CollegeService'
-import { useUserStore } from '@/stores/UserStore'
 import { ROLES, USER } from '@/services/Const'
 import type { Department, User } from '@/types'
 import { createElNotificationSuccess } from '@/components/message'
 import { createElLoading } from '@/components/loading'
+import { getSelfUserService } from '@/services/CommonService'
 
 const departmentsR = ref<Department[]>([])
 const userR = ref<User>({ role: USER })
@@ -31,7 +31,7 @@ const searchF = async () => {
 }
 
 const submitF = async () => {
-  const collUserR = useUserStore().userS
+  const collUserR = getSelfUserService()
   userR.value.department = {
     collId: collUserR.department?.collId,
     collegeName: collUserR.department?.collegeName,

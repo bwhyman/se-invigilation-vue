@@ -2,8 +2,8 @@
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { listUserDingIdsService, sendInviRemarkNoticeService } from '@/services/CollegeService'
+import { getSettingsService } from '@/services/CommonService'
 import { getInviChineseDayweek, getInviWeek } from '@/services/Utils'
-import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation, NoticeRemark } from '@/types'
 import { render } from 'vue'
 
@@ -11,7 +11,7 @@ const props = defineProps<{ invis: Invigilation[] }>()
 const invis = props.invis
 const invi: Invigilation = invis[0]
 
-const settingsStore = useSettingStore()
+const settingsStore = await getSettingsService()
 const week = getInviWeek(invi.date!, settingsStore.getFirstWeek())
 const chineseDayWeek = getInviChineseDayweek(invi.date!)
 

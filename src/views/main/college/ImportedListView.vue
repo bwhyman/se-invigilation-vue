@@ -3,12 +3,12 @@ import router from '@/router'
 import { listImportedService, updateInvisService } from '@/services/CollegeService'
 import { DISPATCH } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
-import { useUserStore } from '@/stores/UserStore'
 import type { Department, Invigilation, Page } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 import DepartmentView from './DepartmentView.vue'
 import OpterationMenuView from './operations/OpterationMenuView.vue'
 import { createElNotificationSuccess } from '@/components/message'
+import { getSelfUserService } from '@/services/CommonService'
 
 const inviS = await listImportedService()
 const pageR = ref<Page>({
@@ -18,7 +18,7 @@ const pageR = ref<Page>({
   noPage: true
 })
 
-const userStore = useUserStore()
+const user = getSelfUserService()
 //
 const departmentR = ref<Department>()
 const selectR = ref<Invigilation[]>([])
@@ -45,7 +45,7 @@ const updateInvis = async () => {
     invis.push({
       id: invi.id!,
       status: DISPATCH,
-      dispatcher: stringInviTime(userStore.userS),
+      dispatcher: stringInviTime(user),
       department: {
         depId: departmentR.value?.id,
         departmentName: departmentR.value?.name

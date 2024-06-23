@@ -2,15 +2,15 @@
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { addInvigilationsService } from '@/services/CollegeService'
+import { getSelfUserService } from '@/services/CommonService'
 import { IMPORT } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
-import { useUserStore } from '@/stores/UserStore'
 import type { Invigilation } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 
 const invisR = ref<Invigilation[]>([])
 const inviTypeR = ref(0)
-const userStore = useUserStore()
+const user = getSelfUserService()
 
 const pageR = ref<{ currentpage?: number; total?: number; url?: string }>({
   currentpage: 0,
@@ -28,9 +28,9 @@ const readInvis = async (event: Event) => {
     .then((invis: Invigilation[]) => {
       invisR.value = invis
       invisR.value.forEach((invi) => {
-        invi.collId = userStore.userS.department?.collId
+        invi.collId = user.department?.collId
         invi.status = IMPORT
-        invi.importer = stringInviTime(userStore.userS)
+        invi.importer = stringInviTime(user)
       })
     })
     .finally(() => {

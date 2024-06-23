@@ -45,12 +45,11 @@ export const loginService = async (user: User, freePwd: boolean) => {
 export const getSettingsService = async () => {
   const settingStore = useSettingStore()
   if (settingStore.settingsR.length != 0) {
-    return settingStore.settingsR
+    return settingStore
   }
   const resp = await axios.get<ResultVO<{ settings: Setting[] }>>('settings')
-  const settings = (settingStore.settingsR = resp.data.data?.settings ?? [])
-
-  return settings
+  settingStore.settingsR = resp.data.data?.settings ?? []
+  return settingStore
 }
 
 //
@@ -88,4 +87,8 @@ export const freePwdService = () => {
 // 发送取消监考通知，移除监考日程
 export const noticeDingCancelService = async (inviid: string) => {
   await axios.delete(`invinotices/${inviid}`)
+}
+
+export const getSelfUserService = () => {
+  return userStore.userS
 }

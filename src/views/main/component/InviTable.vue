@@ -8,14 +8,11 @@ import {
   getInviWeekC,
   getInviChinesedayweekC
 } from '@/services/Utils'
-import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation, Page } from '@/types'
 import { Bell } from '@element-plus/icons-vue'
 import TotalNumber from './TotalNumber.vue'
 
-await getSettingsService()
-
-const settingsStore = useSettingStore()
+const settingsStore = await getSettingsService()
 
 interface Props {
   invis: Invigilation[]

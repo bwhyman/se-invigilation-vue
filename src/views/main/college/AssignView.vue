@@ -8,9 +8,12 @@ import {
   listDepartmentsService,
   updateInvisService
 } from '@/services/CollegeService'
-import { getSettingsService, noticeDingCancelService } from '@/services/CommonService'
+import {
+  getSelfUserService,
+  getSettingsService,
+  noticeDingCancelService
+} from '@/services/CommonService'
 import { stringInviTime } from '@/services/Utils'
-import { useUserStore } from '@/stores/UserStore'
 import type { AssignUser, Department, Invigilation, User } from '@/types'
 import InviMessage from '@/views/main/component/InviInfo.vue'
 import { createElLoading } from '@/components/loading'
@@ -42,7 +45,7 @@ watch(departmentR, async () => {
   usersR.value = await listDepartmentUsersService(departmentR.value)
 })
 
-const createUserR = useUserStore().userS
+const createUserR = getSelfUserService()
 
 const assignF = async () => {
   const loading = createElLoading()

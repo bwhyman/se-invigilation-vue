@@ -6,7 +6,6 @@ import {
   noticeUsersService
 } from '@/services/SubjectService'
 import { getInviChineseDayweek, getInviWeek } from '@/services/Utils'
-import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation, Notice, User } from '@/types'
 import { SUBJECT_ADMIN, COLLEGE_ADMIN } from '@/services/Const'
 import router from '@/router'
@@ -33,7 +32,7 @@ const assignersR = ref<User[]>([])
 const invigilationR = ref<Invigilation>()
 assignersR.value = results[0] ?? []
 invigilationR.value = results[1]
-const settingsStore = useSettingStore()
+const settingsStore = results[2]
 
 const selectUsersR = ref<User[]>([...assignersR.value])
 

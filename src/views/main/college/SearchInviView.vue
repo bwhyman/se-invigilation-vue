@@ -9,7 +9,6 @@ import {
   bellTitleC,
   beNoticedC
 } from '@/services/Utils'
-import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation } from '@/types'
 import { Bell, Message } from '@element-plus/icons-vue'
 import TotalNumber from '../component/TotalNumber.vue'
@@ -43,7 +42,7 @@ const results = await Promise.all([
 
 let invis = results[1]
 const invisR = ref<Invigilation[]>([])
-const settingsStore = useSettingStore()
+const settingsStore = results[0]
 
 invisR.value = invis
 
