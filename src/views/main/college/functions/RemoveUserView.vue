@@ -10,13 +10,13 @@ const removeF = () => {
   if (!exposeR.value?.selectUser.id) {
     throw '用户为空，请选择用户'
   }
-  ElMessageBox.confirm(`删除用户 ${exposeR.value?.selectUser.name}，确定删除？`, 'Warning', {
+  ElMessageBox.confirm(`移除用户 ${exposeR.value?.selectUser.name}，确定移除？`, 'Warning', {
     confirmButtonText: 'OK',
     cancelButtonText: 'Cancel',
     type: 'warning'
   }).then(async () => {
     exposeR.value?.selectUser.id && (await removeUserService(exposeR.value?.selectUser.id))
-    createElNotificationSuccess('删除成功')
+    createElNotificationSuccess('用户移除成功')
     exposeR.value?.clear()
     exposeR.value!.selectUser! = {}
   })

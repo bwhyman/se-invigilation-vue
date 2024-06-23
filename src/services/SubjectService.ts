@@ -35,10 +35,14 @@ export const listUsersService = async () => {
 
 //
 export const listInvisService = async (status: number, page: number) => {
+  let invis = invisStore.invigilationsDispatchMapS.get(`${status}-${page}`)
+  if(invis) return invis
+
   const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
     `${SUBJECT}/invis/status/${status}/${page}`
   )
-  const invis = resp.data.data!.invis ?? []
+  invis = resp.data.data!.invis ?? []
+  invisStore.invigilationsDispatchMapS.set(`${status}-${page}`, invis)
   return invis
 }
 
@@ -103,7 +107,7 @@ export const addAssignUsersService = async (inviid: string, user: AssignUser) =>
   // 清空教师监考数量缓存
   inviCountsStore.inviCounts.length = 0
   // 清空当前监考缓存
-  useInvigilationsStore().currentInviS = undefined
+  invisStore.clear()
   return true
 }
 

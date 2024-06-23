@@ -28,7 +28,6 @@ import { createElNotificationSuccess } from '@/components/message'
 import { createElLoading } from '@/components/loading'
 
 const params = useRoute().params as { inviid: string }
-console.log(params)
 
 //
 const selectedUsers = ref<InviAssignUser[]>([])

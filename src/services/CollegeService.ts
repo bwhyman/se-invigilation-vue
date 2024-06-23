@@ -78,28 +78,29 @@ export const getDepatchedTotalService = async (depid: string) => {
 }
 
 export const listDepatchedsService = async (depid: string, page: number) => {
+  const invisDepatchedS = invisStore.invigilationsDispatchMapS.get(`${depid}-${page}`)
+  if(invisDepatchedS) return invisDepatchedS
   const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
     `${COLLEGE}/invilations/dispatched/${depid}/${page}`
   )
   const invis = resp.data.data!.invis
+  invisStore.invigilationsDispatchMapS.set(`${depid}-${page}`, invis)
   return invis ?? []
 }
 
 //
 export const updateInvisService = async (invis: Invigilation[]) => {
   // 清空已导入监考缓存
-  invisStore.invigilationsImportS.length = 0
-  invisStore.invigilationsDispatchS.length = 0
-
+  invisStore.clear()
   invis.forEach((i) => {
     // @ts-ignore
     i.dispatcher && (i.dispatcher = JSON.stringify(i.dispatcher))
     // @ts-ignore
     i.department && (i.department = JSON.stringify(i.department))
   })
-  await axios.patch<ResultVO<{ invis: Invigilation[] }>>(`${COLLEGE}/invigilations/dispatch`, invis)
-
-  return true
+  const resp = await axios.patch<ResultVO<{ invis: Invigilation[] }>>(`${COLLEGE}/invigilations/dispatch`, invis)
+  invisStore.invigilationsImportS = resp.data.data?.invis ?? []
+  return invisStore.invigilationsImportS
 }
 
 export const listCollegeUsersService = async () => {
@@ -139,7 +140,7 @@ export const noticeDispatcherService = async (notice: Notice) => {
 //
 export const addInviSerivce = async (invi: Invigilation) => {
   // 清空已导入监考缓存
-  invisStore.invigilationsImportS.length = 0
+  invisStore.clear()
   // @ts-ignore
   invi.importer = JSON.stringify(invi.importer)
   // @ts-ignore
@@ -168,8 +169,7 @@ export const updateInviService = async (invi: Invigilation) => {
   // @ts-ignore
   invi.dispatcher = JSON.stringify(invi.dispatcher)
 
-  storeToRefs(invisStore).invigilationsImportS.value = []
-  storeToRefs(invisStore).invigilationsDispatchS.value = []
+  invisStore.clear()
   const resp = await axios.patch<ResultVO<{ invi: Invigilation }>>(
     `${COLLEGE}/invigilations/edit`,
     invi
@@ -181,15 +181,14 @@ export const updateInviService = async (invi: Invigilation) => {
 
 // 删除监考
 export const delInviService = async (inviid: string) => {
-  storeToRefs(invisStore).invigilationsImportS.value = []
+  invisStore.clear()
   await axios.delete(`${COLLEGE}/invigilations/${inviid}`)
   return true
 }
 
 // 重置监考为未下发状态，重置信息等
 export const resetInviService = async (inviid: string) => {
-  storeToRefs(invisStore).invigilationsImportS.value = []
-
+  invisStore.clear()
   await axios.put(`${COLLEGE}/invigilations/${inviid}/status`)
   return true
 }
@@ -339,7 +338,7 @@ export const listUserDingIdsService = async (userIds: string[]) => {
 //
 export const cutInviService = async (oldInviid: string, invi: Invigilation) => {
   // 清空已导入监考缓存
-  invisStore.invigilationsImportS.length = 0
+  invisStore.clear()
   // @ts-ignore
   invi.importer = JSON.stringify(invi.importer)
   // @ts-ignore
@@ -383,4 +382,10 @@ export const removeUserService = async (uid: string) => {
 export const removeCollegeInvisService = async () => {
   await axios.delete(`${COLLEGE}/colleges/datareset`)
   return true
+}
+
+// 
+export const removeDepartmentService = async(depid: string) => {
+  const resp = await axios.delete(`${COLLEGE}/departments/${depid}`)
+  departmentsStore.clear()
 }

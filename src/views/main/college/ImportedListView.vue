@@ -8,14 +8,12 @@ import type { Department, Invigilation, Page } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 import DepartmentView from './DepartmentView.vue'
 import OpterationMenuView from './operations/OpterationMenuView.vue'
-import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 import { createElNotificationSuccess } from '@/components/message'
 
-await listImportedService()
-const inviS = storeToRefs(useInvigilationsStore()).invigilationsImportS
+const inviS = await listImportedService()
 const pageR = ref<Page>({
   currentpage: 1,
-  total: inviS.value.length,
+  total: inviS.length,
   url: '',
   noPage: true
 })
