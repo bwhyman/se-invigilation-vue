@@ -382,7 +382,7 @@ export const removeUserService = async (uid: string) => {
 }
 
 //
-export const removeCollegeInvisService = async () => {
+export const removeCollegeDataService = async () => {
   await axios.delete(`${COLLEGE}/colleges/datareset`)
   return true
 }
