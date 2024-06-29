@@ -31,7 +31,7 @@ const results = await Promise.all([
 const assignersR = ref<User[]>([])
 const invigilationR = ref<Invigilation>()
 assignersR.value = results[0] ?? []
-invigilationR.value = results[1]
+invigilationR.value = results[1]?.value
 const settingsStore = results[2]
 
 const selectUsersR = ref<User[]>([...assignersR.value])

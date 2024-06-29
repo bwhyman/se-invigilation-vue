@@ -9,7 +9,7 @@ const exportF = async () => {
     const results = await Promise.all([listCollegeInviDetailsService(), listCollegeCountsService()])
     const details: InviDetail[] = results[1]
     const { exportInvisDetails } = await import('@/services/excel/Invis2Excel')
-    exportInvisDetails(results[0], details)
+    exportInvisDetails(results[0].value, details)
   } finally {
     loading.close()
   }

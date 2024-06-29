@@ -17,7 +17,7 @@ export const loginService = async (user: User, freePwd: boolean) => {
   const role = resp.headers.role
   sessionStorage.setItem('token', token)
   sessionStorage.setItem('role', role)
-  storeToRefs(userStore).userS.value = us
+  userStore.userS.value = us
   sessionStorage.setItem('user', JSON.stringify(us))
 
   if (freePwd) {
@@ -45,11 +45,11 @@ export const loginService = async (user: User, freePwd: boolean) => {
 //
 export const getSettingsService = async () => {
   const settingStore = useSettingStore()
-  if (settingStore.settingsR.length != 0) {
+  if (settingStore.settingsR.value.length != 0) {
     return settingStore
   }
   const resp = await axios.get<ResultVO<{ settings: Setting[] }>>('settings')
-  settingStore.settingsR = resp.data.data?.settings ?? []
+  settingStore.settingsR.value = resp.data.data?.settings ?? []
   return settingStore
 }
 
@@ -67,7 +67,7 @@ export const freePwdService = () => {
   if (ut) {
     sessionStorage.setItem('user', ut)
     const user = JSON.parse(ut)
-    storeToRefs(userStore).userS.value = user
+    userStore.userS.value = user
   }
   let path = ''
   switch (role) {
@@ -95,7 +95,8 @@ export const getSelfUserService = () => {
   return userStore.userS
 }
 //
-export const setCurrentInviService = (invi: Invigilation) => {
+export const setCurrentInviService = (invi: Invigilation | undefined) => {
   const store = useInvigilationsStore()
-  storeToRefs(store).currentInviS.value = invi
+  store.currentInviS.value = invi
+  console.log(store.currentInviS.value)
 }

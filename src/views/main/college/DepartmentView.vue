@@ -2,18 +2,18 @@
 import { listOpenedDepartmentsService } from '@/services/CollegeService'
 import type { Department } from '@/types'
 
-const departments = await listOpenedDepartmentsService()
+const departmentsS = await listOpenedDepartmentsService()
 const props = defineProps<{ change: (depart: Department) => void }>()
 
-const router = useRouter()
-const depid = router.currentRoute.value.params.depid
+const route = useRoute()
+const depid = route.params.depid
 const depidR = ref('')
 if (depid) {
   depidR.value = depid as string
 }
 
 const changeF = () => {
-  const depart = departments.find((d) => d.id == depidR.value)
+  const depart = departmentsS.value.find((d) => d.id == depidR.value)
   props.change(depart!)
 }
 </script>
@@ -23,7 +23,7 @@ const changeF = () => {
     v-model="depidR"
     class="ml-4"
     style="margin-bottom: 10px; margin-right: 10px">
-    <el-radio-button size="large" v-for="(dep, index) of departments" :key="index" :label="dep.id">
+    <el-radio-button size="large" v-for="(dep, index) of departmentsS" :key="index" :label="dep.id">
       {{ dep.name }}
     </el-radio-button>
   </el-radio-group>

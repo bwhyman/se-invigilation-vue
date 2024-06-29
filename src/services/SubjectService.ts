@@ -21,10 +21,11 @@ const usersStore = useUsersStore()
 const timetablesStore = useTimetablesStore()
 const inviCountsStore = useInviCountsStore()
 const invisStore = useInvigilationsStore()
+const excludeRulesStore = useExcludeRulesStore()
 
 // 加载专业内全部教师
 export const listUsersService = async () => {
-  const usersS = storeToRefs(usersStore).usersS
+  const usersS = usersStore.usersS
   if (usersS.value.length > 0) return usersS
 
   const resp = await axios.get<ResultVO<{ users: User[] }>>(`${SUBJECT}/users`)
@@ -35,14 +36,14 @@ export const listUsersService = async () => {
 
 //
 export const listInvisService = async (status: number, page: number) => {
-  let invis = invisStore.invigilationsDispatchMapS.get(`${status}-${page}`)
+  let invis = invisStore.invigilationsDispatchMapS.value.get(`${status}-${page}`)
   if (invis) return invis
 
   const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
     `${SUBJECT}/invis/status/${status}/${page}`
   )
   invis = resp.data.data!.invis ?? []
-  invisStore.invigilationsDispatchMapS.set(`${status}-${page}`, invis)
+  invisStore.invigilationsDispatchMapS.value.set(`${status}-${page}`, invis)
   return invis
 }
 
@@ -60,7 +61,7 @@ export const updateUserInviStatusService = async (users: User[]) => {
   timetablesStore.timetableMap.clear()
   await axios.post<ResultVO<{ users: User[] }>>(`${SUBJECT}/invistatus`, users)
   // 清空教师，全部重新加载
-  usersStore.usersS = []
+  usersStore.usersS.value = []
   return true
 }
 
@@ -89,12 +90,12 @@ export const listDateInvisService = async (date: string) => {
 
 //
 export const listCountsService = async () => {
-  let inivC = inviCountsStore.inviCounts
-  if (inivC.length > 0) return inivC
+  const inviCountsS = inviCountsStore.inviCounts
+  if (inviCountsS.value.length > 0) return inviCountsS
 
   const resp = await axios.get<ResultVO<{ counts: InviCount[] }>>(`${SUBJECT}/invidetails/counts`)
-  inviCountsStore.inviCounts = inivC = resp.data.data?.counts ?? []
-  return inivC
+  inviCountsS.value = resp.data.data?.counts ?? []
+  return inviCountsS
 }
 
 //
@@ -105,9 +106,9 @@ export const addAssignUsersService = async (inviid: string, user: AssignUser) =>
   user.executor = JSON.stringify(user.executor)
   await axios.post(`${SUBJECT}/invidetails/${inviid}`, user)
   // 清空教师监考数量缓存
-  inviCountsStore.inviCounts.length = 0
+  inviCountsStore.inviCounts.value.length = 0
   // 清空当前监考缓存
-  invisStore.clear()
+  invisStore.clearInvis()
   return true
 }
 
@@ -124,10 +125,10 @@ export const noticeUsersService = async (notice: Notice) => {
 
 //
 export const getInviService = async (inviid: string) => {
-  let invi = invisStore.currentInviS
-  if (invi) return invi
+  const invi = invisStore.currentInviS
+  if (invi.value) return invi
   const resp = await axios.get<ResultVO<{ invi: Invigilation }>>(`${SUBJECT}/invis/${inviid}`)
-  invi = resp.data.data?.invi
+  invi.value = resp.data.data?.invi
 
   return invi
 }
@@ -146,12 +147,12 @@ export const addDepartmentCommentService = async (comment: string) => {
 
 //
 export const listExcludeRulesService = async () => {
-  const excludeRulesStore = useExcludeRulesStore()
-  if (excludeRulesStore.excludeRules.length > 0) return excludeRulesStore.excludeRules
+  const excludeRulesS = excludeRulesStore.excludeRules
+  if (excludeRulesS.value.length > 0) return excludeRulesStore.excludeRules
   const resp = await axios.get<ResultVO<{ rules: ExcludeRule[] }>>(`${SUBJECT}/excluderules`)
 
-  excludeRulesStore.excludeRules = resp.data.data?.rules ?? []
-  return excludeRulesStore.excludeRules
+  excludeRulesS.value = resp.data.data?.rules ?? []
+  return excludeRulesS
 }
 
 //
@@ -162,16 +163,14 @@ export const addExcludeRuleService = async (rule: ExcludeRule) => {
   rule.periods = JSON.stringify(rule.periods)
 
   const resp = await axios.post<ResultVO<{ rules: ExcludeRule[] }>>(`${SUBJECT}/excluderules`, rule)
-  const excludeRulesStore = useExcludeRulesStore()
-  excludeRulesStore.excludeRules = resp.data.data?.rules ?? []
-  return true
+  excludeRulesStore.excludeRules.value = resp.data.data?.rules ?? []
+  return excludeRulesStore.excludeRules
 }
 //
 export const delExcludeRuleService = async (exid: string) => {
   const resp = await axios.delete<ResultVO<{ rules: ExcludeRule[] }>>(
     `${SUBJECT}/excluderules/${exid}`
   )
-  const excludeRulesStore = useExcludeRulesStore()
-  excludeRulesStore.excludeRules = resp.data.data?.rules ?? []
-  return true
+  excludeRulesStore.excludeRules.value = resp.data.data?.rules ?? []
+  return excludeRulesStore.excludeRules
 }

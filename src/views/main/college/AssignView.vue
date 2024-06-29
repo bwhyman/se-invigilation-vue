@@ -27,10 +27,10 @@ const results = await Promise.all([
 ])
 
 const inviR = results[0]
-if (!inviR) {
+
+if (!inviR.value) {
   throw '获取监考信息错误!'
 }
-console.log('ssss')
 
 const usersR = ref<User[]>([])
 const selectUserR = ref<string>()
@@ -51,26 +51,26 @@ const assignF = async () => {
   const loading = createElLoading()
 
   const user = usersR.value.find((u) => u.id == selectUserR.value)
-  const invi: Invigilation = { id: inviR.id }
+  const invi: Invigilation = { id: inviR.value!.id }
   invi.department = {
     depId: user?.department?.depId,
     departmentName: user?.department?.departmentName
   }
-  invi.dispatcher = stringInviTime({ id: createUserR.id, name: createUserR.name })
+  invi.dispatcher = stringInviTime({ id: createUserR.value.id, name: createUserR.value.name })
   await updateInvisService([invi])
   const assignUser: AssignUser = { executor: [], users: [] }
   assignUser.department = {
     depId: user?.department?.depId,
     departmentName: user?.department?.departmentName
   }
-  assignUser.allocator = stringInviTime({ id: createUserR.id, name: createUserR.name })
+  assignUser.allocator = stringInviTime({ id: createUserR.value.id, name: createUserR.value.name })
   assignUser.executor?.push(stringInviTime({ id: user?.id, name: user?.name }))
   assignUser.users?.push({ id: user?.id, name: user?.name })
 
   try {
     await noticeDingCancelService(invi!.id!)
-    await addAssignService(inviR.id!, assignUser)
-    router.push(`/college/invinotice/${inviR.id}`)
+    await addAssignService(inviR.value!.id!, assignUser)
+    router.push(`/college/invinotice/${inviR.value!.id}`)
   } finally {
     loading.close()
   }

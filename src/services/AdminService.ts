@@ -36,12 +36,11 @@ export const addUsersService = async (u: {
 
 //
 export const getDingUsersService = async (dingdepid: string) => {
-  if (usersStore.dingUsersS.length > 0) return usersStore.dingUsersS
+  const dingUsersS = usersStore.dingUsersS
+  if (dingUsersS.value.length > 0) return dingUsersS
 
   //
   const resp = await axios.get<ResultVO<{ users: DingUser[] }>>(`${ADMIN}/dingusers/${dingdepid}`)
-  const users = resp.data.data?.users ?? []
-  storeToRefs(usersStore).dingUsersS.value = users
-
-  return users
+  dingUsersS.value = resp.data.data?.users ?? []
+  return dingUsersS
 }

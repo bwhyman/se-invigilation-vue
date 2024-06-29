@@ -7,35 +7,34 @@ import {
   resetInviService,
   updateInviService
 } from '@/services/CollegeService'
-import { noticeDingCancelService } from '@/services/CommonService'
-import { IMPORT } from '@/services/Const'
+import { noticeDingCancelService, setCurrentInviService } from '@/services/CommonService'
 import type { Invigilation } from '@/types'
 import type { FormInstance, FormRules } from 'element-plus'
 
 const params = useRoute().params as { inviid: string }
-let invi = await getCollegeInviService(params.inviid)
-const isAssigned = ref(false)
-const unlockedR = ref(true)
-
-if (invi?.executor) {
-  isAssigned.value = true
-  unlockedR.value = false
+const invi = await getCollegeInviService(params.inviid)
+const isAssigned = computed(() => invi.value && invi.value.executor)
+const unlockedR = computed(() => invi.value && !invi.value.executor)
+if (!invi.value) {
+  throw '获取监考错误！'
 }
 
 let inviR: Invigilation = { course: {}, time: {} }
 
-const init = {
-  courseName: invi?.course?.courseName ?? '',
-  teacherName: invi?.course?.teacherName ?? '',
-  clazz: invi?.course?.clazz ?? '',
-  date: invi?.date ?? '',
-  stime: invi?.time?.starttime ?? '',
-  etime: invi?.time?.endtime ?? '',
-  location: invi?.course?.location ?? '',
-  amount: invi?.amount ?? 1
+const getInit = () => {
+  return {
+    courseName: invi.value!.course?.courseName ?? '',
+    teacherName: invi.value!.course?.teacherName ?? '',
+    clazz: invi.value!.course?.clazz ?? '',
+    date: invi.value!.date ?? '',
+    stime: invi.value!.time?.starttime ?? '',
+    etime: invi.value!.time?.endtime ?? '',
+    location: invi.value!.course?.location ?? '',
+    amount: invi.value!.amount ?? 1
+  }
 }
 
-const formR = ref<RuleForm>(init)
+const formR = ref<RuleForm>(getInit())
 
 const submitForm = async (formEl: FormInstance | undefined) => {
   let sub = false
@@ -43,14 +42,13 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   await formEl.validate((valid, fields) => {
     if (valid) {
       sub = true
-      console.log('submit!')
-    } else {
-      console.log('error submit!', fields)
     }
   })
   if (!sub) return
 
-  inviR.id = invi?.id
+  if (!invi.value) return
+
+  inviR.id = invi.value.id
   inviR.course!.courseName = formR.value.courseName
   inviR.course!.clazz = formR.value.clazz
   inviR.course!.location = formR.value.location
@@ -59,22 +57,12 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   inviR.date = formR.value.date
   inviR.time!.starttime = formR.value.stime
   inviR.time!.endtime = formR.value.etime
-  inviR.status = IMPORT
-  await updateInviService(inviR)
 
+  invi.value = (await updateInviService(inviR)).value
+  formR.value = getInit()
   createElNotificationSuccess('修改成功')
-  router.push('/college/imported')
+  //router.push('/college/imported')
   inviR = { course: {}, time: {} }
-  formR.value = {
-    courseName: '',
-    teacherName: '',
-    clazz: '',
-    date: '',
-    stime: '',
-    etime: '',
-    location: '',
-    amount: 1
-  }
 }
 
 const locations = [{ value: '丹青楼' }, { value: '锦绣楼' }, { value: '成栋楼' }]
@@ -160,8 +148,9 @@ const delInvi = () => {
     cancelButtonText: 'Cancel',
     type: 'warning'
   }).then(async () => {
-    await Promise.all([noticeDingCancelService(invi!.id!), delInviService(invi!.id!)])
+    await Promise.all([noticeDingCancelService(invi.value!.id!), delInviService(invi.value!.id!)])
     createElNotificationSuccess('监考已删除')
+    setCurrentInviService(undefined)
     router.push(`/college/imported`)
   })
 }
@@ -172,8 +161,9 @@ const resetInvi = () => {
     cancelButtonText: 'Cancel',
     type: 'warning'
   }).then(async () => {
-    await noticeDingCancelService(invi!.id!)
-    await resetInviService(invi!.id!)
+    await noticeDingCancelService(invi.value!.id!)
+    await resetInviService(invi.value!.id!)
+    setCurrentInviService(undefined)
     createElNotificationSuccess('监考已重置')
     router.push(`/college/imported`)
   })

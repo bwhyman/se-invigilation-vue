@@ -23,8 +23,7 @@ const updateUserInviStatus = async () => {
     deps.push({ id: e.id, inviStatus: e.inviStatus })
   })
 
-  const departs = await updateDepartmentInviStatusService(deps)
-  departmentR.value = departs
+  departmentR.value = (await updateDepartmentInviStatusService(deps)).value
   createElNotificationSuccess('更新成功')
 }
 </script>

@@ -21,8 +21,8 @@ const updateF = async () => {
     throw '选择部门错误'
   }
   const dep: UserDepartment = {
-    collId: userS.department?.collId,
-    collegeName: userS.department?.collegeName,
+    collId: userS.value.department?.collId,
+    collegeName: userS.value.department?.collegeName,
     depId: depart.id,
     departmentName: depart.name
   }

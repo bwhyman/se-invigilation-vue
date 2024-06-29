@@ -10,7 +10,7 @@ import InviTable from '@/views/main/component/InviTable.vue'
 
 const invisR = ref<Invigilation[]>([])
 const inviTypeR = ref(0)
-const user = getSelfUserService()
+const userS = getSelfUserService()
 
 const pageR = ref<{ currentpage?: number; total?: number; url?: string }>({
   currentpage: 0,
@@ -28,9 +28,9 @@ const readInvis = async (event: Event) => {
     .then((invis: Invigilation[]) => {
       invisR.value = invis
       invisR.value.forEach((invi) => {
-        invi.collId = user.department?.collId
+        invi.collId = userS.value.department?.collId
         invi.status = IMPORT
-        invi.importer = stringInviTime(user)
+        invi.importer = stringInviTime(userS.value)
       })
     })
     .finally(() => {

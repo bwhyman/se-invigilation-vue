@@ -17,7 +17,7 @@ watch(allUsersR.value, async () => {
 })
 
 const activeF = async () => {
-  dingUsersR = await getDingUsersService(collegeDingId.value)
+  dingUsersR = (await getDingUsersService(collegeDingId.value)).value
   console.log(dingUsersR)
 }
 

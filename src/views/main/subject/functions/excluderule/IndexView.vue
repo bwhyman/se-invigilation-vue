@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { listExcludeRulesService } from '@/services/SubjectService'
-import { useExcludeRulesStore } from '@/stores/ExcludeRuleStore'
 import { dayOfWeeksC, periodOfDaysC } from '@/services/ExcludeRule'
 import AddRuleDialog from './AddRuleDialog.vue'
 import { Delete } from '@element-plus/icons-vue'

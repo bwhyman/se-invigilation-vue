@@ -6,6 +6,7 @@ import DepartmentView from './DepartmentView.vue'
 import router from '@/router'
 import { Edit } from '@element-plus/icons-vue'
 import { setCurrentInviService } from '@/services/CommonService'
+import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 const inviS = ref<Invigilation[]>([])
 const pageR = ref<Page>({
   currentpage: 0,
@@ -37,9 +38,11 @@ const departChange = (dep: Department) => {
 }
 
 const editF = (inviid: string) => {
-  router.push(`/college/inviedit/${inviid}`)
   const invi = inviS.value.find((i) => i.id == inviid)
   invi && setCurrentInviService(invi)
+  console.log(useInvigilationsStore().currentInviS.value)
+
+  router.push(`/college/inviedit/${inviid}`)
 }
 </script>
 <template>

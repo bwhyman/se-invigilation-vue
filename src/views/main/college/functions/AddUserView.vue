@@ -33,8 +33,8 @@ const searchF = async () => {
 const submitF = async () => {
   const collUserR = getSelfUserService()
   userR.value.department = {
-    collId: collUserR.department?.collId,
-    collegeName: collUserR.department?.collegeName,
+    collId: collUserR.value.department?.collId,
+    collegeName: collUserR.value.department?.collegeName,
     depId: departR.value?.id,
     departmentName: departR.value?.name
   }

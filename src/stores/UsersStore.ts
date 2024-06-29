@@ -1,9 +1,7 @@
-import { defineStore } from 'pinia'
 import type { DingUser, User } from '@/types/index'
 
-export const useUsersStore = defineStore('useUsersStore', () => {
-  const usersS = ref<User[]>([])
-  const dingUsersS = ref<DingUser[]>([])
-
+const usersS = ref<User[]>([])
+const dingUsersS = ref<DingUser[]>([])
+export const useUsersStore = () => {
   return { usersS, dingUsersS }
-})
+}

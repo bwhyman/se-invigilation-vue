@@ -29,7 +29,7 @@ const readTimetables = async (event: Event) => {
       readPostGTimetableExcel(element.files[0])
     ])
 
-    users.push(...results[0])
+    users.push(...results[0].value)
     importTimetablesR.value = results[1]
     importTimetablesR.value.push(...results[2])
   } finally {

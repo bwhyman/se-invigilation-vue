@@ -45,7 +45,7 @@ const updateInvis = async () => {
     invis.push({
       id: invi.id!,
       status: DISPATCH,
-      dispatcher: stringInviTime(user),
+      dispatcher: stringInviTime(user.value),
       department: {
         depId: departmentR.value?.id,
         departmentName: departmentR.value?.name

@@ -1,6 +1,6 @@
 import type { ExcludeRule } from '@/types'
 
-export const useExcludeRulesStore = defineStore('useExcludeRulesStore', () => {
-  const excludeRules = ref<ExcludeRule[]>([])
+const excludeRules = ref<ExcludeRule[]>([])
+export const useExcludeRulesStore = () => {
   return { excludeRules }
-})
+}

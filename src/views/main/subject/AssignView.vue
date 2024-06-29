@@ -36,7 +36,7 @@ const selectedUsers = ref<InviAssignUser[]>([])
 
 const resultInit = await Promise.all([getInviService(params.inviid), getSettingsService()])
 const currentInvi = resultInit[0]
-if (!currentInvi) {
+if (!currentInvi.value) {
   throw '获取监考信息错误!'
 }
 
@@ -46,16 +46,16 @@ const userR = getSelfUserService()
 const assignUsersR = ref<AssignUser>({})
 
 // 当前分配的监考信息
-let week = getInviWeek(currentInvi.date!, settingsStore.getFirstWeek())
-let dayweek = getInviDayweek(currentInvi.date!)
-const amountR = currentInvi.amount!
+let week = getInviWeek(currentInvi.value.date!, settingsStore.getFirstWeek())
+let dayweek = getInviDayweek(currentInvi.value.date!)
+const amountR = currentInvi.value.amount!
 
 //
 const allP = await Promise.all([
   // 当天课表
   listTimetablesService(week, dayweek),
   // 当天监考
-  listDateInvisService(currentInvi.date!),
+  listDateInvisService(currentInvi.value.date!),
   // 监考数量
   listCountsService(),
   // 全部教师
@@ -86,10 +86,10 @@ allloop: for (const user of allUsers) {
   }
 
   // 整合监考数量
-  const am = inviCountsS.find((ic) => ic.userId == user.id)?.count ?? 0
+  const am = inviCountsS.value.find((ic) => ic.userId == user.id)?.count ?? 0
   // 整合课表
   const tb = timetablesR.filter((tb) => tb.userId == user.id)
-  const excludes = rulesR.filter((rule) => rule.userId == user.id)
+  const excludes = rulesR.value.filter((rule) => rule.userId == user.id)
 
   // 无论是否冲突，均需整合数据，并展示
   const groupUser: InviAssignUser = {
@@ -113,7 +113,7 @@ allloop: for (const user of allUsers) {
   // 课表时间冲突，置于冲突集合
   if (groupUser.timetables) {
     const x = groupUser.timetables!.find((tb) =>
-      confTime(currentInvi.date!, currentInvi.time?.starttime!, tb.period!)
+      confTime(currentInvi.value!.date!, currentInvi.value!.time?.starttime!, tb.period!)
     )
     if (x) {
       groupUser.reason = 'timetable'
@@ -126,9 +126,11 @@ allloop: for (const user of allUsers) {
   if (groupUser.invis) {
     for (const invi of groupUser.invis) {
       const currentInviTimeStartTime = new Date(
-        `${currentInvi.date} ${currentInvi.time?.starttime}`
+        `${currentInvi.value.date} ${currentInvi.value.time?.starttime}`
       )
-      const currentInviTimeEndTime = new Date(`${currentInvi.date} ${currentInvi.time?.endtime}`)
+      const currentInviTimeEndTime = new Date(
+        `${currentInvi.value.date} ${currentInvi.value.time?.endtime}`
+      )
       const thisInviTime = new Date(`${invi.date} ${invi.time?.starttime}`)
       if (thisInviTime >= currentInviTimeStartTime && thisInviTime <= currentInviTimeEndTime) {
         groupUser.reason = 'invi'
@@ -147,7 +149,7 @@ allloop: for (const user of allUsers) {
         exclude.dayweeks?.includes(dayweek)
       ) {
         for (const per of exclude.periods!) {
-          const conf = confTime(currentInvi.date!, currentInvi.time?.starttime!, per)
+          const conf = confTime(currentInvi.value.date!, currentInvi.value.time?.starttime!, per)
           if (conf) {
             groupUser.reason = 'rule'
             confUsersR.push(groupUser)
@@ -162,8 +164,8 @@ allloop: for (const user of allUsers) {
   groupUsers.push(groupUser)
 }
 // 追加将当前监考教师置于默认状态
-if (currentInvi.executor) {
-  currentInvi.executor.forEach((exe) => {
+if (currentInvi.value.executor) {
+  currentInvi.value.executor.forEach((exe) => {
     const x = confUsersR.find((us) => us.id == exe.userId)
     if (x) {
       selectedUsers.value.push(x!)
@@ -177,7 +179,7 @@ if (currentInvi.executor) {
 groupUsers.sort((x, y) => x.amount! - y.amount!)
 confUsersR.sort((x, y) => x.amount! - y.amount!)
 
-const dayweekCN = getInviChineseDayweek(currentInvi.date!)
+const dayweekCN = getInviChineseDayweek(currentInvi.value.date!)
 
 const handleChange = (user: InviAssignUser) => {
   if (selectedUsers.value.length < amountR) {
@@ -204,20 +206,20 @@ const getDisabledC = computed(() => (user: InviAssignUser) => {
 
 //
 const submitUsers = async () => {
-  if (selectedUsers.value.length != currentInvi.amount) {
+  if (selectedUsers.value.length != currentInvi.value!.amount) {
     throw '分配教师数与所需监考数不匹配'
   }
 
   const loading = createElLoading()
 
-  if (currentInvi.calendarId) {
+  if (currentInvi.value!.calendarId) {
     const userIds: string[] = []
-    currentInvi.executor!.forEach((ex) => {
+    currentInvi.value!.executor!.forEach((ex) => {
       const user = usersS.value.find((u) => u.id == ex.userId)
       user && userIds.push(user.dingUserId!)
     })
   }
-  assignUsersR.value.allocator = stringInviTime({ id: userR.id, name: userR.name })
+  assignUsersR.value.allocator = stringInviTime({ id: userR.value.id, name: userR.value.name })
   assignUsersR.value.executor = []
   assignUsersR.value.users = []
   selectedUsers.value.forEach((us) => {
@@ -226,8 +228,8 @@ const submitUsers = async () => {
   })
 
   try {
-    await noticeDingCancelService(currentInvi.id!)
-    await addAssignUsersService(currentInvi.id!, assignUsersR.value)
+    await noticeDingCancelService(currentInvi.value!.id!)
+    await addAssignUsersService(currentInvi.value!.id!, assignUsersR.value)
     createElNotificationSuccess('监考已分配')
     router.push(`/subject/notices/${params.inviid}`)
   } finally {
