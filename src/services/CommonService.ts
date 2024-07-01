@@ -8,38 +8,29 @@ import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 
 const userStore = useUserStore()
 
+localStorage.removeItem('user')
+localStorage.removeItem('role')
+localStorage.removeItem('token')
+
 // login
 export const loginService = async (user: User, freePwd: boolean) => {
-  const resp = await axios.post<ResultVO<{ user: User }>>('login', user)
+  const data = { account: user.account, password: user.password, ltoken: freePwd }
+  const resp = await axios.post<ResultVO<{ user: User }>>('login', data)
   const us = resp.data.data?.user
-  if (!us) return
+  if (!us) {
+    throw '登录错误，请重新登录'
+  }
   const token = resp.headers.token
   const role = resp.headers.role
-  sessionStorage.setItem('token', token)
-  sessionStorage.setItem('role', role)
-  userStore.userS.value = us
-  sessionStorage.setItem('user', JSON.stringify(us))
+  userStore.setUserSessionStorage(us, token, role)
 
   if (freePwd) {
-    localStorage.setItem('token', token)
-    localStorage.setItem('role', role)
-    localStorage.setItem('user', JSON.stringify(us))
+    const ltoken = resp.headers.ltoken
+    us.name && userStore.setLocalStorage(us.name)
+    localStorage.setItem('ltoken', ltoken)
   }
 
-  let path = ''
-  switch (role) {
-    case SUBJECT_ADMIN:
-      path = 'subject/dispatched'
-      break
-    case COLLEGE_ADMIN:
-      path = '/college/imported'
-      break
-    case SUPER_ADMIN:
-      path = '/admin'
-      break
-  }
-
-  router.push(path)
+  router.push(getPath(role))
 }
 
 //
@@ -58,17 +49,24 @@ export const updateSelfPassword = async (pwd: string) => {
   await axios.post('passwords', { password: pwd })
 }
 
-export const freePwdService = () => {
-  const token = localStorage.getItem('token')
-  token && sessionStorage.setItem('token', token)
-  const role = localStorage.getItem('role')
-  role && sessionStorage.setItem('role', role)
-  const ut = localStorage.getItem('user')
-  if (ut) {
-    sessionStorage.setItem('user', ut)
-    const user = JSON.parse(ut)
-    userStore.userS.value = user
+//
+export const freePwdService = async () => {
+  const ltoken = userStore.getLKoken()
+  const resp = await axios.get<ResultVO<{ user: User }>>('l-login', {
+    headers: { ltoken: ltoken }
+  })
+  const us = resp.data.data?.user
+  if (!us) {
+    throw '登录错误，请重新登录'
   }
+  us.name && userStore.setLocalStorage(us.name)
+  const token = resp.headers.token
+  const role = resp.headers.role
+  userStore.setUserSessionStorage(us, token, role)
+  router.push(getPath(role))
+}
+
+function getPath(role: string) {
   let path = ''
   switch (role) {
     case SUBJECT_ADMIN:
@@ -81,8 +79,7 @@ export const freePwdService = () => {
       path = '/admin'
       break
   }
-
-  router.push(path)
+  return path
 }
 
 // 发送取消监考通知，移除监考日程
@@ -98,5 +95,4 @@ export const getSelfUserService = () => {
 export const setCurrentInviService = (invi: Invigilation | undefined) => {
   const store = useInvigilationsStore()
   store.currentInviS.value = invi
-  console.log(store.currentInviS.value)
 }

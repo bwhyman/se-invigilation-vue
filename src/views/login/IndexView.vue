@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { freePwdService, loginService } from '@/services/CommonService'
+import { useUserStore } from '@/stores/UserStore'
 import type { User } from '@/types'
 import { Lock, User as UserIco, SwitchButton, Coffee, Delete } from '@element-plus/icons-vue'
 
@@ -8,15 +9,16 @@ onMounted(() => {
   script.src = 'https://sdk.jinrishici.com/v2/browser/jinrishici.js'
   document.body.appendChild(script)
 })
-
-const userR = ref<User>({})
+const userStore = useUserStore()
+const userR = ref<User>({ account: '', password: '' })
 const freeR = ref(false)
 
-const userLocalR = ref<User>()
+const localNameR = ref<string>()
 
-const userLocal = localStorage.getItem('user')
-if (userLocal) {
-  userLocalR.value = JSON.parse(userLocal)
+const nameLocal = userStore.getLocalName()
+const ltoken = userStore.getLKoken()
+if (nameLocal && ltoken) {
+  localNameR.value = nameLocal
 }
 
 const login = async () => {
@@ -33,22 +35,23 @@ const login = async () => {
   )
 }
 
-const freeLoginF = () => {
-  freePwdService()
+const freeLoginF = async () => {
+  await freePwdService()
 }
 
 const removeFreePwd = () => {
-  userLocalR.value = undefined
+  localNameR.value = undefined
   localStorage.clear()
+  sessionStorage.clear()
 }
 </script>
 
 <template>
-  <el-row v-if="userLocalR?.name">
+  <el-row v-if="localNameR">
     <el-col :span="12" :offset="6" style="margin-top: 15px">
       <el-card class="box-card">
         <el-tag effect="plain" size="large" style="margin-bottom: 10px">
-          欢迎回来，{{ userLocalR.name }}老师
+          欢迎回来，{{ localNameR }}老师
         </el-tag>
         <br />
         <el-button type="success" @click="freeLoginF" style="margin-bottom: 10px">
@@ -64,7 +67,7 @@ const removeFreePwd = () => {
     </el-col>
   </el-row>
 
-  <el-row v-if="!userLocalR?.name">
+  <el-row v-if="!localNameR">
     <el-col :span="12" :offset="6" style="margin-top: 15px" @keyup.enter="login">
       <el-card class="box-card">
         <div style="margin-bottom: 10px">

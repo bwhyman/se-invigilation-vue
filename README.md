@@ -2,6 +2,13 @@
 
 ### Update
 
+#### 2024.07.01
+
+添加若干安全特性。  
+后端混淆JWT Token为不可读。  
+后端免密登录令牌以AES对称加密。  
+前端sessionstorage / localstorage加密存储数据。
+
 #### 2024.06.29
 
 自定义store，替换pinia。
