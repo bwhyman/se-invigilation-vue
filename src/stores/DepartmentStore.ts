@@ -6,7 +6,7 @@ const clear = () => {
   departments.value = []
   departmentsOpened.value = []
 }
-
+const store = { departments, departmentsOpened, clear }
 export const useDepartmentsStore = () => {
-  return { departments, departmentsOpened, clear }
+  return store
 }

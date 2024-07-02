@@ -9,6 +9,7 @@ const getWebUrl = () => {
   return settingsR.value.find((set) => set.key == 'weburl')?.value ?? ''
 }
 
+const store = { settingsR, getFirstWeek, getWebUrl }
 export const useSettingStore = () => {
-  return { settingsR, getFirstWeek, getWebUrl }
+  return store
 }

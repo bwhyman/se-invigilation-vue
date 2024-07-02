@@ -53,14 +53,15 @@ const clear = () => {
   userNameLocalS.value = ''
 }
 
+const store = {
+  userS,
+  userNameLocalR: userNameLocalS,
+  setUserSessionStorage,
+  setLocalStorage,
+  getLocalName,
+  getLKoken,
+  clear
+}
 export const useUserStore = () => {
-  return {
-    userS,
-    userNameLocalR: userNameLocalS,
-    setUserSessionStorage,
-    setLocalStorage,
-    getLocalName,
-    getLKoken,
-    clear
-  }
+  return store
 }

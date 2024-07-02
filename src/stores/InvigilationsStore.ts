@@ -12,13 +12,14 @@ const clearInvis = () => {
   invigilationsImportS.value = []
   invigilationsDispatchMapS.value.clear()
 }
+const store = {
+  invigilationsImportS,
+  invigilationsDispatchMapS,
+  currentInviS,
+  invisAllS,
+  dateInivsMap,
+  clearInvis
+}
 export const useInvigilationsStore = () => {
-  return {
-    invigilationsImportS,
-    invigilationsDispatchMapS,
-    currentInviS,
-    invisAllS,
-    dateInivsMap,
-    clearInvis
-  }
+  return store
 }
