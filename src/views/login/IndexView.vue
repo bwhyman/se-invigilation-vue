@@ -13,13 +13,10 @@ const userStore = useUserStore()
 const userR = ref<User>({ account: '', password: '' })
 const freeR = ref(false)
 
-const localNameR = ref<string>()
-
-const nameLocal = userStore.getLocalName()
+const localNameR = userStore.userNameLocalR
 const ltoken = userStore.getLKoken()
-if (nameLocal && ltoken) {
-  localNameR.value = nameLocal
-}
+
+const showFreeC = computed(() => localNameR.value.length > 0 && ltoken)
 
 const login = async () => {
   const account = userR.value.account
@@ -40,14 +37,12 @@ const freeLoginF = async () => {
 }
 
 const removeFreePwd = () => {
-  localNameR.value = undefined
-  localStorage.clear()
-  sessionStorage.clear()
+  userStore.clear()
 }
 </script>
 
 <template>
-  <el-row v-if="localNameR">
+  <el-row v-if="showFreeC">
     <el-col :span="12" :offset="6" style="margin-top: 15px">
       <el-card class="box-card">
         <el-tag effect="plain" size="large" style="margin-bottom: 10px">
@@ -67,7 +62,7 @@ const removeFreePwd = () => {
     </el-col>
   </el-row>
 
-  <el-row v-if="!localNameR">
+  <el-row v-if="!showFreeC">
     <el-col :span="12" :offset="6" style="margin-top: 15px" @keyup.enter="login">
       <el-card class="box-card">
         <div style="margin-bottom: 10px">

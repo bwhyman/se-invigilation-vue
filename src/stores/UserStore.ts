@@ -43,7 +43,24 @@ const getLocalName = () => {
   const name = localStorage.getItem('name')
   return decode(name ?? '')
 }
+
 const getLKoken = () => localStorage.getItem('ltoken')
+const userNameLocalS = ref<string>(getLocalName())
+
+const clear = () => {
+  sessionStorage.clear()
+  localStorage.clear()
+  userNameLocalS.value = ''
+}
+
 export const useUserStore = () => {
-  return { userS, setUserSessionStorage, setLocalStorage, getLocalName, getLKoken }
+  return {
+    userS,
+    userNameLocalR: userNameLocalS,
+    setUserSessionStorage,
+    setLocalStorage,
+    getLocalName,
+    getLKoken,
+    clear
+  }
 }

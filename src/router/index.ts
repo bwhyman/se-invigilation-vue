@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory, type RouteRecordRaw } from 'vue-router'
 import * as consty from '@/services/Const'
+import { useUserStore } from '@/stores/UserStore'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -133,7 +134,7 @@ router.beforeEach((to) => {
   if (role) {
     return true
   }
-  sessionStorage.clear()
+  useUserStore().clear()
   return '/login'
 })
 

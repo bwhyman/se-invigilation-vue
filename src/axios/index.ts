@@ -1,5 +1,7 @@
 import axios from 'axios'
 import type { ResultVO } from '@/types'
+import router from '@/router'
+import { useUserStore } from '@/stores/UserStore'
 
 axios.defaults.baseURL = '/api/'
 
@@ -56,7 +58,10 @@ axios.interceptors.response.use(
       parseObject(resp.data.data)
       return resp
     }
-
+    if (data.code == 401 || data.code == 403) {
+      useUserStore().clear()
+      router.push('/login')
+    }
     if (data.code >= 400) {
       return Promise.reject(data.message)
     }

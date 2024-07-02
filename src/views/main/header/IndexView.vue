@@ -18,6 +18,7 @@ if (role == COLLEGE_ADMIN) {
 
 const logout = () => {
   sessionStorage.clear()
+  localStorage.clear()
   window.location.href = '/'
 }
 const info = () => {
