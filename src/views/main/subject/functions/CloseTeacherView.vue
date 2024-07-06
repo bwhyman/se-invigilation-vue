@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
-import { listUsersService, updateUserInviStatusService } from '@/services/SubjectService'
+import { listUsersService, updateUsersInviStatuService } from '@/services/SubjectService'
 import type { User } from '@/types'
 
 const usersS = await listUsersService()
@@ -25,7 +25,7 @@ const updateUserInviStatus = async () => {
   userStatusR.value.forEach((u) => {
     users.push({ id: u.id, inviStatus: u.inviStatus })
   })
-  await updateUserInviStatusService(users)
+  await updateUsersInviStatuService(users)
   createElNotificationSuccess('更新成功')
   btnR.value = true
 }

@@ -56,7 +56,7 @@ export const getTotalsService = async (status: number) => {
 }
 
 //
-export const updateUserInviStatusService = async (users: User[]) => {
+export const updateUsersInviStatuService = async (users: User[]) => {
   // 改变教师状态监考状态，清空课表缓存。因为按开放教师加载的课表
   timetablesStore.timetableMap.clear()
   await axios.post<ResultVO<{ users: User[] }>>(`${SUBJECT}/invistatus`, users)

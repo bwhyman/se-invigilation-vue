@@ -134,7 +134,7 @@ router.beforeEach((to) => {
   if (role) {
     return true
   }
-  useUserStore().clear()
+  sessionStorage.clear()
   return '/login'
 })
 
