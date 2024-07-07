@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
-import { addDepartmentCommentService, getDepartmentCommentService } from '@/services/SubjectService'
+import { SubjectService } from '@/services/SubjectService'
 
-const comment = await getDepartmentCommentService()
+const comment = await SubjectService.getDepartmentCommentService()
 const commentR = ref(comment)
 const sendF = async () => {
   if (commentR.value.length == 0) {
     throw '备注信息为空'
   }
 
-  await addDepartmentCommentService(commentR.value)
+  await SubjectService.addDepartmentCommentService(commentR.value)
   createElNotificationSuccess('备注信息已保存')
 }
 </script>

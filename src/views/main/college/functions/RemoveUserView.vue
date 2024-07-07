@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { User } from '@/types'
 import DepartmentUser from './finduser/DepartmentUser.vue'
-import { removeUserService } from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import { createElNotificationSuccess } from '@/components/message'
 
 const exposeR = ref<{ selectUser: User; clear: Function }>()
@@ -15,7 +15,8 @@ const removeF = () => {
     cancelButtonText: 'Cancel',
     type: 'warning'
   }).then(async () => {
-    exposeR.value?.selectUser.id && (await removeUserService(exposeR.value?.selectUser.id))
+    exposeR.value?.selectUser.id &&
+      (await CollegeService.removeUserService(exposeR.value?.selectUser.id))
     createElNotificationSuccess('用户移除成功')
     exposeR.value?.clear()
     exposeR.value!.selectUser! = {}

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
-import { addUsersService, getDingUsersService, listCollegesService } from '@/services/AdminService'
+import { AdminService } from '@/services/AdminService'
 import type { Department, DingUser, User } from '@/types'
 
 const collegeR = ref<Department[]>([])
@@ -12,12 +12,12 @@ const unknownUsers: User[] = []
 
 watch(allUsersR.value, async () => {
   if (allUsersR.value.length > 0) {
-    collegeR.value = await listCollegesService()
+    collegeR.value = (await AdminService.listCollegesService()).value
   }
 })
 
 const activeF = async () => {
-  dingUsersR = (await getDingUsersService(collegeDingId.value)).value
+  dingUsersR = (await AdminService.getDingUsersService(collegeDingId.value)).value
   console.log(dingUsersR)
 }
 
@@ -58,7 +58,7 @@ const readUserFile = async (event: Event) => {
   element.value = ''
 }
 const addUsersF = async () => {
-  await addUsersService({
+  await AdminService.addUsersService({
     collId: selectCollegeR.value?.id!,
     collegeName: selectCollegeR.value?.name!,
     users: allUsersR.value

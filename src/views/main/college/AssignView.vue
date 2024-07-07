@@ -1,13 +1,6 @@
 <script setup lang="ts">
 import router from '@/router'
-import {
-  addAssignService,
-  getCollegeInviService,
-  getUserByNameServie,
-  listDepartmentUsersService,
-  listDepartmentsService,
-  updateInvisService
-} from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import {
   getSelfUserService,
   getSettingsService,
@@ -21,8 +14,8 @@ import { createElLoading } from '@/components/loading'
 const params = useRoute().params as { inviid: string; name: string }
 
 const results = await Promise.all([
-  getCollegeInviService(params.inviid),
-  getUserByNameServie(params.name),
+  CollegeService.getCollegeInviService(params.inviid),
+  CollegeService.getUserByNameServie(params.name),
   getSettingsService()
 ])
 
@@ -42,12 +35,12 @@ const selfSearchR = ref(false)
 
 watch(departmentR, async () => {
   selectUserR.value = undefined
-  usersR.value = await listDepartmentUsersService(departmentR.value)
+  usersR.value = await CollegeService.listDepartmentUsersService(departmentR.value)
 })
 
-const createUserR = getSelfUserService()
-
 const assignF = async () => {
+  const createUserR = getSelfUserService()
+  if (!createUserR.value) return
   const loading = createElLoading()
 
   const user = usersR.value.find((u) => u.id == selectUserR.value)
@@ -57,19 +50,22 @@ const assignF = async () => {
     departmentName: user?.department?.departmentName
   }
   invi.dispatcher = stringInviTime({ id: createUserR.value.id, name: createUserR.value.name })
-  await updateInvisService([invi])
+  await CollegeService.updateInvisService([invi])
   const assignUser: AssignUser = { executor: [], users: [] }
   assignUser.department = {
     depId: user?.department?.depId,
     departmentName: user?.department?.departmentName
   }
-  assignUser.allocator = stringInviTime({ id: createUserR.value.id, name: createUserR.value.name })
+  assignUser.allocator = stringInviTime({
+    id: createUserR.value.id,
+    name: createUserR.value.name
+  })
   assignUser.executor?.push(stringInviTime({ id: user?.id, name: user?.name }))
   assignUser.users?.push({ id: user?.id, name: user?.name })
 
   try {
     await noticeDingCancelService(invi!.id!)
-    await addAssignService(inviR.value!.id!, assignUser)
+    await CollegeService.addAssignService(inviR.value!.id!, assignUser)
     router.push(`/college/invinotice/${inviR.value!.id}`)
   } finally {
     loading.close()
@@ -80,7 +76,7 @@ const searchF = async () => {
   selfSearchR.value = true
   selectUserR.value = undefined
   usersR.value.length = 0
-  departmentsR.value = (await listDepartmentsService()).value
+  departmentsR.value = (await CollegeService.listDepartmentsService()).value
 }
 </script>
 <template>

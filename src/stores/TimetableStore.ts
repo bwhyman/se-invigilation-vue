@@ -1,7 +1,6 @@
 import type { Timetable } from '@/types'
 
-const timetableMap = new Map<string, Timetable[]>()
-const store = { timetableMap }
-export const useTimetablesStore = () => {
-  return store
-}
+const timetableMapS = ref<Map<string, Timetable[]>>(new Map())
+const clear = () => timetableMapS.value.clear()
+const store = { timetableMapS, clear }
+export const useTimetablesStore = () => store

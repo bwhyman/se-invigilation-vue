@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import router from '@/router'
-import { listImportedService, updateInvisService } from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import { DISPATCH } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
 import type { Department, Invigilation, Page } from '@/types'
@@ -10,7 +10,7 @@ import OpterationMenuView from './operations/OpterationMenuView.vue'
 import { createElNotificationSuccess } from '@/components/message'
 import { getSelfUserService } from '@/services/CommonService'
 
-const inviS = await listImportedService()
+const inviS = await CollegeService.listImportedService()
 const pageR = ref<Page>({
   currentpage: 1,
   total: inviS.value.length,
@@ -45,7 +45,7 @@ const updateInvis = async () => {
     invis.push({
       id: invi.id!,
       status: DISPATCH,
-      dispatcher: stringInviTime(user.value),
+      dispatcher: stringInviTime(user.value!),
       department: {
         depId: departmentR.value?.id,
         departmentName: departmentR.value?.name
@@ -54,7 +54,7 @@ const updateInvis = async () => {
   })
 
   //
-  await updateInvisService(invis)
+  await CollegeService.updateInvisService(invis)
   createElNotificationSuccess('监考已下发')
   router.push(`/college/noticedepartments/${departmentR.value?.id}`)
 }

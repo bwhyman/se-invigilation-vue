@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { listOpenedDepartmentsService } from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import type { Department } from '@/types'
 
-const departmentsS = await listOpenedDepartmentsService()
+const departmentsS = await CollegeService.listOpenedDepartmentsService()
 const props = defineProps<{ change: (depart: Department) => void }>()
 
 const route = useRoute()

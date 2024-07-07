@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { listDepartmentUsersService, listDepartmentsService } from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import type { Department, User } from '@/types'
 
 const departmentR = ref<Department>({})
@@ -13,10 +13,10 @@ defineExpose({
   }
 })
 
-const departmentsR = await listDepartmentsService()
+const departmentsR = await CollegeService.listDepartmentsService()
 
 const departmentChangeF = async () => {
-  usersR.value = await listDepartmentUsersService(departmentR.value?.id!)
+  usersR.value = await CollegeService.listDepartmentUsersService(departmentR.value?.id!)
 }
 </script>
 <template>

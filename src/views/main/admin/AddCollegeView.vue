@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
-import { addCollegeService } from '@/services/AdminService'
+import { AdminService } from '@/services/AdminService'
 
 const collegeNameR = ref('')
 const addCollegeF = async () => {
-  await addCollegeService(collegeNameR.value)
+  await AdminService.addCollegeService(collegeNameR.value)
   createElNotificationSuccess('添加成功')
   collegeNameR.value = ''
 }

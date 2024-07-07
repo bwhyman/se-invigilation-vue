@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { removeCollegeDataService } from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import { createElNotificationSuccess } from '@/components/message'
 
 const removeInvisF = () => {
@@ -8,7 +8,7 @@ const removeInvisF = () => {
     cancelButtonText: 'Cancel',
     type: 'warning'
   }).then(async () => {
-    await removeCollegeDataService()
+    await CollegeService.removeCollegeDataService()
     createElNotificationSuccess('移除成功')
   })
 }

@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import { getSettingsService } from '@/services/CommonService'
-import {
-  getInviService,
-  listInviDetailUsersService,
-  noticeUsersService
-} from '@/services/SubjectService'
+import { SubjectService } from '@/services/SubjectService'
 import { getInviChineseDayweek, getInviWeek } from '@/services/Utils'
 import type { Invigilation, Notice, User } from '@/types'
 import { SUBJECT_ADMIN, COLLEGE_ADMIN } from '@/services/Const'
 import router from '@/router'
-import { getCollegeInviService } from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import { createElNotificationSuccess } from '@/components/message'
 import { createElLoading } from '@/components/loading'
 
@@ -17,13 +13,13 @@ const params = useRoute().params as { inviid: string }
 const role = sessionStorage.getItem('role')
 let getInvi
 if (role == COLLEGE_ADMIN) {
-  getInvi = getCollegeInviService(params.inviid)
+  getInvi = CollegeService.getCollegeInviService(params.inviid)
 } else if (role == SUBJECT_ADMIN) {
-  getInvi = getInviService(params.inviid)
+  getInvi = SubjectService.getInviService(params.inviid)
 }
 
 const results = await Promise.all([
-  listInviDetailUsersService(params.inviid),
+  SubjectService.listInviDetailUsersService(params.inviid),
   getInvi,
   getSettingsService()
 ])
@@ -88,7 +84,7 @@ const noticeAssignersF = async () => {
   const loading = createElLoading()
   let msg
   try {
-    msg = await noticeUsersService(notice)
+    msg = await SubjectService.noticeUsersService(notice)
   } finally {
     loading.close()
   }

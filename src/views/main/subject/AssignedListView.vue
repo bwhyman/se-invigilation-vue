@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import InviTable from '@/views/main/component/InviTable.vue'
-import { getTotalsService, listInvisService } from '@/services/SubjectService'
+import { SubjectService } from '@/services/SubjectService'
 import { ASSIGN } from '@/services/Const'
 import { Edit } from '@element-plus/icons-vue'
 import type { Invigilation, Page } from '@/types'
@@ -8,7 +8,7 @@ import router from '@/router'
 import { setCurrentInviService } from '@/services/CommonService'
 
 const inviS = ref<Invigilation[]>([])
-const total = await getTotalsService(ASSIGN)
+const total = await SubjectService.getTotalsService(ASSIGN)
 
 const pageR = ref<Page>({
   currentpage: 0,
@@ -20,7 +20,7 @@ let params: { page?: string }
 watchEffect(async () => {
   params = route.params
   const cpage = params.page ? parseInt(params.page) : 1
-  inviS.value = await listInvisService(ASSIGN, cpage)
+  inviS.value = await SubjectService.listInvisService(ASSIGN, cpage)
   pageR.value.currentpage = cpage
 })
 

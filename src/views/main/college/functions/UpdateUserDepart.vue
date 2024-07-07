@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import type { Department, User, UserDepartment } from '@/types'
 import DepartmentUser from './finduser/DepartmentUser.vue'
-import { listDepartmentsService, updateUserDepartmentService } from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import { createElNotificationSuccess } from '@/components/message'
 import { getSelfUserService } from '@/services/CommonService'
 const exposeR = ref<{ selectUser: User; clear: Function }>()
 
 const departmentR = ref<Department>()
 const departmentsR = ref<Department[]>([])
-
+const userS = getSelfUserService()
 watch(exposeR, async () => {
-  departmentsR.value = (await listDepartmentsService()).value
+  departmentsR.value = (await CollegeService.listDepartmentsService()).value
 })
 
 //
 const updateF = async () => {
-  const userS = getSelfUserService()
+  if (!userS.value) return
   const depart = departmentsR.value.find((d) => d.id == departmentR.value?.id)
   if (!depart) {
     throw '选择部门错误'
@@ -27,7 +27,7 @@ const updateF = async () => {
     departmentName: depart.name
   }
   const user: User = { id: exposeR.value?.selectUser.id, department: dep }
-  await updateUserDepartmentService(user)
+  await CollegeService.updateUserDepartmentService(user)
   createElNotificationSuccess('部门更新成功')
   exposeR.value?.clear()
   exposeR.value!.selectUser! = {}

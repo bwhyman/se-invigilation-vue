@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
-import {
-  listDepartmentsService,
-  updateDepartmentInviStatusService
-} from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import type { Department } from '@/types'
 
-const departmentR = await listDepartmentsService()
+const departmentR = await CollegeService.listDepartmentsService()
 
 // 更新专业监考下发显示
 const btnR = ref(true)
@@ -23,7 +20,7 @@ const updateUserInviStatus = async () => {
     deps.push({ id: e.id, inviStatus: e.inviStatus })
   })
 
-  departmentR.value = (await updateDepartmentInviStatusService(deps)).value
+  departmentR.value = (await CollegeService.updateDepartmentInviStatusService(deps)).value
   createElNotificationSuccess('更新成功')
 }
 </script>

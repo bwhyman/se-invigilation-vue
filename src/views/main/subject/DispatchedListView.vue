@@ -2,14 +2,14 @@
 import router from '@/router'
 import { setCurrentInviService } from '@/services/CommonService'
 import { DISPATCH } from '@/services/Const'
-import { getTotalsService, listInvisService } from '@/services/SubjectService'
+import { SubjectService } from '@/services/SubjectService'
 import type { Invigilation, Page } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 
 const route = useRoute()
 let params: { page?: string }
 const inviS = ref<Invigilation[]>([])
-const total = await getTotalsService(DISPATCH)
+const total = await SubjectService.getTotalsService(DISPATCH)
 
 const pageR = ref<Page>({
   currentpage: 0,
@@ -22,7 +22,7 @@ watch(
   async () => {
     params = route.params
     const cpage = params.page ? parseInt(params.page) : 1
-    inviS.value = await listInvisService(DISPATCH, cpage)
+    inviS.value = await SubjectService.listInvisService(DISPATCH, cpage)
     pageR.value.currentpage = cpage
   },
   { immediate: true }

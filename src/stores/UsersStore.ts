@@ -2,7 +2,9 @@ import type { DingUser, User } from '@/types/index'
 
 const usersS = ref<User[]>([])
 const dingUsersS = ref<DingUser[]>([])
-const store = { usersS, dingUsersS }
-export const useUsersStore = () => {
-  return store
-}
+
+const dispatchersS = ref<Map<string, User>>(new Map())
+
+const clear = () => (usersS.value = [])
+const store = { usersS, dingUsersS, dispatchersS, clear }
+export const useUsersStore = () => store

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
-import { listUserDingIdsService, sendInviRemarkNoticeService } from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import { getSettingsService } from '@/services/CommonService'
 import { getInviChineseDayweek, getInviWeek } from '@/services/Utils'
 import type { Invigilation, NoticeRemark } from '@/types'
@@ -29,7 +29,7 @@ const message = ref(
 
 //
 const sendF = async () => {
-  const users = await listUserDingIdsService(userids)
+  const users = await CollegeService.listUserDingIdsService(userids)
   if (users.length == 0) {
     throw '获取用户钉钉账号失败'
   }
@@ -42,7 +42,7 @@ const sendF = async () => {
     remark: message.value,
     inviIds: inviids
   }
-  const result = await sendInviRemarkNoticeService(notice)
+  const result = await CollegeService.sendInviRemarkNoticeService(notice)
   if (result && result.length > 0) {
     createElNotificationSuccess(`备注通知发送成功。${result}`)
     router.go(0)

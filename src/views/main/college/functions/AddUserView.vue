@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import {
-  addUserService,
-  getDingUserService,
-  listDepartmentsService
-} from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import { ROLES, USER } from '@/services/Const'
 import type { Department, User } from '@/types'
 import { createElNotificationSuccess } from '@/components/message'
@@ -17,14 +13,14 @@ const departR = ref<Department>()
 const searchF = async () => {
   const loading = createElLoading()
   try {
-    const dingUser = await getDingUserService(userR.value.mobile!)
+    const dingUser = await CollegeService.getDingUserService(userR.value.mobile!)
     if (!dingUser?.userid || !dingUser.unionid) {
       throw '无法查询到钉钉用户'
     }
     userR.value.name = dingUser?.name
     userR.value.dingUserId = dingUser?.userid
     userR.value.dingUnionId = dingUser?.unionid
-    departmentsR.value = (await listDepartmentsService()).value
+    departmentsR.value = (await CollegeService.listDepartmentsService()).value
   } finally {
     loading.close()
   }
@@ -32,6 +28,7 @@ const searchF = async () => {
 
 const submitF = async () => {
   const collUserR = getSelfUserService()
+  if (!collUserR.value) return
   userR.value.department = {
     collId: collUserR.value.department?.collId,
     collegeName: collUserR.value.department?.collegeName,
@@ -47,7 +44,7 @@ const submitF = async () => {
     throw '有必填项为空'
   }
 
-  await addUserService(userR.value)
+  await CollegeService.addUserService(userR.value)
   userR.value = {}
   createElNotificationSuccess('添加成功')
 }

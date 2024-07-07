@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
-import { addInviSerivce } from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import { getSelfUserService } from '@/services/CommonService'
 import { IMPORT } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
 import type { Invigilation } from '@/types'
 import type { FormInstance, FormRules } from 'element-plus'
 
-const userS = getSelfUserService()
-
 const inviR = ref<Invigilation>({ course: {}, time: {} })
 
 const submitForm = async (formEl: FormInstance | undefined) => {
+  const userS = getSelfUserService()
+  if (!userS.value) return
   let sub = false
   if (!formEl) return
   await formEl.validate((valid, fields) => {
@@ -37,7 +37,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   inviR.value.collId = userS.value.department?.collId
   inviR.value.status = IMPORT
   inviR.value.importer = stringInviTime({ id: userS.value.id, name: userS.value.name })
-  await addInviSerivce(inviR.value)
+  await CollegeService.addInviSerivce(inviR.value)
   inviR.value = { course: {}, time: {} }
   formR.value = {
     courseName: '',

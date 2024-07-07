@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
-import { addInvigilationsService } from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import { getSelfUserService } from '@/services/CommonService'
 import { IMPORT } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
@@ -24,13 +24,14 @@ const readInvis = async (event: Event) => {
     return
   }
   const { readInviExcel } = await import('@/services/excel/InviExcel')
+
   readInviExcel(element.files[0])
     .then((invis: Invigilation[]) => {
       invisR.value = invis
       invisR.value.forEach((invi) => {
-        invi.collId = userS.value.department?.collId
+        invi.collId = userS.value!.department?.collId
         invi.status = IMPORT
-        invi.importer = stringInviTime(userS.value)
+        invi.importer = stringInviTime(userS.value!)
       })
     })
     .finally(() => {
@@ -56,7 +57,7 @@ watch(inviTypeR, (newValue) => {
 const addInvis = async () => {
   const result = invisR.value
   invisR.value = []
-  await addInvigilationsService(result)
+  await CollegeService.addInvigilationsService(result)
   createElNotificationSuccess('导入成功')
   router.push('/college/imported')
 }

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
-import { listDepartmentsService, updateDepartmentNameService } from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import type { Department, UserDepartment } from '@/types'
 
-const departmentsR = await listDepartmentsService()
+const departmentsR = await CollegeService.listDepartmentsService()
 const departR = ref<Department>()
 const depNameR = ref<string>()
 const selectDepartF = () => {
@@ -12,7 +12,7 @@ const selectDepartF = () => {
 const updateDepartNameF = async () => {
   const depart: UserDepartment = { depId: departR.value?.id, departmentName: depNameR.value }
   console.log(depart)
-  await updateDepartmentNameService(depart)
+  await CollegeService.updateDepartmentNameService(depart)
   departR.value = undefined
   createElNotificationSuccess('部门名称更新成功')
 }

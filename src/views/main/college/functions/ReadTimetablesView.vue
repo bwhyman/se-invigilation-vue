@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
-import {
-  addTimetableService,
-  addTimetablesService,
-  listCollegeUsersService
-} from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import type { ImportTimetable, Timetable, User } from '@/types'
 import DepartmentUser from './finduser/DepartmentUser.vue'
 import { createElLoading } from '@/components/loading'
@@ -24,7 +20,7 @@ const readTimetables = async (event: Event) => {
   )
   try {
     const results = await Promise.all([
-      listCollegeUsersService(),
+      CollegeService.listCollegeUsersService(),
       readTimetableExcel(element.files[0]),
       readPostGTimetableExcel(element.files[0])
     ])
@@ -51,7 +47,7 @@ const addTimetables = async () => {
     })
   })
   importTimetablesR.value = []
-  await addTimetablesService(timetables)
+  await CollegeService.addTimetablesService(timetables)
   loading.close()
   importTimetablesR.value = []
   createElNotificationSuccess('导入完成')
@@ -83,7 +79,7 @@ const addTimetable = async () => {
   })
   importTimetablesR.value = []
 
-  await addTimetableService(exposeR.value?.selectUser?.id!, timetables)
+  await CollegeService.addTimetableService(exposeR.value?.selectUser?.id!, timetables)
   createElNotificationSuccess('课表导入成功')
   exposeR.value?.clear()
   exposeR.value!.selectUser! = {}

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ExcludeRule } from '@/types'
 import { dayOfWeeksC, periodOfDaysC } from '@/services/ExcludeRule'
-import { delExcludeRuleService } from '@/services/SubjectService'
+import { SubjectService } from '@/services/SubjectService'
 import { render } from 'vue'
 import { createElNotificationSuccess } from '@/components/message'
 
@@ -9,7 +9,7 @@ const props = defineProps<{ rule: ExcludeRule }>()
 const delDialVisable = ref(true)
 
 const delConfirmF = async () => {
-  await delExcludeRuleService(props.rule.id!)
+  await SubjectService.delExcludeRuleService(props.rule.id!)
   createElNotificationSuccess('规则删除成功')
   close()
 }

@@ -62,6 +62,4 @@ const store = {
   getLKoken,
   clear
 }
-export const useUserStore = () => {
-  return store
-}
+export const useUserStore = () => store

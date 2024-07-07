@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { addExcludeRuleService, listUsersService } from '@/services/SubjectService'
+import { SubjectService } from '@/services/SubjectService'
 import type { ExcludeRule, User } from '@/types'
 import { Plus } from '@element-plus/icons-vue'
 import { dayOfWeeks, periodOfDays } from '@/services/ExcludeRule'
@@ -11,7 +11,7 @@ const excludeRuleR = ref<ExcludeRule>({})
 
 const openDialogF = async () => {
   dialogFormVisible.value = true
-  usersR.value = (await listUsersService()).value
+  usersR.value = (await SubjectService.listUsersService()).value
 }
 const closedialF = () => {
   excludeRuleR.value = {}
@@ -80,7 +80,7 @@ const submitF = async () => {
   dialogFormVisible.value = false
 
   const rule: ExcludeRule = JSON.parse(JSON.stringify(excludeRuleR.value))
-  await addExcludeRuleService(rule)
+  await SubjectService.addExcludeRuleService(rule)
   createElNotificationSuccess('规则添加成功')
 }
 </script>

@@ -1,13 +1,5 @@
 <script setup lang="ts">
-import {
-  addAssignUsersService,
-  getInviService,
-  listCountsService,
-  listDateInvisService,
-  listExcludeRulesService,
-  listTimetablesService,
-  listUsersService
-} from '@/services/SubjectService'
+import { SubjectService } from '@/services/SubjectService'
 import {
   confTime,
   getInviChineseDayweek,
@@ -25,7 +17,7 @@ import {
   noticeDingCancelService
 } from '@/services/CommonService'
 import InviMessage from '../component/InviInfo.vue'
-import { getDepartmentCommentService } from '@/services/SubjectService'
+
 import { createElNotificationSuccess } from '@/components/message'
 import { createElLoading } from '@/components/loading'
 
@@ -34,7 +26,10 @@ const params = useRoute().params as { inviid: string }
 //
 const selectedUsers = ref<InviAssignUser[]>([])
 
-const resultInit = await Promise.all([getInviService(params.inviid), getSettingsService()])
+const resultInit = await Promise.all([
+  SubjectService.getInviService(params.inviid),
+  getSettingsService()
+])
 const currentInvi = resultInit[0]
 if (!currentInvi.value) {
   throw '获取监考信息错误!'
@@ -53,15 +48,15 @@ const amountR = currentInvi.value.amount!
 //
 const allP = await Promise.all([
   // 当天课表
-  listTimetablesService(week, dayweek),
+  SubjectService.listTimetablesService(week, dayweek),
   // 当天监考
-  listDateInvisService(currentInvi.value.date!),
+  SubjectService.listDateInvisService(currentInvi.value.date!),
   // 监考数量
-  listCountsService(),
+  SubjectService.listCountsService(),
   // 全部教师
-  listUsersService(),
-  getDepartmentCommentService(),
-  listExcludeRulesService()
+  SubjectService.listUsersService(),
+  SubjectService.getDepartmentCommentService(),
+  SubjectService.listExcludeRulesService()
 ])
 
 const timetablesR = allP[0] ?? []
@@ -219,7 +214,7 @@ const submitUsers = async () => {
       user && userIds.push(user.dingUserId!)
     })
   }
-  assignUsersR.value.allocator = stringInviTime({ id: userR.value.id, name: userR.value.name })
+  assignUsersR.value.allocator = stringInviTime({ id: userR.value!.id, name: userR.value!.name })
   assignUsersR.value.executor = []
   assignUsersR.value.users = []
   selectedUsers.value.forEach((us) => {
@@ -229,7 +224,7 @@ const submitUsers = async () => {
 
   try {
     await noticeDingCancelService(currentInvi.value!.id!)
-    await addAssignUsersService(currentInvi.value!.id!, assignUsersR.value)
+    await SubjectService.addAssignUsersService(currentInvi.value!.id!, assignUsersR.value)
     createElNotificationSuccess('监考已分配')
     router.push(`/subject/notices/${params.inviid}`)
   } finally {

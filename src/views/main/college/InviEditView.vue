@@ -1,18 +1,13 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
-import {
-  delInviService,
-  getCollegeInviService,
-  resetInviService,
-  updateInviService
-} from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import { noticeDingCancelService, setCurrentInviService } from '@/services/CommonService'
 import type { Invigilation } from '@/types'
 import type { FormInstance, FormRules } from 'element-plus'
 
 const params = useRoute().params as { inviid: string }
-const invi = await getCollegeInviService(params.inviid)
+const invi = await CollegeService.getCollegeInviService(params.inviid)
 const isAssigned = computed(() => invi.value && invi.value.executor)
 const unlockedR = computed(() => invi.value && !invi.value.executor)
 if (!invi.value) {
@@ -58,7 +53,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   inviR.time!.starttime = formR.value.stime
   inviR.time!.endtime = formR.value.etime
 
-  invi.value = (await updateInviService(inviR)).value
+  invi.value = (await CollegeService.updateInviService(inviR)).value
   formR.value = getInit()
   createElNotificationSuccess('修改成功')
   //router.push('/college/imported')
@@ -148,7 +143,10 @@ const delInvi = () => {
     cancelButtonText: 'Cancel',
     type: 'warning'
   }).then(async () => {
-    await Promise.all([noticeDingCancelService(invi.value!.id!), delInviService(invi.value!.id!)])
+    await Promise.all([
+      noticeDingCancelService(invi.value!.id!),
+      CollegeService.delInviService(invi.value!.id!)
+    ])
     createElNotificationSuccess('监考已删除')
     setCurrentInviService(undefined)
     router.push(`/college/imported`)
@@ -162,7 +160,7 @@ const resetInvi = () => {
     type: 'warning'
   }).then(async () => {
     await noticeDingCancelService(invi.value!.id!)
-    await resetInviService(invi.value!.id!)
+    await CollegeService.resetInviService(invi.value!.id!)
     setCurrentInviService(undefined)
     createElNotificationSuccess('监考已重置')
     router.push(`/college/imported`)

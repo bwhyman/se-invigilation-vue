@@ -1,46 +1,42 @@
 import axios from '@/axios'
 import type { Department, DingUser, ResultVO, User } from '@/types'
 import { useUsersStore } from '@/stores/UsersStore'
-import { createElNotificationSuccess } from '@/components/message'
+import { StoreCache, StoreClear } from './descriptor'
+import { useDepartmentsStore } from '@/stores/DepartmentStore'
 
 const usersStore = useUsersStore()
+const departsStore = useDepartmentsStore()
 
 const ADMIN = 'admin'
 
-export const addCollegeService = async (name: string) => {
-  const resp = await axios.post<ResultVO<{ department: { name: string; id: string } }>>(
-    `${ADMIN}/colleges`,
-    {
+export class AdminService {
+  @StoreClear(departsStore.clear)
+  @StoreCache(departsStore.collegesS)
+  static async addCollegeService(name: string) {
+    const resp = await axios.post<ResultVO<{ colleges: Department[] }>>(`${ADMIN}/colleges`, {
       name: name
-    }
-  )
-  createElNotificationSuccess(resp.data.data?.department.name ?? '')
-}
-
-//
-export const listCollegesService = async () => {
-  const resp = await axios.get<ResultVO<{ colleges: Department[] }>>(`${ADMIN}/colleges`)
-  return resp.data.data?.colleges ?? []
-}
-
-//
-export const addUsersService = async (u: {
-  collId: string
-  collegeName: string
-  users: User[]
-}) => {
-  console.log(u)
-
-  await axios.post(`${ADMIN}/users`, u)
-}
-
-//
-export const getDingUsersService = async (dingdepid: string) => {
-  const dingUsersS = usersStore.dingUsersS
-  if (dingUsersS.value.length > 0) return dingUsersS
+    })
+    return resp.data.data?.colleges as unknown as Ref<Department[]>
+  }
 
   //
-  const resp = await axios.get<ResultVO<{ users: DingUser[] }>>(`${ADMIN}/dingusers/${dingdepid}`)
-  dingUsersS.value = resp.data.data?.users ?? []
-  return dingUsersS
+  @StoreCache(departsStore.collegesS)
+  static async listCollegesService() {
+    const resp = await axios.get<ResultVO<{ colleges: Department[] }>>(`${ADMIN}/colleges`)
+    return resp.data.data?.colleges as unknown as Ref<Department[]>
+  }
+
+  //
+  static addUsersService = async (u: { collId: string; collegeName: string; users: User[] }) => {
+    console.log(u)
+
+    await axios.post(`${ADMIN}/users`, u)
+  }
+
+  //
+  @StoreCache(usersStore.dingUsersS)
+  static async getDingUsersService(dingdepid: string) {
+    const resp = await axios.get<ResultVO<{ users: DingUser[] }>>(`${ADMIN}/dingusers/${dingdepid}`)
+    return resp.data.data?.users as unknown as Ref<DingUser[]>
+  }
 }

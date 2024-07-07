@@ -1,6 +1,6 @@
 import type { Invigilation, User, Notice } from '@/types'
 import { getInviChineseDayweek, getInviWeek } from './Utils'
-import { noticeUsersService } from './SubjectService'
+import { SubjectService } from './SubjectService'
 import { getSettingsService } from './CommonService'
 
 export const noticeDingService = async (assignUsers: User[], invi: Invigilation) => {
@@ -47,6 +47,6 @@ export const noticeDingService = async (assignUsers: User[], invi: Invigilation)
   notice.remindMinutes = remindMinutes
 
   console.log(notice)
-  const msg = await noticeUsersService(notice)
+  const msg = await SubjectService.noticeUsersService(notice)
   return msg
 }

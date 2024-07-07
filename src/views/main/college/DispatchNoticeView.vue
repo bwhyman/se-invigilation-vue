@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
-import { listDispatchersService, noticeDispatcherService } from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import { getSettingsService } from '@/services/CommonService'
 import type { Notice, User } from '@/types'
 const params = useRoute().params as { depid: string }
@@ -9,7 +9,10 @@ const params = useRoute().params as { depid: string }
 const dispatchersR = ref<User[]>([])
 const selDisR = ref<string[]>([])
 
-const results = await Promise.all([listDispatchersService(params.depid), getSettingsService()])
+const results = await Promise.all([
+  CollegeService.listDispatchersService(params.depid),
+  getSettingsService()
+])
 
 dispatchersR.value = results[0]
 
@@ -21,7 +24,7 @@ const noticeDispatchersF = async () => {
     userIds: selDisR.value.join(','),
     noticeMessage: message
   }
-  const result = await noticeDispatcherService(notice)
+  const result = await CollegeService.noticeDispatcherService(notice)
   if (result?.errcode != 0) {
     throw '发送钉钉通知错误，请重新尝试'
   }

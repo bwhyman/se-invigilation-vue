@@ -1,7 +1,6 @@
 import type { ExcludeRule } from '@/types'
 
 const excludeRules = ref<ExcludeRule[]>([])
-const store = { excludeRules }
-export const useExcludeRulesStore = () => {
-  return store
-}
+const clear = () => (excludeRules.value = [])
+const store = { excludeRules, clear }
+export const useExcludeRulesStore = () => store

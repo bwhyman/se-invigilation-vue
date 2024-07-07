@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
-import { resetPasswordService } from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import type { User } from '@/types'
 import DepartmentUser from './finduser/DepartmentUser.vue'
 
 const exposeR = ref<{ selectUser: User; clear: Function }>()
 
 const changeF = async () => {
-  await resetPasswordService(exposeR.value?.selectUser.account!)
+  await CollegeService.resetPasswordService(exposeR.value?.selectUser.account!)
   createElNotificationSuccess('密码重置成功')
   exposeR.value?.clear()
   exposeR.value!.selectUser! = {}

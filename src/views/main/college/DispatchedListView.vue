@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getDepatchedTotalService, listDepatchedsService } from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import type { Department, Invigilation, Page } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 import DepartmentView from './DepartmentView.vue'
@@ -21,10 +21,10 @@ watchEffect(async () => {
   params = route.params
   if (!params.depid) return
   const cpage = params.page ? parseInt(params.page) : 1
-  inviS.value = await listDepatchedsService(params.depid, cpage)
+  inviS.value = await CollegeService.listDepatchedsService(params.depid, cpage)
   let depTotal = departTotalsR.find((dep) => dep.id == params.depid)
   if (!depTotal) {
-    const x = (await getDepatchedTotalService(params.depid)) ?? 1
+    const x = (await CollegeService.getDepatchedTotalService(params.depid)) ?? 1
     depTotal = { id: params.depid, total: x }
     departTotalsR.push(depTotal)
   }
@@ -40,8 +40,6 @@ const departChange = (dep: Department) => {
 const editF = (inviid: string) => {
   const invi = inviS.value.find((i) => i.id == inviid)
   invi && setCurrentInviService(invi)
-  console.log(useInvigilationsStore().currentInviS.value)
-
   router.push(`/college/inviedit/${inviid}`)
 }
 </script>

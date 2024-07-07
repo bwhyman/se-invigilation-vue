@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { listCountsService } from '@/services/SubjectService'
+import { SubjectService } from '@/services/SubjectService'
 
-const counts = await listCountsService()
+const counts = await SubjectService.listCountsService()
 </script>
 <template>
   <el-row class="my-row">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import router from '@/router'
-import { listInvisByDateService } from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import { getSettingsService } from '@/services/CommonService'
 import {
   getInviWeekC,
@@ -37,7 +37,7 @@ dateRangeR.value[1] = formatDate(eDate)
 
 const results = await Promise.all([
   getSettingsService(),
-  listInvisByDateService(dateRangeR.value[0], dateRangeR.value[1])
+  CollegeService.listInvisByDateService(dateRangeR.value[0], dateRangeR.value[1])
 ])
 
 let invis = results[1]
@@ -49,7 +49,7 @@ invisR.value = invis
 const changeFixedRangeF = async () => {
   const sdate = dateRangeR.value[0]
   const edate = dateRangeR.value[1]
-  invis = await listInvisByDateService(sdate, edate)
+  invis = await CollegeService.listInvisByDateService(sdate, edate)
   inviStatusR.value = ALL
   invisR.value = invis
 }

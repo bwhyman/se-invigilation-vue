@@ -1,5 +1,5 @@
 import router from '@/router'
-import { cutInviService } from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import { setCurrentInviService } from '@/services/CommonService'
 import { IMPORT } from '@/services/Const'
 import type { Invigilation } from '@/types'
@@ -45,7 +45,7 @@ export const cutF = async (invi: Invigilation) => {
         status: IMPORT,
         importer: invi.importer
       }
-      await cutInviService(invi.id!, newInvi)
+      await CollegeService.cutInviService(invi.id!, newInvi)
     })
     .catch(() => {
       ElMessage({

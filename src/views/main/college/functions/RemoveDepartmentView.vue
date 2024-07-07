@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
-import { listDepartmentsService, removeDepartmentService } from '@/services/CollegeService'
+import { CollegeService } from '@/services/CollegeService'
 import type { Department } from '@/types'
 
-const departmentsR = await listDepartmentsService()
+const departmentsR = await CollegeService.listDepartmentsService()
 const departmentR = ref<Department>()
 
 const removeF = async () => {
   if (!departmentR.value || !departmentR.value.id) throw '部门为空，请选择部门'
   const depid = departmentR.value.id
   departmentR.value = undefined
-  await removeDepartmentService(depid)
+  await CollegeService.removeDepartmentService(depid)
   createElNotificationSuccess('部门移除成功')
 }
 </script>
