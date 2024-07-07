@@ -17,7 +17,7 @@ import { useDepartmentsStore } from '@/stores/DepartmentStore'
 import { useUsersStore } from '@/stores/UsersStore'
 import { stringTimetables } from './Utils'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
-import { StoreCache, StoreClear, StoreMapCache } from './descriptor'
+import { StoreCache, StoreClear, StoreMapCache } from './Decorators'
 import { useTotalsStore } from '@/stores/TotalsStore'
 
 const COLLEGE = 'college'

@@ -14,7 +14,7 @@ import { useTimetablesStore } from '@/stores/TimetableStore'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 import { useInviCountsStore } from '@/stores/inviCountsStore'
 import { useExcludeRulesStore } from '@/stores/ExcludeRuleStore'
-import { StoreCache, StoreClear, StoreMapCache } from './descriptor'
+import { StoreCache, StoreClear, StoreMapCache } from './Decorators'
 import { useTotalsStore } from '@/stores/TotalsStore'
 
 const SUBJECT = 'subject'

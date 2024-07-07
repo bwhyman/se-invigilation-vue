@@ -1,7 +1,7 @@
 import axios from '@/axios'
 import type { Department, DingUser, ResultVO, User } from '@/types'
 import { useUsersStore } from '@/stores/UsersStore'
-import { StoreCache, StoreClear } from './descriptor'
+import { StoreCache, StoreClear } from './Decorators'
 import { useDepartmentsStore } from '@/stores/DepartmentStore'
 
 const usersStore = useUsersStore()
