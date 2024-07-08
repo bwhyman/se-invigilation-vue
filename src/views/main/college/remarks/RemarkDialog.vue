@@ -10,9 +10,14 @@ import { render } from 'vue'
 const props = defineProps<{ invis: Invigilation[] }>()
 const invis = props.invis
 const invi: Invigilation = invis[0]
+const messageR = ref('')
 
-const settingsStore = await getSettingsService()
-const week = getInviWeek(invi.date!, settingsStore.getFirstWeek())
+getSettingsService().then((store) => {
+  const week = getInviWeek(invi.date!, store.getFirstWeek())
+  messageR.value = `监考信息：${invi.course?.courseName} ${invi.date}第${week}周${chineseDayWeek} ${invi.time?.starttime}。
+请提前20分钟在大厅取卷，监考结束请送至`
+})
+
 const chineseDayWeek = getInviChineseDayweek(invi.date!)
 
 let userids: string[] = []
@@ -22,10 +27,6 @@ invis.forEach((invi) => {
 })
 userids = Array.from(new Set(userids))
 const dialogFormVisible = ref(true)
-const message = ref(
-  `监考信息：${invi.course?.courseName} ${invi.date}第${week}周${chineseDayWeek} ${invi.time?.starttime}。
-请提前20分钟在大厅取卷，监考结束请送至`
-)
 
 //
 const sendF = async () => {
@@ -39,7 +40,7 @@ const sendF = async () => {
   }
   const notice: NoticeRemark = {
     dingUserIds: users.map((u) => u.dingUserId).join(','),
-    remark: message.value,
+    remark: messageR.value,
     inviIds: inviids
   }
   const result = await CollegeService.sendInviRemarkNoticeService(notice)
@@ -62,7 +63,7 @@ const closeDialog = () => render(null, document.body)
       人。
     </p>
     <el-form>
-      <el-input v-model="message" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" />
+      <el-input v-model="messageR" :autosize="{ minRows: 3, maxRows: 4 }" type="textarea" />
     </el-form>
     <template #footer>
       <span class="dialog-footer">

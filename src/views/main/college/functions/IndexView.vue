@@ -17,11 +17,11 @@ const components: { name: string; component: Component }[] = [
     component: defineAsyncComponent(() => import('./ResetPasswordView.vue'))
   },
   {
-    name: '更新教师部门',
+    name: '更新用户部门',
     component: defineAsyncComponent(() => import('./UpdateUserDepart.vue'))
   },
   {
-    name: '更新教师角色',
+    name: '更新用户角色',
     component: defineAsyncComponent(() => import('./UpdateRolesView.vue'))
   },
   {

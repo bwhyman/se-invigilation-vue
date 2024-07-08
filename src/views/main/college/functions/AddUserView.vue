@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { CollegeService } from '@/services/CollegeService'
-import { ROLES, USER } from '@/services/Const'
+import { ROLES } from '@/services/Const'
 import type { Department, User } from '@/types'
 import { createElNotificationSuccess } from '@/components/message'
 import { createElLoading } from '@/components/loading'
 import { getSelfUserService } from '@/services/CommonService'
 
 const departmentsR = ref<Department[]>([])
-const userR = ref<User>({ role: USER })
+const userR = ref<User>({})
 const departR = ref<Department>()
 
 const searchF = async () => {
@@ -48,6 +48,14 @@ const submitF = async () => {
   userR.value = {}
   createElNotificationSuccess('添加成功')
 }
+const submitC = computed(
+  () =>
+    userR.value.name &&
+    userR.value.account &&
+    userR.value.mobile &&
+    departR.value?.id &&
+    userR.value.role
+)
 </script>
 <template>
   <el-row class="my-row">
@@ -65,22 +73,22 @@ const submitF = async () => {
       </el-form>
       <!--  -->
       <el-form label-width="120px" style="width: 600px" v-if="userR.dingUserId">
-        <el-form-item label="姓名">
+        <el-form-item label="*姓名">
           <el-input v-model="userR.name" />
         </el-form-item>
-        <el-form-item label="工号">
+        <el-form-item label="*工号">
           <el-input v-model="userR.account" />
         </el-form-item>
         <el-form-item label="钉钉userid">
-          <el-input v-model="userR.dingUserId" readonly />
+          <el-input v-model="userR.dingUserId" disabled />
         </el-form-item>
         <el-form-item label="钉钉unionid">
-          <el-input v-model="userR.dingUnionId" readonly />
+          <el-input v-model="userR.dingUnionId" disabled />
         </el-form-item>
-        <el-form-item label="手机号">
-          <el-input v-model="userR.mobile" />
+        <el-form-item label="*手机号">
+          <el-input v-model="userR.mobile" disabled />
         </el-form-item>
-        <el-form-item label="部门">
+        <el-form-item label="*部门">
           <el-select
             value-key="id"
             v-model="departR"
@@ -108,7 +116,7 @@ const submitF = async () => {
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="success" @click="submitF">提交</el-button>
+          <el-button type="success" @click="submitF" :disabled="!submitC">提交</el-button>
         </el-form-item>
       </el-form>
     </el-col>

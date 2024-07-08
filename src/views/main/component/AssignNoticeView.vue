@@ -24,9 +24,16 @@ const results = await Promise.all([
   getSettingsService()
 ])
 
-const assignersR = ref<User[]>([])
+const assignersR = ref<User[]>(results[0] ?? [])
+
+const dingUsers: User[] = []
+const noDingUsers: User[] = []
+
+for (const us of assignersR.value) {
+  us.dingUserId ? dingUsers.push(us) : noDingUsers.push(us)
+}
+
 const invigilationR = ref<Invigilation>()
-assignersR.value = results[0] ?? []
 invigilationR.value = results[1]?.value
 const settingsStore = results[2]
 
@@ -104,22 +111,40 @@ const noticeAssignersF = async () => {
     <el-col style="margin-bottom: 10px">{{ noticeMessage }}</el-col>
   </el-row>
   <el-row class="my-row">
-    <el-col>
+    <el-col style="margin-bottom: 10px">
       分配结果已保存。
       <br />
       钉钉通知并添加到用户日程？
     </el-col>
-    <el-col>
+    <el-col style="margin-bottom: 10px">
       <el-checkbox-group v-model="selectUsersR">
-        <el-checkbox v-for="(user, index) of assignersR" :key="index" :label="user" size="large">
+        <el-checkbox v-for="(user, index) of dingUsers" :key="index" :label="user" size="large">
           {{ user.name }}
+          <el-tag type="danger" v-if="!user.dingUserId">该用户没有钉钉信息无法发送通过</el-tag>
         </el-checkbox>
       </el-checkbox-group>
     </el-col>
-    <el-col>
-      <el-button type="success" @click="noticeAssignersF" :disabled="selectUsersR.length == 0">
+    <el-col style="margin-bottom: 10px">
+      <el-tag type="danger" v-if="noDingUsers.length > 0" size="large" style="margin-bottom: 10px">
+        以下用户没有钉钉信息无法向其发送通过
+      </el-tag>
+      <br />
+      <el-tag v-for="(user, index) of noDingUsers" :key="index" size="large">
+        {{ user.name }}
+      </el-tag>
+    </el-col>
+    <el-col style="margin-bottom: 10px">
+      <el-button
+        v-if="!(dingUsers.length == 0)"
+        type="success"
+        @click="noticeAssignersF"
+        :disabled="dingUsers.length == 0"
+        style="margin-right: 10px">
         提交
       </el-button>
+      <el-tag type="danger" v-if="dingUsers.length == 0" size="large">
+        所用用户均没有钉钉信息，无法提交发送通知请求
+      </el-tag>
     </el-col>
   </el-row>
 </template>
