@@ -11,13 +11,9 @@ export const editF = (invi: Invigilation) => {
 }
 
 export const assignF = (invi: Invigilation) => {
-  if (invi.amount != 1) {
-    throw '只能为监考人数为1的监考直接分配'
-  }
   setCurrentInviService(invi)
-  const name = invi.course?.teacherName
   const inviid = invi.id
-  router.push(`/college/assigns/${inviid}/names/${name}`)
+  router.push(`/college/assigns/${inviid}`)
 }
 
 //

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
 import {
   getSelfUserService,
@@ -7,132 +6,199 @@ import {
   noticeDingCancelService
 } from '@/services/CommonService'
 import { stringInviTime } from '@/services/Utils'
-import type { AssignUser, Department, Invigilation, User } from '@/types'
+import type { AssignUser, Invigilation, Notice, User } from '@/types'
 import InviMessage from '@/views/main/component/InviInfo.vue'
 import { createElLoading } from '@/components/loading'
+import DepartmentUser from './functions/finduser/DepartmentUser.vue'
+import { DISPATCH } from '@/services/Const'
+import { SubjectService } from '@/services/SubjectService'
+import { getFinalNotice, getInitNotice } from '../component/AssignNotice'
+import { createElNotificationSuccess } from '@/components/message'
 
-const params = useRoute().params as { inviid: string; name: string }
+const params = useRoute().params as { inviid: string }
 
-const results = await Promise.all([
-  CollegeService.getCollegeInviService(params.inviid),
-  CollegeService.getUserByNameServie(params.name),
-  getSettingsService()
-])
-
-const inviR = results[0]
-
-if (!inviR.value) {
+const inviR = await CollegeService.getCollegeInviService(params.inviid)
+if (!inviR || !inviR.value) {
   throw '获取监考信息错误!'
 }
+const exposeR = ref<{ selectUser: User; clearUser: Function }>()
+const selectUsersR = ref<User[]>([])
+const newInvisR = ref<Invigilation[]>([])
+const assignNoticesR = ref<Notice[]>([])
 
-const usersR = ref<User[]>([])
-const selectUserR = ref<string>()
-const departmentR = ref('')
-usersR.value = results[1]
+const createUserR = getSelfUserService()
+watch(
+  () => exposeR.value?.selectUser,
+  () => {
+    if (!exposeR.value?.selectUser.id) return
+    if (!createUserR.value) return
+    selectUsersR.value.push(exposeR.value?.selectUser) && exposeR.value?.clearUser()
+    newInvisR.value = []
+    for (const user of selectUsersR.value) {
+      const inviN: Invigilation = {}
+      inviN.collId = createUserR.value.department?.collId
+      inviN.department = {
+        depId: user.department?.depId,
+        departmentName: user.department?.departmentName
+      }
+      inviN.importer = stringInviTime(createUserR.value)
+      inviN.dispatcher = stringInviTime(createUserR.value)
+      inviN.date = inviR.value.date
+      inviN.time = inviR.value.time
+      inviN.course = inviR.value.course
+      inviN.amount = 1
+      inviN.status = DISPATCH
+      newInvisR.value.push(inviN)
+    }
+  }
+)
 
-const departmentsR = ref<Department[]>()
-const selfSearchR = ref(false)
-
-watch(departmentR, async () => {
-  selectUserR.value = undefined
-  usersR.value = await CollegeService.listDepartmentUsersService(departmentR.value)
-})
-
+//
 const assignF = async () => {
-  const createUserR = getSelfUserService()
-  if (!createUserR.value) return
-  const loading = createElLoading()
-
-  const user = usersR.value.find((u) => u.id == selectUserR.value)
-  const invi: Invigilation = { id: inviR.value!.id }
-  invi.department = {
-    depId: user?.department?.depId,
-    departmentName: user?.department?.departmentName
+  if (newInvisR.value.length == 0) return
+  const invis = await CollegeService.addInvigilationsService(newInvisR.value)
+  newInvisR.value = invis
+  for (let index = 0; index < invis.length; index++) {
+    const uss: User[] = []
+    const dep = selectUsersR.value[index].department
+    const allocator = stringInviTime(createUserR.value!)
+    const executor = [stringInviTime(selectUsersR.value[index])]
+    uss.push({ id: selectUsersR.value[index].id })
+    const u: AssignUser = { department: dep, allocator: allocator, executor: executor, users: uss }
+    await CollegeService.addAssignService(invis[index].id!, u)
   }
-  invi.dispatcher = stringInviTime({ id: createUserR.value.id, name: createUserR.value.name })
-  await CollegeService.updateInvisService([invi])
-  const assignUser: AssignUser = { executor: [], users: [] }
-  assignUser.department = {
-    depId: user?.department?.depId,
-    departmentName: user?.department?.departmentName
-  }
-  assignUser.allocator = stringInviTime({
-    id: createUserR.value.id,
-    name: createUserR.value.name
-  })
-  assignUser.executor?.push(stringInviTime({ id: user?.id, name: user?.name }))
-  assignUser.users?.push({ id: user?.id, name: user?.name })
 
-  try {
-    await noticeDingCancelService(invi!.id!)
-    await CollegeService.addAssignService(inviR.value!.id!, assignUser)
-    router.push(`/college/invinotice/${inviR.value!.id}`)
-  } finally {
-    loading.close()
+  // 如果当前监考已经被分配。发送取消监考通知
+  if (inviR.value.executor) {
+    inviR.value.id && (await noticeDingCancelService(inviR.value))
+  }
+  // 移除原监考
+  inviR.value.id && (await CollegeService.delInviService(inviR.value.id))
+
+  for (const invi of newInvisR.value) {
+    const results = await Promise.all([
+      SubjectService.listInviDetailUsersService(invi.id!),
+      getSettingsService()
+    ])
+    const assigners = results[0]
+    const settingsStore = results[1]
+    const notice = getInitNotice(assigners, invi, settingsStore.getFirstWeek())
+    const dingUsers: User[] = []
+    const noDingUsers: User[] = []
+
+    for (const us of assigners) {
+      us.dingUserId ? dingUsers.push(us) : noDingUsers.push(us)
+    }
+    const noticeFinal = getFinalNotice(notice, selectUsersR.value)
+    assignNoticesR.value.push(noticeFinal)
   }
 }
-const searchF = async () => {
-  if (selfSearchR.value) return
-  selfSearchR.value = true
-  selectUserR.value = undefined
-  usersR.value.length = 0
-  departmentsR.value = (await CollegeService.listDepartmentsService()).value
+
+//
+const closeTagF = (index: number) => {
+  selectUsersR.value.splice(index, 1)
+  newInvisR.value.splice(index, 1)
+}
+
+//
+const noticeF = async () => {
+  for (const invi of newInvisR.value) {
+    const results = await Promise.all([
+      SubjectService.listInviDetailUsersService(invi.id!),
+      getSettingsService()
+    ])
+    const assigners = results[0]
+    const settingsStore = results[1]
+    const notice = getInitNotice(assigners, invi, settingsStore.getFirstWeek())
+    const dingUsers: User[] = []
+    const noDingUsers: User[] = []
+
+    for (const us of assigners) {
+      us.dingUserId ? dingUsers.push(us) : noDingUsers.push(us)
+    }
+    const noticeFinal = getFinalNotice(notice, selectUsersR.value)
+    const loading = createElLoading()
+    let msg
+    try {
+      msg = await SubjectService.noticeUsersService(noticeFinal)
+    } finally {
+      loading.close()
+    }
+    msg && createElNotificationSuccess(`通知发送成功。编号：${msg}`)
+  }
 }
 </script>
 <template>
-  <template v-if="inviR">
-    <el-row class="my-row">
-      <el-col style="text-align: center">
-        <InviMessage :invi="inviR" />
+  <el-row class="my-row">
+    <el-col style="text-align: center">
+      <InviMessage :invi="inviR" />
+    </el-col>
+  </el-row>
+  <el-row class="my-row">
+    <el-col v-if="inviR?.executor" class="my-col">
+      <p>原监考专业：{{ inviR.department?.departmentName }}</p>
+      <p>
+        原监考教师：
+        <el-tag
+          v-for="(u, index) of inviR.executor"
+          :key="index"
+          size="large"
+          style="min-width: 60px; margin-right: 10px">
+          {{ u.userName }}
+        </el-tag>
+      </p>
+    </el-col>
+    <template v-if="assignNoticesR.length == 0">
+      <el-col class="my-col">
+        <hr />
       </el-col>
-    </el-row>
-    <el-row class="my-row">
-      <el-col>
-        <el-button type="primary" style="margin-bottom: 10px" @click="searchF">
-          手动检索分配
+      <el-col class="my-col">
+        <el-tag type="danger">
+          强制重新分配。将删除原监考分配，允许跨专业分配，允许超过实际监考人数限制，允许同一教师分配多次。
+        </el-tag>
+      </el-col>
+      <el-col class="my-col" :span="10">
+        <DepartmentUser ref="exposeR" />
+      </el-col>
+      <el-col></el-col>
+      <el-col class="my-col">
+        <hr />
+      </el-col>
+      <el-col :span="3">
+        <el-button
+          :disabled="!(newInvisR.length > 0)"
+          style="margin-bottom: 5px"
+          @click="assignF"
+          type="success">
+          新监考提交
         </el-button>
       </el-col>
-      <el-col style="margin-bottom: 10px" v-if="!selfSearchR">
-        <p v-if="usersR.length == 0">
-          未找到
-          <el-tag type="danger">{{ params.name }}</el-tag>
-          教师，请手动检索分配
-        </p>
-        <el-radio-group v-model="selectUserR" v-if="usersR.length > 0">
-          <el-radio v-for="(u, index) of usersR" :key="index" :label="u.id" size="large" border>
-            {{ u?.name }} / {{ u?.account }} / {{ u?.department?.departmentName }}
-          </el-radio>
-        </el-radio-group>
-      </el-col>
-      <el-col style="margin-bottom: 10px" v-if="selfSearchR">
-        <el-select
-          v-model="departmentR"
-          placeholder="选择部门"
+      <el-col class="my-col" :span="16">
+        <el-tag
+          v-for="(invi, index) of newInvisR"
+          :key="index"
+          closable
           size="large"
-          style="width: 250px; margin-bottom: 10px">
-          <el-option
-            v-for="(depart, index) of departmentsR"
-            :key="index"
-            :label="depart.name"
-            :value="depart.id" />
-        </el-select>
-        <br />
-        <el-radio-group v-model="selectUserR">
-          <el-radio
-            style="width: 220px"
-            v-for="(u, index) of usersR"
-            :key="index"
-            :label="u.id"
-            size="large"
-            border>
-            {{ u?.name }} / {{ u?.account }}
-            <br />
-          </el-radio>
-        </el-radio-group>
+          @close="closeTagF(index)">
+          {{ invi.department?.departmentName }} : {{ selectUsersR[index].name }}
+        </el-tag>
       </el-col>
-      <el-col>
-        <el-button type="success" @click="assignF" :disabled="!selectUserR">提交</el-button>
+    </template>
+
+    <template v-if="assignNoticesR.length > 0">
+      <el-col class="my-col">
+        <hr />
       </el-col>
-    </el-row>
-  </template>
+      <el-col class="my-col">
+        <template v-for="(assUser, index) of assignNoticesR" :key="index">
+          <p>
+            {{ assUser.noticeMessage }}
+          </p>
+        </template>
+      </el-col>
+      <el-col class="my-col">
+        <el-button @click="noticeF">通知</el-button>
+      </el-col>
+    </template>
+  </el-row>
 </template>

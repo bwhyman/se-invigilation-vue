@@ -73,7 +73,7 @@ const routes: RouteRecordRaw[] = [
             component: () => import('@/views/main/college/InviEditView.vue')
           },
           {
-            path: 'assigns/:inviid/names/:name',
+            path: 'assigns/:inviid',
             component: () => import('@/views/main/college/AssignView.vue')
           },
           {

@@ -47,9 +47,21 @@ export class CollegeService {
       i.course = JSON.stringify(i.course)
       // @ts-ignore
       i.importer = JSON.stringify(i.importer)
+      // @ts-ignore
+      i.allocator && (i.allocator = JSON.stringify(i.allocator))
+      // @ts-ignore
+      i.executor && (i.executor = JSON.stringify(i.executor))
+      // @ts-ignore
+      i.dispatcher && (i.dispatcher = JSON.stringify(i.dispatcher))
+      // @ts-ignore
+      i.department && (i.department = JSON.stringify(i.department))
     })
-    await axios.post(`${COLLEGE}/invigilations`, invis)
-    return true
+
+    const resp = await axios.post<ResultVO<{ invis: Invigilation[] }>>(
+      `${COLLEGE}/invigilations`,
+      invis
+    )
+    return resp.data.data?.invis ?? []
   }
 
   @StoreCache(invisStore.invigilationsImportS)
@@ -175,7 +187,6 @@ export class CollegeService {
   // 删除监考
   @StoreClear(invisStore.clear)
   static async delInviService(inviid: string) {
-    invisStore.clear()
     await axios.delete(`${COLLEGE}/invigilations/${inviid}`)
     return true
   }
@@ -183,7 +194,6 @@ export class CollegeService {
   // 重置监考为未下发状态，重置信息等
   @StoreClear(invisStore.clear)
   static async resetInviService(inviid: string) {
-    invisStore.clear()
     await axios.put(`${COLLEGE}/invigilations/${inviid}/status`)
     return true
   }
@@ -215,7 +225,8 @@ export class CollegeService {
   }
 
   //
-  static addAssignService = async (inviid: string, user: AssignUser) => {
+  @StoreClear(invisStore.clear)
+  static async addAssignService(inviid: string, user: AssignUser) {
     // @ts-ignore
     user.allocator = JSON.stringify(user.allocator)
     // @ts-ignore

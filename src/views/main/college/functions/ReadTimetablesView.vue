@@ -87,7 +87,7 @@ const addTimetable = async () => {
 </script>
 <template>
   <el-row class="my-row">
-    <el-col style="margin-bottom: 10px">
+    <el-col class="my-col">
       读取全院教师课表。
       <br />
       将研究生课表(与正常课表相似的按星期/节排列的版本)，复制到全院课表表格的第2个sheet，自动全部读取。
@@ -109,13 +109,13 @@ const addTimetable = async () => {
     </el-col>
   </el-row>
   <el-row class="my-row" style="align-items: flex-end">
-    <el-col>
+    <el-col class="my-col">
       <p>删除原课表，导入指定教师课表</p>
     </el-col>
-    <el-col :span="12">
+    <el-col :span="12" class="my-col">
       <DepartmentUser ref="exposeR" />
     </el-col>
-    <el-col :span="12" v-if="exposeR?.selectUser.account" style="margin-bottom: 5px">
+    <el-col :span="12" v-if="exposeR?.selectUser.account" class="my-col">
       <input type="file" @change="readSingleTimetable" />
       <el-button
         type="success"

@@ -144,7 +144,7 @@ const delInvi = () => {
     type: 'warning'
   }).then(async () => {
     await Promise.all([
-      noticeDingCancelService(invi.value!.id!),
+      noticeDingCancelService(invi.value),
       CollegeService.delInviService(invi.value!.id!)
     ])
     createElNotificationSuccess('监考已删除')
@@ -159,7 +159,7 @@ const resetInvi = () => {
     cancelButtonText: 'Cancel',
     type: 'warning'
   }).then(async () => {
-    await noticeDingCancelService(invi.value!.id!)
+    await noticeDingCancelService(invi.value)
     await CollegeService.resetInviService(invi.value!.id!)
     setCurrentInviService(undefined)
     createElNotificationSuccess('监考已重置')

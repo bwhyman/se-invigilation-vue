@@ -59,15 +59,21 @@ export interface Invigilation {
   course?: { courseName?: string; teacherName?: string; location?: string; clazz?: string }
   amount?: number
   status?: number
-  importer?: { userId: string; userName: string; time: string }
-  dispatcher?: { userId: string; userName: string; time: string }
-  allocator?: { userId: string; userName: string; time: string }
-  executor?: { userId: string; userName: string; time: string }[]
+  importer?: Operator
+  dispatcher?: Operator
+  allocator?: Operator
+  executor?: Operator[]
   calendarId?: string
   createUnionId?: string
   noticeUserIds?: string[]
   remark?: string
   updateTime?: string
+}
+
+export interface Operator {
+  userId: string
+  userName: string
+  time: string
 }
 
 export interface InviDetail {
@@ -101,8 +107,8 @@ export interface InviAssignUser {
 
 export interface AssignUser {
   department?: { depId?: string; departmentName?: string }
-  allocator?: { userId: string; userName: string; time: string }
-  executor?: { userId: string; userName: string; time: string }[]
+  allocator?: Operator
+  executor?: Operator[]
   users?: User[]
 }
 
@@ -131,6 +137,10 @@ export interface Notice {
   userIds?: string
   noticeUserIds?: string[]
   remindMinutes?: number
+}
+
+export interface DingCancel {
+  cancelMessage: string
 }
 
 export interface NoticeRemark {

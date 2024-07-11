@@ -4,9 +4,7 @@ import type { Department, Invigilation, Page } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 import DepartmentView from './DepartmentView.vue'
 import router from '@/router'
-import { Edit } from '@element-plus/icons-vue'
-import { setCurrentInviService } from '@/services/CommonService'
-import { useInvigilationsStore } from '@/stores/InvigilationsStore'
+import OpterationMenuView from './operations/OpterationMenuView.vue'
 const inviS = ref<Invigilation[]>([])
 const pageR = ref<Page>({
   currentpage: 0,
@@ -36,25 +34,19 @@ watchEffect(async () => {
 const departChange = (dep: Department) => {
   router.push(`/college/dispatched/${dep.id}`)
 }
-
-const editF = (inviid: string) => {
-  const invi = inviS.value.find((i) => i.id == inviid)
-  invi && setCurrentInviService(invi)
-  router.push(`/college/inviedit/${inviid}`)
-}
 </script>
 <template>
   <div>
     <el-row class="my-row">
-      <el-col>
+      <el-col class="my-col">
         <DepartmentView :change="departChange" />
       </el-col>
     </el-row>
     <el-row class="my-row">
-      <el-col style="margin-bottom: 10px">
+      <el-col class="my-col">
         <InviTable :invis="inviS" :page="pageR" :show-executor="true">
           <template #action="action">
-            <el-button type="primary" :icon="Edit" circle @click="editF(action.invi.id!)" />
+            <OpterationMenuView :invi="action.invi" />
           </template>
         </InviTable>
       </el-col>

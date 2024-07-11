@@ -3,18 +3,16 @@ import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
 import { getSettingsService } from '@/services/CommonService'
-import type { Notice, User } from '@/types'
+import type { Notice } from '@/types'
 const params = useRoute().params as { depid: string }
 // notice
-const dispatchersR = ref<User[]>([])
-const selDisR = ref<string[]>([])
 
 const results = await Promise.all([
   CollegeService.listDispatchersService(params.depid),
   getSettingsService()
 ])
-
-dispatchersR.value = results[0]
+const dispatchers = results[0]
+const selDisR = ref<string[]>([])
 
 const noticeDispatchersF = async () => {
   const settingStore = await getSettingsService()
@@ -34,11 +32,11 @@ const noticeDispatchersF = async () => {
 </script>
 <template>
   <el-row class="my-row">
-    <el-col>已下发至专业。钉钉通知负责人尽快分配？</el-col>
-    <el-col>
+    <el-col class="my-col">已下发至专业。钉钉通知负责人尽快分配？</el-col>
+    <el-col class="my-col">
       <el-checkbox-group v-model="selDisR">
         <el-checkbox
-          v-for="(user, index) of dispatchersR"
+          v-for="(user, index) of dispatchers"
           :key="index"
           :label="user.dingUserId"
           size="large">
@@ -46,7 +44,7 @@ const noticeDispatchersF = async () => {
         </el-checkbox>
       </el-checkbox-group>
     </el-col>
-    <el-col>
+    <el-col class="my-col">
       <el-button type="success" @click="noticeDispatchersF" :disabled="!selDisR">提交</el-button>
     </el-col>
   </el-row>

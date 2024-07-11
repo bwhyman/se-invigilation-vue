@@ -1,5 +1,5 @@
 import axios from '@/axios'
-import type { Invigilation, ResultVO, Setting, User } from '@/types'
+import type { DingCancel, Invigilation, ResultVO, Setting, User } from '@/types'
 import { COLLEGE_ADMIN, SUBJECT_ADMIN, SUPER_ADMIN } from './Const'
 import { useUserStore } from '@/stores/UserStore'
 import router from '@/router'
@@ -83,8 +83,10 @@ function getPath(role: string) {
 }
 
 // 发送取消监考通知，移除监考日程
-export const noticeDingCancelService = async (inviid: string) => {
-  await axios.delete(`invinotices/${inviid}`)
+export const noticeDingCancelService = async (invi: Invigilation) => {
+  const time = `${invi.date} ${invi.time?.starttime}`
+  const msg = `监考取消：${invi.course?.courseName}; ${time}`
+  await axios.post(`cancelinvinotices/${invi.id}`, { cancelMessage: msg })
 }
 
 //

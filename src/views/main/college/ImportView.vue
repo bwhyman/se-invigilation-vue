@@ -24,19 +24,17 @@ const readInvis = async (event: Event) => {
     return
   }
   const { readInviExcel } = await import('@/services/excel/InviExcel')
-
-  readInviExcel(element.files[0])
-    .then((invis: Invigilation[]) => {
-      invisR.value = invis
-      invisR.value.forEach((invi) => {
-        invi.collId = userS.value!.department?.collId
-        invi.status = IMPORT
-        invi.importer = stringInviTime(userS.value!)
-      })
+  try {
+    const result = await readInviExcel(element.files[0])
+    invisR.value = result
+    invisR.value.forEach((invi) => {
+      invi.collId = userS.value!.department?.collId
+      invi.status = IMPORT
+      invi.importer = stringInviTime(userS.value!)
     })
-    .finally(() => {
-      element.value = ''
-    })
+  } finally {
+    element.value = ''
+  }
 }
 
 watch(inviTypeR, (newValue) => {
@@ -72,8 +70,9 @@ const addInvis = async () => {
         <br />
         黄色区域：支持日期+时间，或开始至截至时间，2种时间模式；2组不要重复填写
         <br />
-        时间格式：支持'2046/05/12'自动转换为'2046-05-12'。表格中日期使用文本类型，不要使用日期类型
-
+        表格中日期使用文本类型，不要使用日期时间类型
+        <br />
+        日期格式：`2046-05-12`；时间格式：`08:00`
         <br />
         单考试记录多考场：自动将地点中包含2个考场的考试拆分为2个考试
         <br />

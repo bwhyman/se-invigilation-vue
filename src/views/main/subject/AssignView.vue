@@ -223,7 +223,7 @@ const submitUsers = async () => {
   })
 
   try {
-    await noticeDingCancelService(currentInvi.value!.id!)
+    await noticeDingCancelService(currentInvi.value)
     await SubjectService.addAssignUsersService(currentInvi.value!.id!, assignUsersR.value)
     createElNotificationSuccess('监考已分配')
     router.push(`/subject/notices/${params.inviid}`)

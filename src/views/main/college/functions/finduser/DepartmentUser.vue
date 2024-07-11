@@ -7,10 +7,8 @@ const userR = ref<User>({})
 const usersR = ref<User[]>()
 defineExpose({
   selectUser: userR,
-  clear: () => {
-    departmentR.value = {}
-    userR.value = {}
-  }
+  clearUser: () => (userR.value = {}),
+  clearDepartment: () => (departmentR.value = {})
 })
 
 const departmentsR = await CollegeService.listDepartmentsService()
