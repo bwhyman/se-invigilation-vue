@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { getSettingsService } from '@/services/CommonService'
 import { SubjectService } from '@/services/SubjectService'
 import type { User } from '@/types'
 import { SUBJECT_ADMIN, COLLEGE_ADMIN } from '@/services/Const'
@@ -8,6 +7,7 @@ import { CollegeService } from '@/services/CollegeService'
 import { createElNotificationSuccess } from '@/components/message'
 import { createElLoading } from '@/components/loading'
 import { getFinalNotice, getInitNotice } from './AssignNotice'
+import { useSettingStore } from '@/stores/SettingStore'
 
 const params = useRoute().params as { inviid: string }
 const role = sessionStorage.getItem('role')
@@ -20,13 +20,12 @@ if (role == COLLEGE_ADMIN) {
 
 const results = await Promise.all([
   SubjectService.listInviDetailUsersService(params.inviid),
-  getInvi,
-  getSettingsService()
+  getInvi
 ])
 
 const assigners = results[0]
 const invigilationR = results[1]
-const settingsStore = results[2]
+const settingsStore = useSettingStore()
 
 const selectUsersR = ref<User[]>([...assigners])
 if (!invigilationR || !invigilationR.value) {

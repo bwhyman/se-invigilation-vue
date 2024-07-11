@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { CollegeService } from '@/services/CollegeService'
-import {
-  getSelfUserService,
-  getSettingsService,
-  noticeDingCancelService
-} from '@/services/CommonService'
+import { noticeDingCancelService } from '@/services/CommonService'
 import { stringInviTime } from '@/services/Utils'
 import type { AssignUser, Invigilation, Notice, User } from '@/types'
 import InviMessage from '@/views/main/component/InviInfo.vue'
@@ -14,6 +10,8 @@ import { DISPATCH } from '@/services/Const'
 import { SubjectService } from '@/services/SubjectService'
 import { getFinalNotice, getInitNotice } from '../component/AssignNotice'
 import { createElNotificationSuccess } from '@/components/message'
+import { useSettingStore } from '@/stores/SettingStore'
+import { useUserStore } from '@/stores/UserStore'
 
 const params = useRoute().params as { inviid: string }
 
@@ -21,12 +19,13 @@ const inviR = await CollegeService.getCollegeInviService(params.inviid)
 if (!inviR || !inviR.value) {
   throw '获取监考信息错误!'
 }
+const settingStore = useSettingStore()
 const exposeR = ref<{ selectUser: User; clearUser: Function }>()
 const selectUsersR = ref<User[]>([])
 const newInvisR = ref<Invigilation[]>([])
 const assignNoticesR = ref<Notice[]>([])
 
-const createUserR = getSelfUserService()
+const createUserR = useUserStore().userS
 watch(
   () => exposeR.value?.selectUser,
   () => {
@@ -74,24 +73,6 @@ const assignF = async () => {
   }
   // 移除原监考
   inviR.value.id && (await CollegeService.delInviService(inviR.value.id))
-
-  for (const invi of newInvisR.value) {
-    const results = await Promise.all([
-      SubjectService.listInviDetailUsersService(invi.id!),
-      getSettingsService()
-    ])
-    const assigners = results[0]
-    const settingsStore = results[1]
-    const notice = getInitNotice(assigners, invi, settingsStore.getFirstWeek())
-    const dingUsers: User[] = []
-    const noDingUsers: User[] = []
-
-    for (const us of assigners) {
-      us.dingUserId ? dingUsers.push(us) : noDingUsers.push(us)
-    }
-    const noticeFinal = getFinalNotice(notice, selectUsersR.value)
-    assignNoticesR.value.push(noticeFinal)
-  }
 }
 
 //
@@ -103,13 +84,8 @@ const closeTagF = (index: number) => {
 //
 const noticeF = async () => {
   for (const invi of newInvisR.value) {
-    const results = await Promise.all([
-      SubjectService.listInviDetailUsersService(invi.id!),
-      getSettingsService()
-    ])
-    const assigners = results[0]
-    const settingsStore = results[1]
-    const notice = getInitNotice(assigners, invi, settingsStore.getFirstWeek())
+    const assigners = await SubjectService.listInviDetailUsersService(invi.id!)
+    const notice = getInitNotice(assigners, invi, settingStore.getFirstWeek())
     const dingUsers: User[] = []
     const noDingUsers: User[] = []
 

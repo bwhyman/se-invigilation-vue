@@ -2,8 +2,8 @@
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
-import { getSettingsService } from '@/services/CommonService'
 import { getInviChineseDayweek, getInviWeek } from '@/services/Utils'
+import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation, NoticeRemark } from '@/types'
 import { render } from 'vue'
 
@@ -11,14 +11,11 @@ const props = defineProps<{ invis: Invigilation[] }>()
 const invis = props.invis
 const invi: Invigilation = invis[0]
 const messageR = ref('')
-
-getSettingsService().then((store) => {
-  const week = getInviWeek(invi.date!, store.getFirstWeek())
-  messageR.value = `监考信息：${invi.course?.courseName} ${invi.date}第${week}周${chineseDayWeek} ${invi.time?.starttime}。
-请提前20分钟在大厅取卷，监考结束请送至`
-})
-
+const settingStore = useSettingStore()
+const week = getInviWeek(invi.date!, settingStore.getFirstWeek())
 const chineseDayWeek = getInviChineseDayweek(invi.date!)
+messageR.value = `监考信息：${invi.course?.courseName} ${invi.date}第${week}周${chineseDayWeek} ${invi.time?.starttime}。
+请提前20分钟在大厅取卷，监考结束请送至`
 
 let userids: string[] = []
 invis.forEach((invi) => {

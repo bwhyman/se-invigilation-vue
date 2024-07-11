@@ -11,33 +11,27 @@ import type { Invigilation, User, InviAssignUser, AssignUser } from '@/types'
 import { CLOSED } from '@/services/Const'
 import AssignTable from './component/AssignTable.vue'
 import router from '@/router'
-import {
-  getSelfUserService,
-  getSettingsService,
-  noticeDingCancelService
-} from '@/services/CommonService'
+import { noticeDingCancelService } from '@/services/CommonService'
 import InviMessage from '../component/InviInfo.vue'
 
 import { createElNotificationSuccess } from '@/components/message'
 import { createElLoading } from '@/components/loading'
+import { useSettingStore } from '@/stores/SettingStore'
+import { useUserStore } from '@/stores/UserStore'
 
 const params = useRoute().params as { inviid: string }
 
 //
 const selectedUsers = ref<InviAssignUser[]>([])
 
-const resultInit = await Promise.all([
-  SubjectService.getInviService(params.inviid),
-  getSettingsService()
-])
-const currentInvi = resultInit[0]
+const currentInvi = await SubjectService.getInviService(params.inviid)
 if (!currentInvi.value) {
   throw '获取监考信息错误!'
 }
 
-const settingsStore = resultInit[1]
+const settingsStore = useSettingStore()
 //
-const userR = getSelfUserService()
+const userR = useUserStore().userS
 const assignUsersR = ref<AssignUser>({})
 
 // 当前分配的监考信息

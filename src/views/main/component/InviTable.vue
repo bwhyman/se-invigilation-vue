@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import router from '@/router'
-import { getSettingsService } from '@/services/CommonService'
 import {
   replaceTDateC,
   bellTitleC,
@@ -11,8 +10,9 @@ import {
 import type { Invigilation, Page } from '@/types'
 import { Bell } from '@element-plus/icons-vue'
 import TotalNumber from './TotalNumber.vue'
+import { useSettingStore } from '@/stores/SettingStore'
 
-const settingsStore = await getSettingsService()
+const settingStore = useSettingStore()
 
 interface Props {
   invis: Invigilation[]
@@ -27,7 +27,7 @@ if (props.page!.noPage) {
   PAGESIZE = props.page?.total!
 }
 
-const inviWeekC = getInviWeekC(settingsStore.getFirstWeek())
+const inviWeekC = getInviWeekC(settingStore.getFirstWeek())
 
 const changePage = (n: number) => {
   scrollToTop()

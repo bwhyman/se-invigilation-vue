@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
-import { getSettingsService } from '@/services/CommonService'
 import {
   getInviWeekC,
   getInviChinesedayweekC,
@@ -14,6 +13,7 @@ import { Bell, Message } from '@element-plus/icons-vue'
 import TotalNumber from '../component/TotalNumber.vue'
 import { createDialog } from './remarks'
 import InvisDetailsDate from './InvisDetailsDate.vue'
+import { useSettingStore } from '@/stores/SettingStore'
 
 const UNDISPATCHED = 0
 const UNASSIGNED = 1
@@ -35,16 +35,9 @@ eDate.setDate(eDate.getDate() + 7)
 dateRangeR.value[0] = formatDate(sDate)
 dateRangeR.value[1] = formatDate(eDate)
 
-const results = await Promise.all([
-  getSettingsService(),
-  CollegeService.listInvisByDateService(dateRangeR.value[0], dateRangeR.value[1])
-])
-
-let invis = results[1]
-const invisR = ref<Invigilation[]>([])
-const settingsStore = results[0]
-
-invisR.value = invis
+let invis = await CollegeService.listInvisByDateService(dateRangeR.value[0], dateRangeR.value[1])
+const invisR = ref<Invigilation[]>(invis)
+const settingsStore = useSettingStore()
 
 const changeFixedRangeF = async () => {
   const sdate = dateRangeR.value[0]

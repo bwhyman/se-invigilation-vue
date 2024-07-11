@@ -3,12 +3,12 @@ import type { Department, User, UserDepartment } from '@/types'
 import DepartmentUser from './finduser/DepartmentUser.vue'
 import { CollegeService } from '@/services/CollegeService'
 import { createElNotificationSuccess } from '@/components/message'
-import { getSelfUserService } from '@/services/CommonService'
+import { useUserStore } from '@/stores/UserStore'
 const exposeR = ref<{ selectUser: User; clear: Function }>()
 
 const departmentR = ref<Department>()
 const departmentsR = ref<Department[]>([])
-const userS = getSelfUserService()
+const userS = useUserStore().userS
 watch(exposeR, async () => {
   departmentsR.value = (await CollegeService.listDepartmentsService()).value
 })

@@ -2,16 +2,16 @@
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
-import { getSelfUserService } from '@/services/CommonService'
 import { IMPORT } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
+import { useUserStore } from '@/stores/UserStore'
 import type { Invigilation } from '@/types'
 import type { FormInstance, FormRules } from 'element-plus'
 
 const inviR = ref<Invigilation>({ course: {}, time: {} })
 
 const submitForm = async (formEl: FormInstance | undefined) => {
-  const userS = getSelfUserService()
+  const userS = useUserStore().userS
   if (!userS.value) return
   let sub = false
   if (!formEl) return

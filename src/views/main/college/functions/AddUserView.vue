@@ -4,7 +4,7 @@ import { ROLES } from '@/services/Const'
 import type { Department, User } from '@/types'
 import { createElNotificationSuccess } from '@/components/message'
 import { createElLoading } from '@/components/loading'
-import { getSelfUserService } from '@/services/CommonService'
+import { useUserStore } from '@/stores/UserStore'
 
 const departmentsR = ref<Department[]>([])
 const userR = ref<User>({})
@@ -27,7 +27,7 @@ const searchF = async () => {
 }
 
 const submitF = async () => {
-  const collUserR = getSelfUserService()
+  const collUserR = useUserStore().userS
   if (!collUserR.value) return
   userR.value.department = {
     collId: collUserR.value.department?.collId,

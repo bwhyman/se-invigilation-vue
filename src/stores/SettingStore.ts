@@ -10,6 +10,4 @@ const getWebUrl = () => {
 }
 
 const store = { settingsR, getFirstWeek, getWebUrl }
-export const useSettingStore = () => {
-  return store
-}
+export const useSettingStore = () => store

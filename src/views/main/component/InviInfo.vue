@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { getSettingsService } from '@/services/CommonService'
 import { getInviChineseDayweek, getInviWeek } from '@/services/Utils'
+import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation } from '@/types'
 
 const props = defineProps<{ invi: Invigilation }>()
-const settingsStore = await getSettingsService()
-const WeekC = getInviWeek(props.invi.date!, settingsStore.getFirstWeek())
+const settingStore = useSettingStore()
+const WeekC = getInviWeek(props.invi.date!, settingStore.getFirstWeek())
 const dayweekCN = getInviChineseDayweek(props.invi.date!)
 </script>
 <template>

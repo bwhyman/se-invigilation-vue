@@ -2,15 +2,15 @@
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
-import { getSelfUserService } from '@/services/CommonService'
 import { IMPORT } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
+import { useUserStore } from '@/stores/UserStore'
 import type { Invigilation } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 
 const invisR = ref<Invigilation[]>([])
 const inviTypeR = ref(0)
-const userS = getSelfUserService()
+const userS = useUserStore().userS
 
 const pageR = ref<{ currentpage?: number; total?: number; url?: string }>({
   currentpage: 0,

@@ -2,20 +2,16 @@
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
-import { getSettingsService } from '@/services/CommonService'
+import { useSettingStore } from '@/stores/SettingStore'
 import type { Notice } from '@/types'
 const params = useRoute().params as { depid: string }
 // notice
 
-const results = await Promise.all([
-  CollegeService.listDispatchersService(params.depid),
-  getSettingsService()
-])
-const dispatchers = results[0]
+const dispatchers = await CollegeService.listDispatchersService(params.depid)
 const selDisR = ref<string[]>([])
 
 const noticeDispatchersF = async () => {
-  const settingStore = await getSettingsService()
+  const settingStore = useSettingStore()
   const weburl = settingStore.getWebUrl()
   const message = `已下发新监考信息，请及时分配。\n${weburl}`
   const notice: Notice = {

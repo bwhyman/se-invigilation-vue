@@ -1,5 +1,5 @@
 import axios from '@/axios'
-import type { DingCancel, Invigilation, ResultVO, Setting, User } from '@/types'
+import type { Invigilation, ResultVO, Setting, User } from '@/types'
 import { COLLEGE_ADMIN, SUBJECT_ADMIN, SUPER_ADMIN } from './Const'
 import { useUserStore } from '@/stores/UserStore'
 import router from '@/router'
@@ -90,9 +90,8 @@ export const noticeDingCancelService = async (invi: Invigilation) => {
 }
 
 //
-export const getSelfUserService = () => {
-  return userStore.userS
-}
+export const getSelfUserService = () => userStore.userS
+
 //
 export const setCurrentInviService = (invi: Invigilation | undefined) => {
   const store = useInvigilationsStore()

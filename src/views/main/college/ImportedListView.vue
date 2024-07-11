@@ -8,7 +8,7 @@ import InviTable from '@/views/main/component/InviTable.vue'
 import DepartmentView from './DepartmentView.vue'
 import OpterationMenuView from './operations/OpterationMenuView.vue'
 import { createElNotificationSuccess } from '@/components/message'
-import { getSelfUserService } from '@/services/CommonService'
+import { useUserStore } from '@/stores/UserStore'
 
 const inviS = await CollegeService.listImportedService()
 const pageR = ref<Page>({
@@ -18,7 +18,7 @@ const pageR = ref<Page>({
   noPage: true
 })
 
-const user = getSelfUserService()
+const user = useUserStore().userS
 //
 const departmentR = ref<Department>()
 const selectR = ref<Invigilation[]>([])
