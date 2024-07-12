@@ -1,6 +1,5 @@
-import { createRouter, createWebHashHistory, type RouteRecordRaw } from 'vue-router'
 import * as consty from '@/services/Const'
-import { useUserStore } from '@/stores/UserStore'
+import { createRouter, createWebHashHistory, type RouteRecordRaw } from 'vue-router'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -112,6 +111,10 @@ const routes: RouteRecordRaw[] = [
           {
             path: 'notices/:inviid',
             component: () => import('@/views/main/component/AssignNoticeView.vue')
+          },
+          {
+            path: 'search',
+            component: () => import('@/views/main/subject/SearchInviView.vue')
           }
         ]
       }

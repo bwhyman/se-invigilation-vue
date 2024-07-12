@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import router from '@/router'
+import { CommonService } from '@/services/CommonService'
+import { CLOSED } from '@/services/Const'
 import { SubjectService } from '@/services/SubjectService'
 import {
   confTime,
@@ -7,15 +10,12 @@ import {
   getInviWeek,
   stringInviTime
 } from '@/services/Utils'
-import type { Invigilation, User, InviAssignUser, AssignUser } from '@/types'
-import { CLOSED } from '@/services/Const'
-import AssignTable from './component/AssignTable.vue'
-import router from '@/router'
-import { noticeDingCancelService } from '@/services/CommonService'
+import type { AssignUser, InviAssignUser, Invigilation, User } from '@/types'
 import InviMessage from '../component/InviInfo.vue'
+import AssignTable from './component/AssignTable.vue'
 
-import { createElNotificationSuccess } from '@/components/message'
 import { createElLoading } from '@/components/loading'
+import { createElNotificationSuccess } from '@/components/message'
 import { useSettingStore } from '@/stores/SettingStore'
 import { useUserStore } from '@/stores/UserStore'
 
@@ -217,7 +217,7 @@ const submitUsers = async () => {
   })
 
   try {
-    await noticeDingCancelService(currentInvi.value)
+    await CommonService.noticeDingCancelService(currentInvi.value)
     await SubjectService.addAssignUsersService(currentInvi.value!.id!, assignUsersR.value)
     createElNotificationSuccess('监考已分配')
     router.push(`/subject/notices/${params.inviid}`)

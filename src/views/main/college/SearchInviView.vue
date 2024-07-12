@@ -1,51 +1,46 @@
 <script setup lang="ts">
 import router from '@/router'
-import { CollegeService } from '@/services/CollegeService'
+import { CommonService } from '@/services/CommonService'
 import {
-  getInviWeekC,
-  getInviChinesedayweekC,
-  replaceTDateC,
+  beNoticedC,
   bellTitleC,
-  beNoticedC
+  getInviChinesedayweekC,
+  getInviWeekC,
+  replaceTDateC
 } from '@/services/Utils'
-import type { Invigilation } from '@/types'
-import { Bell, Message } from '@element-plus/icons-vue'
-import TotalNumber from '../component/TotalNumber.vue'
-import { createDialog } from './remarks'
-import InvisDetailsDate from './InvisDetailsDate.vue'
 import { useSettingStore } from '@/stores/SettingStore'
+import type { Invigilation } from '@/types'
+import DatesPick from '@/views/main/component/DatesPick.vue'
+import InvisDetailsDate from '@/views/main/component/InvisDetailsDate.vue'
+import TotalNumber from '@/views/main/component/TotalNumber.vue'
+import { Bell, Message } from '@element-plus/icons-vue'
+import { createDialog } from './remarks'
 
 const UNDISPATCHED = 0
 const UNASSIGNED = 1
 const UNNOTICED = 2
 const ALL = 3
 
-const formatDate = (date: Date) => {
-  date.setHours(date.getHours() + 8)
-  return date.toISOString().substring(0, 10)
-}
 //
 const inviStatusR = ref(ALL)
+// 保留不随状态改变的查询结果
+let invis: Invigilation[]
+const invisR = ref<Invigilation[]>([])
 //
+const datesVueRef = ref<{ dateRangeR: string[] }>()
 const dateRangeR = ref<string[]>([])
-// 默认+7天
-const sDate = new Date()
-const eDate = new Date()
-eDate.setDate(eDate.getDate() + 7)
-dateRangeR.value[0] = formatDate(sDate)
-dateRangeR.value[1] = formatDate(eDate)
+watch(
+  () => datesVueRef.value?.dateRangeR,
+  async () => {
+    if (!datesVueRef.value || !datesVueRef.value.dateRangeR) return
+    dateRangeR.value = datesVueRef.value.dateRangeR
+    // 渲染结果
+    invis = await CommonService.listInvisByDateService(dateRangeR.value[0], dateRangeR.value[1])
+    invisR.value = invis
+  }
+)
 
-let invis = await CollegeService.listInvisByDateService(dateRangeR.value[0], dateRangeR.value[1])
-const invisR = ref<Invigilation[]>(invis)
 const settingsStore = useSettingStore()
-
-const changeFixedRangeF = async () => {
-  const sdate = dateRangeR.value[0]
-  const edate = dateRangeR.value[1]
-  invis = await CollegeService.listInvisByDateService(sdate, edate)
-  inviStatusR.value = ALL
-  invisR.value = invis
-}
 
 const WeekC = getInviWeekC(settingsStore.getFirstWeek())
 
@@ -136,10 +131,12 @@ const listSameInvis = (invi: Invigilation) => {
 <template>
   <el-row class="my-row">
     <el-col>
-      <div style="display: inline-block; margin-right: 10px">
-        <div class="demo-date-picker">
+      <DatesPick ref="datesVueRef" />
+      <!-- <div style="display: inline-block; margin-right: 10px">
+        <div class="demo-date-picker" style="display: inline-block; margin-right: 10px">
           <div class="block">
             <el-date-picker
+              @change="changeFixedRangeF"
               value-format="YYYY-MM-DD"
               v-model="dateRangeR"
               type="daterange"
@@ -149,11 +146,7 @@ const listSameInvis = (invi: Invigilation) => {
               size="large" />
           </div>
         </div>
-      </div>
-
-      <el-button type="success" :disabled="!(dateRangeR.length > 0)" @click="changeFixedRangeF">
-        提交
-      </el-button>
+      </div> -->
     </el-col>
     <el-col style="margin-top: 10px" :span="20">
       <el-radio-group

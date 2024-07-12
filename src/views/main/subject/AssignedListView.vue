@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import InviTable from '@/views/main/component/InviTable.vue'
-import { SubjectService } from '@/services/SubjectService'
-import { ASSIGN } from '@/services/Const'
-import { Edit } from '@element-plus/icons-vue'
-import type { Invigilation, Page } from '@/types'
 import router from '@/router'
-import { setCurrentInviService } from '@/services/CommonService'
+import { CommonService } from '@/services/CommonService'
+import { ASSIGN } from '@/services/Const'
+import { SubjectService } from '@/services/SubjectService'
+import type { Invigilation, Page } from '@/types'
+import InviTable from '@/views/main/component/InviTable.vue'
+import { Edit } from '@element-plus/icons-vue'
 
 const inviS = ref<Invigilation[]>([])
 const total = await SubjectService.getTotalsService(ASSIGN)
@@ -25,7 +25,7 @@ watchEffect(async () => {
 })
 
 const editF = (invi: Invigilation) => {
-  setCurrentInviService(invi)
+  CommonService.setCurrentInviService(invi)
   router.push(`/subject/assigns/${invi.id}`)
 }
 </script>

@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { CollegeService } from '@/services/CollegeService'
-import { noticeDingCancelService } from '@/services/CommonService'
-import { stringInviTime } from '@/services/Utils'
-import type { AssignUser, Invigilation, Notice, User } from '@/types'
-import InviMessage from '@/views/main/component/InviInfo.vue'
 import { createElLoading } from '@/components/loading'
-import DepartmentUser from './functions/finduser/DepartmentUser.vue'
+import { createElNotificationSuccess } from '@/components/message'
+import { CollegeService } from '@/services/CollegeService'
+import { CommonService } from '@/services/CommonService'
 import { DISPATCH } from '@/services/Const'
 import { SubjectService } from '@/services/SubjectService'
-import { getFinalNotice, getInitNotice } from '../component/AssignNotice'
-import { createElNotificationSuccess } from '@/components/message'
+import { stringInviTime } from '@/services/Utils'
 import { useSettingStore } from '@/stores/SettingStore'
 import { useUserStore } from '@/stores/UserStore'
+import type { AssignUser, Invigilation, Notice, User } from '@/types'
+import InviMessage from '@/views/main/component/InviInfo.vue'
+import { getFinalNotice, getInitNotice } from '../component/AssignNotice'
+import DepartmentUser from './functions/finduser/DepartmentUser.vue'
 
 const params = useRoute().params as { inviid: string }
 
@@ -69,7 +69,7 @@ const assignF = async () => {
 
   // 如果当前监考已经被分配。发送取消监考通知
   if (inviR.value.executor) {
-    inviR.value.id && (await noticeDingCancelService(inviR.value))
+    inviR.value.id && (await CommonService.noticeDingCancelService(inviR.value))
   }
   // 移除原监考
   inviR.value.id && (await CollegeService.delInviService(inviR.value.id))

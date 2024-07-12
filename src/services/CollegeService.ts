@@ -1,3 +1,8 @@
+import axios from '@/axios'
+import { useDepartmentsStore } from '@/stores/DepartmentStore'
+import { useInvigilationsStore } from '@/stores/InvigilationsStore'
+import { useTotalsStore } from '@/stores/TotalsStore'
+import { useUsersStore } from '@/stores/UsersStore'
 import type {
   AssignUser,
   Department,
@@ -12,13 +17,8 @@ import type {
   User,
   UserDepartment
 } from '@/types'
-import axios from '@/axios'
-import { useDepartmentsStore } from '@/stores/DepartmentStore'
-import { useUsersStore } from '@/stores/UsersStore'
-import { stringTimetables } from './Utils'
-import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 import { StoreCache, StoreClear, StoreMapCache } from './Decorators'
-import { useTotalsStore } from '@/stores/TotalsStore'
+import { stringTimetables } from './Utils'
 
 const COLLEGE = 'college'
 
@@ -283,15 +283,6 @@ export class CollegeService {
     await axios.post(`${COLLEGE}/users`, user)
 
     return true
-  }
-
-  //
-  @StoreMapCache(invisStore.dateInvisMapS)
-  static async listInvisByDateService(sdate: string, edate: string) {
-    const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
-      `${COLLEGE}/invis/date/${sdate}/${edate}`
-    )
-    return resp.data.data?.invis ?? []
   }
 
   //

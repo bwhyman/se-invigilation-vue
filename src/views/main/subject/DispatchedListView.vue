@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import router from '@/router'
-import { setCurrentInviService } from '@/services/CommonService'
+import { CommonService } from '@/services/CommonService'
 import { DISPATCH } from '@/services/Const'
 import { SubjectService } from '@/services/SubjectService'
 import type { Invigilation, Page } from '@/types'
@@ -30,7 +30,7 @@ watch(
 
 //
 const assignF = (invi: Invigilation) => {
-  setCurrentInviService(invi)
+  CommonService.setCurrentInviService(invi)
   router.push(`/subject/assigns/${invi.id}`)
 }
 </script>

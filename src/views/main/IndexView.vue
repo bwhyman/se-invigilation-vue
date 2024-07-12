@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { getSettingsService } from '@/services/CommonService'
+import { CommonService } from '@/services/CommonService'
 import HeaderView from './header/IndexView.vue'
 
-await getSettingsService()
+await CommonService.getSettingsService()
 </script>
 <template>
   <HeaderView />

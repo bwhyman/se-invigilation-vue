@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { freePwdService, loginService } from '@/services/CommonService'
+import { CommonService } from '@/services/CommonService'
 import { useUserStore } from '@/stores/UserStore'
 import type { User } from '@/types'
-import { Lock, User as UserIco, SwitchButton, Coffee, Delete } from '@element-plus/icons-vue'
+import { Coffee, Delete, Lock, SwitchButton, User as UserIco } from '@element-plus/icons-vue'
 
 onMounted(() => {
   let script = document.createElement('script')
@@ -23,7 +23,7 @@ const login = async () => {
   const password = userR.value.password
   userR.value.account = ''
   userR.value.password = ''
-  await loginService(
+  await CommonService.loginService(
     {
       account: account,
       password: password
@@ -33,7 +33,7 @@ const login = async () => {
 }
 
 const freeLoginF = async () => {
-  await freePwdService()
+  await CommonService.freePwdService()
 }
 
 const removeFreePwd = () => {

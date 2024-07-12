@@ -2,7 +2,7 @@
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
-import { noticeDingCancelService, setCurrentInviService } from '@/services/CommonService'
+import { CommonService } from '@/services/CommonService'
 import type { Invigilation } from '@/types'
 import type { FormInstance, FormRules } from 'element-plus'
 
@@ -144,11 +144,11 @@ const delInvi = () => {
     type: 'warning'
   }).then(async () => {
     await Promise.all([
-      noticeDingCancelService(invi.value),
+      CommonService.noticeDingCancelService(invi.value),
       CollegeService.delInviService(invi.value!.id!)
     ])
     createElNotificationSuccess('监考已删除')
-    setCurrentInviService(undefined)
+    CommonService.setCurrentInviService(undefined)
     router.push(`/college/imported`)
   })
 }
@@ -159,9 +159,9 @@ const resetInvi = () => {
     cancelButtonText: 'Cancel',
     type: 'warning'
   }).then(async () => {
-    await noticeDingCancelService(invi.value)
+    await CommonService.noticeDingCancelService(invi.value)
     await CollegeService.resetInviService(invi.value!.id!)
-    setCurrentInviService(undefined)
+    CommonService.setCurrentInviService(undefined)
     createElNotificationSuccess('监考已重置')
     router.push(`/college/imported`)
   })

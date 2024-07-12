@@ -1,17 +1,17 @@
 import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
-import { setCurrentInviService } from '@/services/CommonService'
+import { CommonService } from '@/services/CommonService'
 import { IMPORT } from '@/services/Const'
 import type { Invigilation } from '@/types'
 
 //
 export const editF = (invi: Invigilation) => {
   router.push(`/college/inviedit/${invi.id}`)
-  setCurrentInviService(invi)
+  CommonService.setCurrentInviService(invi)
 }
 
 export const assignF = (invi: Invigilation) => {
-  setCurrentInviService(invi)
+  CommonService.setCurrentInviService(invi)
   const inviid = invi.id
   router.push(`/college/assigns/${inviid}`)
 }
