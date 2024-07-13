@@ -107,9 +107,11 @@ export interface InviAssignUser {
 
 export interface AssignUser {
   department?: { depId?: string; departmentName?: string }
+  dispatcher?: Operator
+  amount?: number
   allocator?: Operator
   executor?: Operator[]
-  users?: User[]
+  userIds?: string[]
 }
 
 export interface DingNoticeResponse {

@@ -13,6 +13,7 @@ const invisAllS = ref<Invigilation[]>([])
 const clear = () => {
   invigilationsImportS.value = []
   invigilationsDispatchMapS.value.clear()
+  dateInvisMapS.value.clear()
 }
 const clearCurrentInvi = () => (currentInviS.value = undefined)
 const store = {

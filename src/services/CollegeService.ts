@@ -39,7 +39,8 @@ export class CollegeService {
   }
 
   //
-  static addInvigilationsService = async (invis: Invigilation[]) => {
+  @StoreClear(invisStore.clear)
+  static async addInvigilationsService(invis: Invigilation[]) {
     invis.forEach((i) => {
       // @ts-ignore
       i.time = JSON.stringify(i.time)
@@ -99,7 +100,7 @@ export class CollegeService {
   // 清空已导入监考缓存
   @StoreClear(invisStore.clear)
   @StoreCache(invisStore.invigilationsImportS)
-  static async updateInvisService(invis: Invigilation[]) {
+  static async dispathInvisService(invis: Invigilation[]) {
     invis.forEach((i) => {
       // @ts-ignore
       i.dispatcher && (i.dispatcher = JSON.stringify(i.dispatcher))
@@ -224,7 +225,7 @@ export class CollegeService {
     return resp.data.data?.users ?? []
   }
 
-  //
+  // 学院直接分配
   @StoreClear(invisStore.clear)
   static async addAssignService(inviid: string, user: AssignUser) {
     // @ts-ignore
@@ -232,8 +233,14 @@ export class CollegeService {
     // @ts-ignore
     user.executor = JSON.stringify(user.executor)
     // @ts-ignore
+    user.dispatcher = JSON.stringify(user.dispatcher)
+    // @ts-ignore
     user.department = JSON.stringify(user.department)
-    await axios.post(`${COLLEGE}/assigns/invis/${inviid}`, user)
+    const resp = await axios.post<ResultVO<{ invi: Invigilation }>>(
+      `${COLLEGE}/assigns/invis/${inviid}`,
+      user
+    )
+    return resp.data.data?.invi
   }
 
   //

@@ -1,14 +1,14 @@
 <script setup lang="ts">
+import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
 import { DISPATCH } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
+import { useUserStore } from '@/stores/UserStore'
 import type { Department, Invigilation, Page } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 import DepartmentView from './DepartmentView.vue'
 import OpterationMenuView from './operations/OpterationMenuView.vue'
-import { createElNotificationSuccess } from '@/components/message'
-import { useUserStore } from '@/stores/UserStore'
 
 const inviS = await CollegeService.listImportedService()
 const pageR = ref<Page>({
@@ -54,7 +54,7 @@ const updateInvis = async () => {
   })
 
   //
-  await CollegeService.updateInvisService(invis)
+  await CollegeService.dispathInvisService(invis)
   createElNotificationSuccess('监考已下发')
   router.push(`/college/noticedepartments/${departmentR.value?.id}`)
 }

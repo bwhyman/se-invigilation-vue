@@ -210,10 +210,10 @@ const submitUsers = async () => {
   }
   assignUsersR.value.allocator = stringInviTime({ id: userR.value!.id, name: userR.value!.name })
   assignUsersR.value.executor = []
-  assignUsersR.value.users = []
+  assignUsersR.value.userIds = []
   selectedUsers.value.forEach((us) => {
     assignUsersR.value.executor?.push(stringInviTime({ id: us.id, name: us.name }))
-    assignUsersR.value.users?.push({ id: us.id })
+    assignUsersR.value.userIds?.push(us.id!)
   })
 
   try {
