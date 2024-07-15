@@ -130,45 +130,30 @@ const listSameInvis = (invi: Invigilation) => {
 </script>
 <template>
   <el-row class="my-row">
-    <el-col>
-      <DatesPick ref="datesVueRef" />
-      <!-- <div style="display: inline-block; margin-right: 10px">
-        <div class="demo-date-picker" style="display: inline-block; margin-right: 10px">
-          <div class="block">
-            <el-date-picker
-              @change="changeFixedRangeF"
-              value-format="YYYY-MM-DD"
-              v-model="dateRangeR"
-              type="daterange"
-              range-separator="To"
-              start-placeholder="Start date"
-              end-placeholder="End date"
-              size="large" />
-          </div>
-        </div>
-      </div> -->
+    <el-col class="my-col">
+      <el-row style="align-items: flex-end">
+        <el-col :span="12">
+          <DatesPick ref="datesVueRef" />
+        </el-col>
+        <el-col :span="12" style="margin-bottom: 5px; text-align: right">
+          <el-button type="primary" @click="exportF" v-if="inviStatusR == ALL && invisR.length > 0">
+            导出监考表格
+          </el-button>
+        </el-col>
+      </el-row>
     </el-col>
-    <el-col style="margin-top: 10px" :span="20">
-      <el-radio-group
-        @change="invisStatusChangeF"
-        v-model="inviStatusR"
-        style="margin-bottom: 10px">
+    <el-col style="margin-bottom: 5px">
+      <el-radio-group @change="invisStatusChangeF" v-model="inviStatusR">
         <el-radio-button :label="ALL">全部</el-radio-button>
         <el-radio-button :label="UNNOTICED">未通知</el-radio-button>
         <el-radio-button :label="UNASSIGNED">未分配</el-radio-button>
         <el-radio-button :label="UNDISPATCHED">未下发</el-radio-button>
       </el-radio-group>
     </el-col>
-    <el-col :span="4" style="text-align: right">
-      <el-button type="primary" @click="exportF" v-if="inviStatusR == ALL && invisR.length > 0">
-        导出监考表格
-      </el-button>
-    </el-col>
-    <el-col :span="4">
+    <el-col>
       <TotalNumber :total="invisR.length" />
     </el-col>
     <el-col>
-      <!--  -->
       <el-table :data="invisR">
         <el-table-column type="index" label="" width="50" />
         <el-table-column width="100">

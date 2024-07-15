@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { createElNotificationSuccess } from '@/components/message'
+import { CollegeService } from '@/services/CollegeService'
 import type { User } from '@/types'
 import DepartmentUser from './finduser/DepartmentUser.vue'
-import { CollegeService } from '@/services/CollegeService'
-import { createElNotificationSuccess } from '@/components/message'
 
 const exposeR = ref<{ selectUser: User; clear: Function }>()
 
@@ -25,6 +25,11 @@ const removeF = () => {
 </script>
 <template>
   <el-row class="my-row" style="align-items: flex-end">
+    <el-col class="my-col">
+      <el-tag type="danger" size="large">
+        移除的用户不再统计监考数量，建议学期开始或结束时移除。
+      </el-tag>
+    </el-col>
     <el-col :span="12">
       <DepartmentUser ref="exposeR" />
     </el-col>

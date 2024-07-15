@@ -31,9 +31,15 @@ const exportF = async () => {
       <p>用于检索指定日期内所有专业监考，默认8日。紧凑模式，用于截图提醒教师监考等。</p>
     </el-col>
     <el-col></el-col>
-    <el-col :span="4"><DatesPick ref="datesVueRef" /></el-col>
-    <el-col :span="4" :offset="16" style="text-align: right">
-      <el-button type="primary" @click="exportF" v-if="invisR.length > 0">导出监考表格</el-button>
+    <el-col>
+      <el-row style="align-items: flex-end">
+        <el-col :span="12"><DatesPick ref="datesVueRef" /></el-col>
+        <el-col :span="12" style="margin-bottom: 5px; text-align: right">
+          <el-button type="primary" @click="exportF" v-if="invisR.length > 0">
+            导出监考表格
+          </el-button>
+        </el-col>
+      </el-row>
     </el-col>
     <el-col>
       <InvisDetailsDate :invis="invisR" />
