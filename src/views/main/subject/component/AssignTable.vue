@@ -1,25 +1,64 @@
 <script setup lang="ts">
-import type { ExcludeRule, InviAssignUser, Invigilation, Timetable } from '@/types'
 import { dayOfWeeksC, periodOfDaysC } from '@/services/ExcludeRule'
+import type { ExcludeRule, InviAssignUser, Invigilation, Timetable } from '@/types'
 
 const props = defineProps<{
   users: InviAssignUser[]
   dayweek: string
   hasRules: boolean
+  selectedUsers: InviAssignUser[]
+  amount: number
 }>()
+
+const amount = props.amount
+const selectedUsers = props.selectedUsers
+
+const assignButtonC = computed(() => (user: InviAssignUser) => {
+  const temp = { disPlus: false, plusContent: '+', type: '' }
+  if (selectedUsers.length === amount) {
+    temp.disPlus = true
+  }
+  const len = selectedUsers.filter((us) => us.id === user.id)
+  if (len.length == 0) {
+    temp.plusContent = '+'
+  } else {
+    temp.plusContent = len.length.toString()
+    temp.type = 'primary'
+  }
+
+  return temp
+})
+
+const assignPlusF = (user: InviAssignUser) => {
+  if (selectedUsers.length < amount) {
+    selectedUsers.push(user)
+    return
+  }
+}
+
+const assignMinusF = (user: InviAssignUser) => {
+  if (selectedUsers.length == 0) return
+  const index = selectedUsers.indexOf(user)
+  selectedUsers.splice(index, 1)
+}
 </script>
 <template>
   <el-table :data="props.users">
     <el-table-column type="index" label="" width="50" />
-    <el-table-column width="85">
+    <el-table-column width="220">
       <template #default="scope">
-        <slot name="userAssign" :user="scope.row as InviAssignUser"></slot>
-      </template>
-    </el-table-column>
-    <el-table-column width="130">
-      <template #default="scope">
-        <el-tag>{{ scope.row.amount }}</el-tag>
-        {{ scope.row.name }}
+        <el-button class="button-cal button-minus" @click="assignMinusF(scope.row)">-</el-button>
+        <el-tag style="margin-left: 2px">{{ scope.row.amount }}</el-tag>
+        <span class="name">
+          {{ scope.row.name }}
+        </span>
+        <el-button
+          class="button-cal"
+          :type="assignButtonC(scope.row).type"
+          @click="assignPlusF(scope.row)"
+          :disabled="assignButtonC(scope.row).disPlus">
+          {{ assignButtonC(scope.row).plusContent }}
+        </el-button>
       </template>
     </el-table-column>
     <el-table-column label="当日课程">
@@ -63,5 +102,20 @@ const props = defineProps<{
 .red {
   color: red;
   font-weight: bold;
+}
+
+.name {
+  margin: 5px;
+  display: inline-block;
+  min-width: 60px;
+  text-align: justify;
+  text-align-last: justify;
+}
+
+.button-cal {
+  min-width: 40px;
+}
+.button-minus:focus:not(.button-minus:hover) {
+  background-color: white;
 }
 </style>

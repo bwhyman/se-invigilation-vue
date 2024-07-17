@@ -170,29 +170,6 @@ confUsersR.sort((x, y) => x.amount! - y.amount!)
 
 const dayweekCN = getInviChineseDayweek(currentInvi.value.date!)
 
-const handleChange = (user: InviAssignUser) => {
-  if (selectedUsers.value.length < amountR) {
-    selectedUsers.value.push(user)
-    return
-  }
-  const index = selectedUsers.value.indexOf(user)
-  selectedUsers.value.splice(index, 1)
-}
-
-const getDisripC = computed(() => (user: InviAssignUser) => {
-  const us = selectedUsers.value.filter((u) => u.id == user.id)
-  if (us.length == 0) return '分配'
-  return us.length
-})
-
-const getDisabledC = computed(() => (user: InviAssignUser) => {
-  const temp = selectedUsers.value.find((u) => u.id == user.id)
-  if (selectedUsers.value.length >= amountR && !temp) {
-    return { type: 'warning', disabled: true }
-  }
-  return { type: 'primary', disabled: false }
-})
-
 //
 const submitUsers = async () => {
   if (selectedUsers.value.length != currentInvi.value!.amount) {
@@ -261,17 +238,12 @@ const submitUsers = async () => {
         <el-tag size="large">当前</el-tag>
       </el-col>
       <el-col style="margin-bottom: 10px">
-        <AssignTable :users="currentUsersR" :dayweek="dayweekCN" :hasRules="rulesR.length > 0">
-          <template #userAssign="userAssign">
-            <el-button
-              style="width: 60px"
-              :type="getDisabledC(userAssign.user!).type"
-              :disabled="getDisabledC(userAssign.user!).disabled"
-              @click="handleChange(userAssign.user!)">
-              {{ getDisripC(userAssign.user!) }}
-            </el-button>
-          </template>
-        </AssignTable>
+        <AssignTable
+          :users="currentUsersR"
+          :dayweek="dayweekCN"
+          :hasRules="rulesR.length > 0"
+          :amount="currentInvi.amount ?? 0"
+          :selectedUsers="selectedUsers"></AssignTable>
       </el-col>
     </el-row>
     <el-row class="my-row">
@@ -284,34 +256,24 @@ const submitUsers = async () => {
         </el-button>
       </el-col>
       <el-col style="margin-bottom: 10px">
-        <AssignTable :users="groupUsers" :dayweek="dayweekCN" :hasRules="rulesR.length > 0">
-          <template #userAssign="userAssign">
-            <el-button
-              style="width: 60px"
-              :type="getDisabledC(userAssign.user!).type"
-              :disabled="getDisabledC(userAssign.user!).disabled"
-              @click="handleChange(userAssign.user!)">
-              {{ getDisripC(userAssign.user!) }}
-            </el-button>
-          </template>
-        </AssignTable>
+        <AssignTable
+          :users="groupUsers"
+          :dayweek="dayweekCN"
+          :hasRules="rulesR.length > 0"
+          :amount="currentInvi.amount ?? 0"
+          :selectedUsers="selectedUsers"></AssignTable>
       </el-col>
 
       <el-col>
         <el-tag type="warning" size="large">冲突</el-tag>
       </el-col>
       <el-col style="margin-bottom: 10px">
-        <AssignTable :users="confUsersR" :dayweek="dayweekCN" :hasRules="rulesR.length > 0">
-          <template #userAssign="userAssign">
-            <el-button
-              style="width: 60px"
-              :type="getDisabledC(userAssign.user!).type"
-              :disabled="getDisabledC(userAssign.user!).disabled"
-              @click="handleChange(userAssign.user!)">
-              {{ getDisripC(userAssign.user!) }}
-            </el-button>
-          </template>
-        </AssignTable>
+        <AssignTable
+          :users="confUsersR"
+          :dayweek="dayweekCN"
+          :hasRules="rulesR.length > 0"
+          :amount="currentInvi.amount ?? 0"
+          :selectedUsers="selectedUsers"></AssignTable>
       </el-col>
       <!-- closed -->
       <template v-if="closedUsersR.length > 0">
