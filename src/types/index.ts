@@ -103,6 +103,13 @@ export interface InviAssignUser {
   amount?: number
   excludeRules?: ExcludeRule[]
   reason?: string
+  plusButton: PlusButton
+}
+
+export interface PlusButton {
+  disPlus?: boolean
+  plusContent?: string
+  type?: string
 }
 
 export interface AssignUser {

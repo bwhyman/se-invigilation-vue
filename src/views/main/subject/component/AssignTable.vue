@@ -9,25 +9,8 @@ const props = defineProps<{
   selectedUsers: InviAssignUser[]
   amount: number
 }>()
-
 const amount = props.amount
 const selectedUsers = props.selectedUsers
-
-const assignButtonC = computed(() => (user: InviAssignUser) => {
-  const temp = { disPlus: false, plusContent: '+', type: '' }
-  if (selectedUsers.length === amount) {
-    temp.disPlus = true
-  }
-  const len = selectedUsers.filter((us) => us.id === user.id)
-  if (len.length == 0) {
-    temp.plusContent = '+'
-  } else {
-    temp.plusContent = len.length.toString()
-    temp.type = 'primary'
-  }
-
-  return temp
-})
 
 const assignPlusF = (user: InviAssignUser) => {
   if (selectedUsers.length < amount) {
@@ -54,10 +37,10 @@ const assignMinusF = (user: InviAssignUser) => {
         </span>
         <el-button
           class="button-cal"
-          :type="assignButtonC(scope.row).type"
+          :type="scope.row.plusButton.type"
           @click="assignPlusF(scope.row)"
-          :disabled="assignButtonC(scope.row).disPlus">
-          {{ assignButtonC(scope.row).plusContent }}
+          :disabled="scope.row.plusButton.disPlus">
+          {{ scope.row.plusButton.plusContent }}
         </el-button>
       </template>
     </el-table-column>

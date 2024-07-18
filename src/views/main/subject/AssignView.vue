@@ -33,7 +33,7 @@ const settingsStore = useSettingStore()
 //
 const userR = useUserStore().userS
 const assignUsersR = ref<AssignUser>({})
-
+//
 // 当前分配的监考信息
 let week = getInviWeek(currentInvi.value.date!, settingsStore.getFirstWeek())
 let dayweek = getInviDayweek(currentInvi.value.date!)
@@ -63,14 +63,14 @@ const rulesR = allP[5]
 // 分别计算渲染
 const groupUsers: InviAssignUser[] = []
 const allUsers: User[] = [...usersS.value]
-const closedUsersR: User[] = []
-const confUsersR: InviAssignUser[] = []
-const currentUsersR: InviAssignUser[] = []
+const closedUsers: User[] = []
+const confUsers: InviAssignUser[] = []
+const currentUsers: InviAssignUser[] = []
 
 allloop: for (const user of allUsers) {
   // closed
   if (user.inviStatus == CLOSED) {
-    closedUsersR.push(user)
+    closedUsers.push(user)
     continue
   }
 
@@ -86,7 +86,8 @@ allloop: for (const user of allUsers) {
     name: user.name,
     amount: am,
     timetables: tb,
-    excludeRules: excludes
+    excludeRules: excludes,
+    plusButton: {}
   }
   const invisTm: Invigilation[] = []
   dateInvisR.forEach((di) => {
@@ -106,7 +107,7 @@ allloop: for (const user of allUsers) {
     )
     if (x) {
       groupUser.reason = 'timetable'
-      confUsersR.push(groupUser)
+      confUsers.push(groupUser)
       continue
     }
   }
@@ -123,7 +124,7 @@ allloop: for (const user of allUsers) {
       const thisInviTime = new Date(`${invi.date} ${invi.time?.starttime}`)
       if (thisInviTime >= currentInviTimeStartTime && thisInviTime <= currentInviTimeEndTime) {
         groupUser.reason = 'invi'
-        confUsersR.push(groupUser)
+        confUsers.push(groupUser)
         continue allloop
       }
     }
@@ -141,7 +142,7 @@ allloop: for (const user of allUsers) {
           const conf = confTime(currentInvi.value.date!, currentInvi.value.time?.starttime!, per)
           if (conf) {
             groupUser.reason = 'rule'
-            confUsersR.push(groupUser)
+            confUsers.push(groupUser)
             continue allloop
           }
         }
@@ -155,18 +156,22 @@ allloop: for (const user of allUsers) {
 // 追加将当前监考教师置于默认状态
 if (currentInvi.value.executor) {
   currentInvi.value.executor.forEach((exe) => {
-    const x = confUsersR.find((us) => us.id == exe.userId)
+    let x = confUsers.find((us) => us.id == exe.userId)
+    // 冲突中存在
     if (x) {
-      selectedUsers.value.push(x!)
-      currentUsersR.push(x!)
-      const index = confUsersR.indexOf(x!)
-      confUsersR.splice(index, 1)
+      currentUsers.push(x)
+      const index = confUsers.indexOf(x)
+      confUsers.splice(index, 1)
+    } else {
+      // 不存在，则可能已经从冲突中移除，在已选择中查找
+      x = selectedUsers.value.find((us) => us.id == exe.userId)
     }
+    x && selectedUsers.value.push(x)
   })
 }
 //
 groupUsers.sort((x, y) => x.amount! - y.amount!)
-confUsersR.sort((x, y) => x.amount! - y.amount!)
+confUsers.sort((x, y) => x.amount! - y.amount!)
 
 const dayweekCN = getInviChineseDayweek(currentInvi.value.date!)
 
@@ -202,6 +207,27 @@ const submitUsers = async () => {
     loading.close()
   }
 }
+
+// 通过监听选择长度避免产生连锁响应
+// 每次均初始化按钮状态，再基于实际数据更新
+const usersX = ref([...groupUsers, ...currentUsers, ...confUsers])
+watch(
+  () => selectedUsers.value.length,
+  () => {
+    for (const user of usersX.value) {
+      // 初始化
+      user.plusButton.disPlus = selectedUsers.value.length === currentInvi.value.amount
+      user.plusButton.plusContent = '+'
+      user.plusButton.type = ''
+      const len = selectedUsers.value.filter((us) => us.id === user.id).length
+      if (len > 0) {
+        user.plusButton.plusContent = len.toString()
+        user.plusButton.type = 'success'
+      }
+    }
+  },
+  { immediate: true }
+)
 </script>
 <template>
   <!--  -->
@@ -233,13 +259,13 @@ const submitUsers = async () => {
         {{ departmentComment }}
       </el-col>
     </el-row>
-    <el-row class="my-row" v-if="currentUsersR.length > 0">
+    <el-row class="my-row" v-if="currentUsers.length > 0">
       <el-col>
         <el-tag size="large">当前</el-tag>
       </el-col>
       <el-col style="margin-bottom: 10px">
         <AssignTable
-          :users="currentUsersR"
+          :users="currentUsers"
           :dayweek="dayweekCN"
           :hasRules="rulesR.length > 0"
           :amount="currentInvi.amount ?? 0"
@@ -269,17 +295,17 @@ const submitUsers = async () => {
       </el-col>
       <el-col style="margin-bottom: 10px">
         <AssignTable
-          :users="confUsersR"
+          :users="confUsers"
           :dayweek="dayweekCN"
           :hasRules="rulesR.length > 0"
           :amount="currentInvi.amount ?? 0"
           :selectedUsers="selectedUsers"></AssignTable>
       </el-col>
       <!-- closed -->
-      <template v-if="closedUsersR.length > 0">
+      <template v-if="closedUsers.length > 0">
         <el-tag type="danger" size="large">关闭</el-tag>
         <el-col>
-          <el-table :data="closedUsersR">
+          <el-table :data="closedUsers">
             <el-table-column type="index" label="" width="50" />
             <el-table-column>
               <template #default="scope">
