@@ -1,5 +1,10 @@
 import axios from '@/axios'
+import { useExcludeRulesStore } from '@/stores/ExcludeRuleStore'
+import { useInvigilationsStore } from '@/stores/InvigilationsStore'
+import { useTimetablesStore } from '@/stores/TimetableStore'
+import { useTotalsStore } from '@/stores/TotalsStore'
 import { useUsersStore } from '@/stores/UsersStore'
+import { useInviCountsStore } from '@/stores/inviCountsStore'
 import type {
   AssignUser,
   ExcludeRule,
@@ -10,12 +15,7 @@ import type {
   Timetable,
   User
 } from '@/types'
-import { useTimetablesStore } from '@/stores/TimetableStore'
-import { useInvigilationsStore } from '@/stores/InvigilationsStore'
-import { useInviCountsStore } from '@/stores/inviCountsStore'
-import { useExcludeRulesStore } from '@/stores/ExcludeRuleStore'
 import { StoreCache, StoreClear, StoreMapCache } from './Decorators'
-import { useTotalsStore } from '@/stores/TotalsStore'
 
 const SUBJECT = 'subject'
 
@@ -54,8 +54,7 @@ export class SubjectService {
 
   // 改变教师状态监考状态，清空课表缓存。因为按开放教师加载的课表
   // 清空教师，全部重新加载
-  @StoreClear(timetablesStore.clear)
-  @StoreClear(usersStore.clear)
+  @StoreClear(timetablesStore.clear, usersStore.clear)
   @StoreCache(usersStore.usersS)
   static async updateUsersInviStatuService(users: User[]) {
     const resp = await axios.post<ResultVO<{ users: User[] }>>(`${SUBJECT}/invistatus`, users)
@@ -90,7 +89,7 @@ export class SubjectService {
   //
   // 清空当前监考缓存
   // 清空教师监考数量缓存
-  @StoreClear(invisStore.clear, inviCountsStore.clear)
+  @StoreClear(invisStore.clear, inviCountsStore.clear, invisStore.clearCurrentInvi)
   static async addAssignUsersService(inviid: string, user: AssignUser) {
     // @ts-ignore
     user.allocator = JSON.stringify(user.allocator)

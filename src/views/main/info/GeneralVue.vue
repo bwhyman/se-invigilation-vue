@@ -1,0 +1,21 @@
+<script setup lang="ts"></script>
+<template>
+  <el-row>
+    <el-col class="my-col info-title" :span="2">
+      <el-tag size="large">说明</el-tag>
+    </el-col>
+    <el-col class="my-col" :span="22">
+      专业无权拒绝下发的监考，欲取消请与学院协商。
+      <br />
+      教师无权拒绝分配的监考，欲取消请与专业协商。即使教师在钉钉拒绝接受监考日程安排，系统仍按已分配教师记录。
+      <br />
+      即，系统为单向数据流的通知系统，而非审批系统。
+    </el-col>
+    <el-col class="my-col info-title" :span="2"><el-tag size="large">其他</el-tag></el-col>
+    <el-col class="my-col" :span="22">
+      1次监考分配同一教师2次，仅发送一次通知。
+      <br />
+      钉钉监考分配通知内包含系统网址，但是钉钉移动版默认使用内置浏览器打开，而钉钉内置浏览器内核版本太低不支持系统的前端技术。因此，只能使用钉钉PC版，或将网址复制使用外部浏览器打开。
+    </el-col>
+  </el-row>
+</template>

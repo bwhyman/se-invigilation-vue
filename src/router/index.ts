@@ -21,7 +21,7 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         path: 'info',
-        component: () => import('@/views/main/InfoView.vue')
+        component: () => import('@/views/main/info/IndexView.vue')
       },
       {
         path: 'settings',

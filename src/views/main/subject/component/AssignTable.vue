@@ -31,7 +31,7 @@ const assignMinusF = (user: InviAssignUser) => {
     <el-table-column width="220">
       <template #default="scope">
         <el-button class="button-cal button-minus" @click="assignMinusF(scope.row)">-</el-button>
-        <el-tag style="margin-left: 2px">{{ scope.row.amount }}</el-tag>
+        <el-tag style="margin-left: 2px; min-width: 35px">{{ scope.row.amount }}</el-tag>
         <span class="name">
           {{ scope.row.name }}
         </span>
