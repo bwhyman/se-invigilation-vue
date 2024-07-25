@@ -27,6 +27,33 @@ export const readUsersExcel = (file: Blob) => {
     reader.onloadend = () => {
       resolve(users)
     }
-    reader.readAsBinaryString(file)
+    reader.readAsArrayBuffer(file)
   })
+}
+interface ExcelUserDing {
+  '#': number
+  name: string
+  account: string
+  dinguserid: string
+  dingunionid: string
+  mobile: string
+}
+export const exportUserDingsExcel = (users: User[]) => {
+  const workBook = XLSX.utils.book_new()
+  const excelUsers: ExcelUserDing[] = []
+  users.forEach((user, index) => {
+    const u: ExcelUserDing = {
+      '#': index + 1,
+      name: user.name!,
+      account: user.account!,
+      dinguserid: user.dingUserId ?? '',
+      dingunionid: user.dingUnionId ?? '',
+      mobile: user.mobile ?? ''
+    }
+    excelUsers.push(u)
+  })
+  const jsonWorkSheet = XLSX.utils.json_to_sheet(excelUsers)
+  XLSX.utils.book_append_sheet(workBook, jsonWorkSheet)
+
+  return XLSX.writeFile(workBook, '钉钉数据表格.xlsx')
 }

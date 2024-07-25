@@ -385,4 +385,10 @@ export class CollegeService {
     )
     return resp.data.data?.departments as unknown as Ref<Department[]>
   }
+
+  @StoreClear(usersStore.clear)
+  static async updateUserSerivce(user: User) {
+    const resp = await axios.patch(`${COLLEGE}/users`, user)
+    return true
+  }
 }

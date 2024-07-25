@@ -5,32 +5,16 @@ const components: { name: string; component: Component }[] = [
     component: defineAsyncComponent(() => import('./CloseDepartmentView.vue'))
   },
   {
-    name: '导出详细信息',
-    component: defineAsyncComponent(() => import('./InviDetailsView.vue'))
-  },
-  {
     name: '导入课表',
     component: defineAsyncComponent(() => import('./ReadTimetablesView.vue'))
   },
   {
-    name: '重置密码',
-    component: defineAsyncComponent(() => import('./ResetPasswordView.vue'))
-  },
-  {
-    name: '更新用户部门',
-    component: defineAsyncComponent(() => import('./UpdateUserDepart.vue'))
-  },
-  {
-    name: '更新用户角色',
-    component: defineAsyncComponent(() => import('./UpdateRolesView.vue'))
+    name: '更新用户',
+    component: defineAsyncComponent(() => import('./UpdateUserView.vue'))
   },
   {
     name: '添加用户',
     component: defineAsyncComponent(() => import('./AddUserView.vue'))
-  },
-  {
-    name: '移除用户',
-    component: defineAsyncComponent(() => import('./RemoveUserView.vue'))
   },
   {
     name: '移除部门',
@@ -43,6 +27,10 @@ const components: { name: string; component: Component }[] = [
   {
     name: '学期初始化',
     component: defineAsyncComponent(() => import('./RemoveCollegeData.vue'))
+  },
+  {
+    name: '导出详细信息',
+    component: defineAsyncComponent(() => import('./InviDetailsView.vue'))
   }
 ]
 

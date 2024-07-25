@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
 import { AdminService } from '@/services/AdminService'
+import type { Department } from '@/types'
 
-const collegeNameR = ref('')
+const collegeR = ref<Department>({})
 const addCollegeF = async () => {
-  await AdminService.addCollegeService(collegeNameR.value)
+  await AdminService.addCollegeService(collegeR.value)
   createElNotificationSuccess('添加成功')
-  collegeNameR.value = ''
+  collegeR.value = {}
 }
 </script>
 <template>
@@ -14,10 +15,16 @@ const addCollegeF = async () => {
     <el-col>
       <el-form :inline="true">
         <el-form-item>
-          <el-input v-model="collegeNameR" placeholder="添加学院名称"></el-input>
+          <el-input v-model="collegeR.name" placeholder="学院"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="success" :disabled="collegeNameR.length == 0" @click="addCollegeF">
+          <el-input v-model="collegeR.dingDepid" placeholder="钉钉号"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button
+            type="success"
+            :disabled="!collegeR.dingDepid || collegeR.dingDepid.length == 0"
+            @click="addCollegeF">
             提交
           </el-button>
         </el-form-item>

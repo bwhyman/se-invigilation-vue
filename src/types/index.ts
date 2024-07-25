@@ -22,6 +22,7 @@ export interface Department {
   id?: string
   name?: string
   college?: string
+  root?: number
   inviStatus?: number
   dingDepid?: string
   comment?: string
