@@ -1,23 +1,17 @@
 <script setup lang="ts">
-import { createElLoading } from '@/components/loading'
 import { CollegeService } from '@/services/CollegeService'
 import type { User } from '@/types'
 
 const userR = ref<User>({})
 
 const searchF = async () => {
-  const loading = createElLoading()
-  try {
-    const dingUser = await CollegeService.getDingUserService(userR.value.mobile!)
-    if (!dingUser?.userid || !dingUser.unionid) {
-      throw '无法查询到钉钉用户'
-    }
-    userR.value.name = dingUser?.name
-    userR.value.dingUserId = dingUser?.userid
-    userR.value.dingUnionId = dingUser?.unionid
-  } finally {
-    loading.close()
+  const dingUser = await CollegeService.getDingUserService(userR.value.mobile!)
+  if (!dingUser?.userid || !dingUser.unionid) {
+    throw '无法查询到钉钉用户'
   }
+  userR.value.name = dingUser?.name
+  userR.value.dingUserId = dingUser?.userid
+  userR.value.dingUnionId = dingUser?.unionid
 }
 </script>
 <template>

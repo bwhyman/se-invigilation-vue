@@ -1,21 +1,15 @@
 <script setup lang="ts">
-import { createElLoading } from '@/components/loading'
 import { CollegeService } from '@/services/CollegeService'
 import type { InviDetail } from '@/types'
 
 const exportF = async () => {
-  const loading = createElLoading()
-  try {
-    const results = await Promise.all([
-      CollegeService.listCollegeInviDetailsService(),
-      CollegeService.listCollegeCountsService()
-    ])
-    const details: InviDetail[] = results[1]
-    const { exportInvisDetails } = await import('@/services/excel/Invis2Excel')
-    exportInvisDetails(results[0].value, details)
-  } finally {
-    loading.close()
-  }
+  const results = await Promise.all([
+    CollegeService.listCollegeInviDetailsService(),
+    CollegeService.listCollegeCountsService()
+  ])
+  const details: InviDetail[] = results[1]
+  const { exportInvisDetails } = await import('@/services/excel/Invis2Excel')
+  exportInvisDetails(results[0].value, details)
 }
 </script>
 <template>

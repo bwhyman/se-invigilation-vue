@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { createElLoading } from '@/components/loading'
 import { createElNotificationSuccess } from '@/components/message'
 import { CollegeService } from '@/services/CollegeService'
 import { CommonService } from '@/services/CommonService'
@@ -93,14 +92,9 @@ const closeTagF = (index: number) => {
 
 //
 const noticeF = async () => {
-  const loading = createElLoading()
-  try {
-    for (const notice of assignNoticesR.value) {
-      let msg = await SubjectService.noticeUsersService(notice)
-      msg && createElNotificationSuccess(`通知发送成功。编号：${msg}`)
-    }
-  } finally {
-    loading.close()
+  for (const notice of assignNoticesR.value) {
+    let msg = await SubjectService.noticeUsersService(notice)
+    msg && createElNotificationSuccess(`通知发送成功。编号：${msg}`)
   }
 }
 </script>

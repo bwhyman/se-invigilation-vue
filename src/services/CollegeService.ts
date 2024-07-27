@@ -259,6 +259,7 @@ export class CollegeService {
   }
 
   //
+  @ELLoading()
   @StoreCache(invisStore.invisAllS)
   static async listCollegeInviDetailsService() {
     const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(`${COLLEGE}/invis/all`)
@@ -352,7 +353,8 @@ export class CollegeService {
   }
 
   // 基于钉钉注册手机号，获取用户信息
-  static getDingUserService = async (mobile: string) => {
+  @ELLoading()
+  static async getDingUserService(mobile: string) {
     const resp = await axios.get<ResultVO<{ dinguser: DingUser }>>(`${COLLEGE}/mobiles/${mobile}`)
     return resp.data.data?.dinguser
   }

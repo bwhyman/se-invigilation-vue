@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { SubjectService } from '@/services/SubjectService'
-import type { User } from '@/types'
-import { SUBJECT_ADMIN, COLLEGE_ADMIN } from '@/services/Const'
+import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
-import { createElNotificationSuccess } from '@/components/message'
-import { createElLoading } from '@/components/loading'
-import { getFinalNotice, getInitNotice } from './AssignNotice'
+import { COLLEGE_ADMIN, SUBJECT_ADMIN } from '@/services/Const'
+import { SubjectService } from '@/services/SubjectService'
 import { useSettingStore } from '@/stores/SettingStore'
+import type { User } from '@/types'
+import { getFinalNotice, getInitNotice } from './AssignNotice'
 
 const params = useRoute().params as { inviid: string }
 const role = sessionStorage.getItem('role')
@@ -46,13 +45,7 @@ const noticeAssignersF = async () => {
     throw `请勿重复发送通知。如需更改请返回分配页面重新分配监考`
   }
   const noticeFinal = getFinalNotice(notice, selectUsersR.value)
-  const loading = createElLoading()
-  let msg
-  try {
-    msg = await SubjectService.noticeUsersService(noticeFinal)
-  } finally {
-    loading.close()
-  }
+  const msg = await SubjectService.noticeUsersService(noticeFinal)
   //
   const role = sessionStorage.getItem('role')
   if (role == SUBJECT_ADMIN) {

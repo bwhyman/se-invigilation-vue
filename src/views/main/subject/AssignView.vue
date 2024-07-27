@@ -14,7 +14,6 @@ import type { AssignUser, InviAssignUser, Invigilation, User } from '@/types'
 import InviMessage from '../component/InviInfo.vue'
 import AssignTable from './component/AssignTable.vue'
 
-import { createElLoading } from '@/components/loading'
 import { createElNotificationSuccess } from '@/components/message'
 import { useSettingStore } from '@/stores/SettingStore'
 import { useUserStore } from '@/stores/UserStore'
@@ -181,8 +180,6 @@ const submitUsers = async () => {
     throw '分配教师数与所需监考数不匹配'
   }
 
-  const loading = createElLoading()
-
   if (currentInvi.value!.calendarId) {
     const userIds: string[] = []
     currentInvi.value!.executor!.forEach((ex) => {
@@ -198,14 +195,10 @@ const submitUsers = async () => {
     assignUsersR.value.userIds?.push(us.id!)
   })
 
-  try {
-    await CommonService.noticeDingCancelService(currentInvi.value)
-    await SubjectService.addAssignUsersService(currentInvi.value!.id!, assignUsersR.value)
-    createElNotificationSuccess('监考已分配')
-    router.push(`/subject/notices/${params.inviid}`)
-  } finally {
-    loading.close()
-  }
+  await CommonService.noticeDingCancelService(currentInvi.value)
+  await SubjectService.addAssignUsersService(currentInvi.value!.id!, assignUsersR.value)
+  createElNotificationSuccess('监考已分配')
+  router.push(`/subject/notices/${params.inviid}`)
 }
 
 // 通过监听选择长度避免产生连锁响应

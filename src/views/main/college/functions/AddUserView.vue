@@ -1,29 +1,23 @@
 <script setup lang="ts">
+import { createElNotificationSuccess } from '@/components/message'
 import { CollegeService } from '@/services/CollegeService'
 import { ROLES } from '@/services/Const'
-import type { Department, User } from '@/types'
-import { createElNotificationSuccess } from '@/components/message'
-import { createElLoading } from '@/components/loading'
 import { useUserStore } from '@/stores/UserStore'
+import type { Department, User } from '@/types'
 
 const departmentsR = ref<Department[]>([])
 const userR = ref<User>({})
 const departR = ref<Department>()
 
 const searchF = async () => {
-  const loading = createElLoading()
-  try {
-    const dingUser = await CollegeService.getDingUserService(userR.value.mobile!)
-    if (!dingUser?.userid || !dingUser.unionid) {
-      throw '无法查询到钉钉用户'
-    }
-    userR.value.name = dingUser?.name
-    userR.value.dingUserId = dingUser?.userid
-    userR.value.dingUnionId = dingUser?.unionid
-    departmentsR.value = (await CollegeService.listDepartmentsService()).value
-  } finally {
-    loading.close()
+  const dingUser = await CollegeService.getDingUserService(userR.value.mobile!)
+  if (!dingUser?.userid || !dingUser.unionid) {
+    throw '无法查询到钉钉用户'
   }
+  userR.value.name = dingUser?.name
+  userR.value.dingUserId = dingUser?.userid
+  userR.value.dingUnionId = dingUser?.unionid
+  departmentsR.value = (await CollegeService.listDepartmentsService()).value
 }
 
 const submitF = async () => {

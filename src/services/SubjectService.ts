@@ -90,6 +90,7 @@ export class SubjectService {
   //
   // 清空当前监考缓存
   // 清空教师监考数量缓存
+  @ELLoading()
   @StoreClear(invisStore.clear, inviCountsStore.clear, invisStore.clearCurrentInvi)
   static async addAssignUsersService(inviid: string, user: AssignUser) {
     // @ts-ignore
@@ -108,7 +109,8 @@ export class SubjectService {
     return users ?? []
   }
 
-  static noticeUsersService = async (notice: Notice) => {
+  @ELLoading()
+  static async noticeUsersService(notice: Notice) {
     const resp = await axios.post<ResultVO<{ code: string }>>(`${SUBJECT}/assignnotices`, notice)
     return resp.data.data?.code
   }
