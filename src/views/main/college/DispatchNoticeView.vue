@@ -28,8 +28,8 @@ const noticeDispatchersF = async () => {
 </script>
 <template>
   <el-row class="my-row">
-    <el-col class="my-col">已下发至专业。钉钉通知负责人尽快分配？</el-col>
-    <el-col class="my-col">
+    <el-col>已下发至专业。钉钉通知负责人尽快分配？</el-col>
+    <el-col>
       <el-checkbox-group v-model="selDisR">
         <el-checkbox
           v-for="(user, index) of dispatchers"
@@ -40,7 +40,7 @@ const noticeDispatchersF = async () => {
         </el-checkbox>
       </el-checkbox-group>
     </el-col>
-    <el-col class="my-col">
+    <el-col>
       <el-button type="success" @click="noticeDispatchersF" :disabled="!selDisR">提交</el-button>
     </el-col>
   </el-row>

@@ -4,7 +4,7 @@
     <el-col class="my-col info-title" :span="2">
       <el-tag size="large">导入</el-tag>
     </el-col>
-    <el-col class="my-col" :span="22">
+    <el-col :span="22">
       监考为不可分割的最小单元。即，如需将一次2人监考分别下发至2个专业，需分解为2次1人监考。在表格复制一行，或通过系统监考`剪裁`功能实现。
       <br />
       导入监考请使用监考表格模板。提供2种时间模式，匹配学校下发的不同时间类型。
@@ -16,7 +16,7 @@
     <el-col class="my-col info-title" :span="2">
       <el-tag size="large">下发</el-tag>
     </el-col>
-    <el-col class="my-col" :span="22">
+    <el-col :span="22">
       批量下发，多项选择监考并指定部门后，保存提交。
       <br />
       通知专业，向专业发送监考分配提醒通知。
@@ -24,7 +24,7 @@
     <el-col class="my-col info-title" :span="2">
       <el-tag size="large">处理</el-tag>
     </el-col>
-    <el-col class="my-col" :span="22">
+    <el-col :span="22">
       默认加载8日内所有监考信息，可自定义任意日期段；可通过选项卡掌握监考信息的通知/分配/下发状态；可发送提醒专业分配通知；可发送监考说明，例如大厅取卷；可导出excel表格，带字体样式，按授课教师排序/课程名称，合并剪裁的监考。
       <br />
       添加紧凑的信息。
@@ -32,7 +32,7 @@
     <el-col class="my-col info-title" :span="2">
       <el-tag size="large">编辑</el-tag>
     </el-col>
-    <el-col class="my-col" :span="22">
+    <el-col :span="22">
       编辑，导入状态/下发未分配状态：学院可修改监考时间等关键信息；已分配状态：由于已下发监考通知，因此监考时间等关键信息为锁定状态禁止修改，必须重置监考为导入状态后修改。
       <br />
       重置监考，重置监考为未下发状态，可重新下发至其他专业。如果已分配则移除监考分配信息，同时发送监考取消通知/取消日程。
@@ -42,7 +42,7 @@
     <el-col class="my-col info-title" :span="2">
       <el-tag size="large">分配</el-tag>
     </el-col>
-    <el-col class="my-col" :span="22">
+    <el-col :span="22">
       剪裁，可将监考`剪裁`出一个监考人数为1的新监考，原监考人数-1。
       <br />
       分配，学院可不受监考人数限制/部门等限制，直接任意分配监考。
@@ -50,7 +50,7 @@
     <el-col class="my-col info-title" :span="2">
       <el-tag size="large">功能</el-tag>
     </el-col>
-    <el-col class="my-col" :span="22">
+    <el-col :span="22">
       关闭分配，学院可以关闭指定部门，不在下发视图中显示。
       <br />
       导出详细信息，导出包含监考数据/导入/下发/分配/通知/每教师监考次数等信息的Excel表格。

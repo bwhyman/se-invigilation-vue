@@ -26,10 +26,10 @@ const updateUserInviStatus = async () => {
 </script>
 <template>
   <el-row class="my-row">
-    <el-col class="my-col" :span="22">
+    <el-col :span="22">
       <p>监考分配显示</p>
     </el-col>
-    <el-col :span="2" class="my-col">
+    <el-col :span="2">
       <el-button type="success" @click="updateUserInviStatus" :disabled="btnR">提交</el-button>
     </el-col>
     <el-col style="margin-bottom: 5px">

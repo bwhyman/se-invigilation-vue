@@ -111,7 +111,7 @@ const noticeF = async () => {
     </el-col>
   </el-row>
   <el-row class="my-row">
-    <el-col v-if="inviR?.executor" class="my-col">
+    <el-col v-if="inviR?.executor">
       <p>原监考专业：{{ inviR.department?.departmentName }}</p>
       <p>
         原监考教师：
@@ -125,16 +125,16 @@ const noticeF = async () => {
       </p>
     </el-col>
     <template v-if="assignNoticesR.length == 0">
-      <el-col class="my-col">
+      <el-col>
         <el-tag type="danger">
           强制重新分配。允许跨专业分配，允许超过实际监考人数限制，允许同一教师分配多次。
         </el-tag>
       </el-col>
-      <el-col class="my-col" :span="10">
+      <el-col :span="10">
         <DepartmentUser ref="exposeR" />
       </el-col>
       <el-col></el-col>
-      <el-col class="my-col">
+      <el-col>
         <hr />
       </el-col>
       <el-col :span="3">
@@ -146,7 +146,7 @@ const noticeF = async () => {
           新监考提交
         </el-button>
       </el-col>
-      <el-col class="my-col" :span="16">
+      <el-col :span="16">
         <el-tag
           v-for="(invi, index) of selectUsersR"
           :key="index"
@@ -159,20 +159,20 @@ const noticeF = async () => {
     </template>
 
     <template v-if="assignNoticesR.length > 0">
-      <el-col class="my-col">
+      <el-col>
         <hr />
       </el-col>
-      <el-col class="my-col">
+      <el-col>
         <el-tag type="danger" size="large">监考分配已记录，是否发送通知？</el-tag>
       </el-col>
-      <el-col class="my-col">
+      <el-col>
         <template v-for="(assUser, index) of assignNoticesR" :key="index">
           <p>
             {{ assUser.noticeMessage }}
           </p>
         </template>
       </el-col>
-      <el-col class="my-col">
+      <el-col>
         <el-button @click="noticeF" type="success">发出以上监考通知</el-button>
       </el-col>
     </template>

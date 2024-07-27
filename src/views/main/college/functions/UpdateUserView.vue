@@ -86,14 +86,14 @@ const updateUserInfoF = async () => {
 </script>
 <template>
   <el-row class="my-row" style="align-items: flex-end">
-    <el-col :span="12" class="my-col">
+    <el-col :span="12">
       <DepartmentUser ref="exposeR" />
     </el-col>
     <template v-if="userR.id">
-      <el-col class="my-col">
+      <el-col>
         <el-button type="success" @click="resetPasswordF">重置账号密码为工号</el-button>
       </el-col>
-      <el-col class="my-col">
+      <el-col>
         <el-select
           value-key="id"
           v-model="departmentR"
@@ -111,7 +111,7 @@ const updateUserInfoF = async () => {
         </el-button>
       </el-col>
       <!--  -->
-      <el-col class="my-col">
+      <el-col>
         <el-select
           v-model="roleR"
           placeholder="选择角色"
@@ -125,7 +125,7 @@ const updateUserInfoF = async () => {
         </el-select>
         <el-button type="success" :disabled="!roleR" @click="updateUserRoleF">提交</el-button>
       </el-col>
-      <el-col class="my-col">
+      <el-col>
         <el-button type="danger" @click="removeUserF" style="margin-right: 10px">
           移除用户： {{ userR.name }} / {{ userR.account }}
         </el-button>
@@ -133,7 +133,7 @@ const updateUserInfoF = async () => {
           移除用户将同时删除监考数据，建议学期开始或结束时移除。
         </el-tag>
       </el-col>
-      <el-col class="my-col">
+      <el-col>
         <el-form label-width="120px" style="width: 500px">
           <el-form-item label="姓名">
             <el-input v-model="userR.name" />

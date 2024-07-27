@@ -49,16 +49,16 @@ const showExprotC = computed(() => selectCollegeR.value?.department?.id && users
 </script>
 <template>
   <el-row class="my-row">
-    <el-col :span="6" class="my-col">
+    <el-col :span="6">
       <FindCollege ref="selectCollegeR" />
     </el-col>
-    <el-col :span="6" class="my-col">
+    <el-col :span="6">
       <el-button type="success" @click="exportExcelF" v-if="showExprotC">导出钉钉表格</el-button>
     </el-col>
-    <el-col :span="6" class="my-col">
+    <el-col :span="6">
       <el-button type="success" @click="addUserDingsF" v-if="showExprotC">导入钉钉信息</el-button>
     </el-col>
-    <el-col class="my-col">
+    <el-col>
       <el-table :data="usersR" style="margin-bottom: 10px">
         <el-table-column type="index" label="#" width="50" />
         <el-table-column>

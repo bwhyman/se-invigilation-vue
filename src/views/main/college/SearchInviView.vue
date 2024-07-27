@@ -130,7 +130,7 @@ const listSameInvis = (invi: Invigilation) => {
 </script>
 <template>
   <el-row class="my-row">
-    <el-col class="my-col">
+    <el-col>
       <el-row style="align-items: flex-end">
         <el-col :span="12">
           <DatesPick ref="datesVueRef" />

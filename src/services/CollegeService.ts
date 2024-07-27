@@ -17,7 +17,7 @@ import type {
   User,
   UserDepartment
 } from '@/types'
-import { StoreCache, StoreClear, StoreMapCache } from './Decorators'
+import { ELLoading, StoreCache, StoreClear, StoreMapCache } from './Decorators'
 import { stringTimetables } from './Utils'
 
 const COLLEGE = 'college'
@@ -88,6 +88,7 @@ export class CollegeService {
     return resp.data.data?.total ?? 0
   }
 
+  @ELLoading()
   @StoreMapCache(invisStore.invigilationsDispatchMapS)
   static async listDepatchedsService(depid: string, page: number) {
     const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
@@ -122,7 +123,8 @@ export class CollegeService {
   }
 
   //
-  static addTimetablesService = async (timetables: Timetable[]) => {
+  @ELLoading()
+  static async addTimetablesService(timetables: Timetable[]) {
     stringTimetables(timetables)
     await axios.post(`${COLLEGE}/timetables`, timetables)
 
@@ -161,7 +163,8 @@ export class CollegeService {
   }
 
   //
-  static addTimetableService = async (userid: string, timetables: Timetable[]) => {
+  @ELLoading()
+  static async addTimetableService(userid: string, timetables: Timetable[]) {
     stringTimetables(timetables)
     await axios.post(`${COLLEGE}/timetables/${userid}`, timetables)
     return true
@@ -367,7 +370,6 @@ export class CollegeService {
   }
 
   //
-  //@StoreClear(departmentsStore.clear)
   @StoreCache(departmentsStore.departments, true)
   static async removeDepartmentService(depid: string) {
     const resp = await axios.delete<ResultVO<{ departments: Department[] }>>(

@@ -27,7 +27,7 @@ const exportF = async () => {
 </script>
 <template>
   <el-row class="my-row">
-    <el-col class="my-col">
+    <el-col>
       <p>用于检索指定日期内所有专业监考，默认8日。紧凑模式，用于截图提醒教师监考等。</p>
     </el-col>
     <el-col></el-col>

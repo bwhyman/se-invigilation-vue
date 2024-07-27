@@ -8,7 +8,7 @@ const active = ref(4)
 </script>
 <template>
   <el-row class="my-row">
-    <el-col class="my-col" :span="12" :offset="6">
+    <el-col :span="12" :offset="6">
       <el-steps :active="active" finish-status="success">
         <el-step title="导入" />
         <el-step title="下发" />

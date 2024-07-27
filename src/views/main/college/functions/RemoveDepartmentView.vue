@@ -16,10 +16,10 @@ const removeF = async () => {
 </script>
 <template>
   <el-row class="my-row">
-    <el-col class="my-col">
+    <el-col>
       所有用户必须置于部门管理下，因此无法移除用户不为空的部门。请将部门下用户更新到其他部门再移除。
     </el-col>
-    <el-col :span="6" class="my-col">
+    <el-col :span="6">
       <el-select
         value-key="id"
         v-model="departmentR"
@@ -33,7 +33,7 @@ const removeF = async () => {
           :value="depart" />
       </el-select>
     </el-col>
-    <el-col :span="4" v-if="departmentR" class="my-col">
+    <el-col :span="4" v-if="departmentR">
       <el-button type="danger" @click="removeF" :disabled="!departmentR">
         移除部门： {{ departmentR?.name }}
       </el-button>

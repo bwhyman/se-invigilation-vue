@@ -5,7 +5,7 @@ import { useSettingStore } from '@/stores/SettingStore'
 import { useUserStore } from '@/stores/UserStore'
 import type { Invigilation, ResultVO, Setting, User } from '@/types'
 import { COLLEGE_ADMIN, SUBJECT_ADMIN, SUPER_ADMIN } from './Const'
-import { StoreMapCache } from './Decorators'
+import { ELLoading, StoreMapCache } from './Decorators'
 
 const userStore = useUserStore()
 const invisStore = useInvigilationsStore()
@@ -15,6 +15,7 @@ localStorage.removeItem('role')
 localStorage.removeItem('token')
 
 export class CommonService {
+  @ELLoading()
   @StoreMapCache(invisStore.dateInvisMapS)
   static async listInvisByDateService(sdate: string, edate: string) {
     const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(

@@ -15,7 +15,7 @@ import type {
   Timetable,
   User
 } from '@/types'
-import { StoreCache, StoreClear, StoreMapCache } from './Decorators'
+import { ELLoading, StoreCache, StoreClear, StoreMapCache } from './Decorators'
 
 const SUBJECT = 'subject'
 
@@ -35,6 +35,7 @@ export class SubjectService {
   }
 
   //
+  @ELLoading()
   @StoreMapCache(invisStore.invigilationsDispatchMapS)
   static async listInvisService(status: number, page: number) {
     const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(

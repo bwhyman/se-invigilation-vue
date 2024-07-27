@@ -17,12 +17,18 @@ const pageR = ref<Page>({
 })
 const route = useRoute()
 let params: { page?: string }
-watchEffect(async () => {
-  params = route.params
-  const cpage = params.page ? parseInt(params.page) : 1
-  inviS.value = await SubjectService.listInvisService(ASSIGN, cpage)
-  pageR.value.currentpage = cpage
-})
+
+watch(
+  () => route.params,
+  async () => {
+    params = route.params
+    if (params.page === undefined) return
+    const cpage = params.page ? parseInt(params.page) : 1
+    inviS.value = await SubjectService.listInvisService(ASSIGN, cpage)
+    pageR.value.currentpage = cpage
+  },
+  { immediate: true }
+)
 
 const editF = (invi: Invigilation) => {
   CommonService.setCurrentInviService(invi)
