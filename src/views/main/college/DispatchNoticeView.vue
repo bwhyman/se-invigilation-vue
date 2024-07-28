@@ -2,7 +2,6 @@
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
-import { useSettingStore } from '@/stores/SettingStore'
 import type { Notice } from '@/types'
 const params = useRoute().params as { depid: string }
 // notice
@@ -11,9 +10,7 @@ const dispatchers = await CollegeService.listDispatchersService(params.depid)
 const selDisR = ref<string[]>([])
 
 const noticeDispatchersF = async () => {
-  const settingStore = useSettingStore()
-  const weburl = settingStore.getWebUrl()
-  const message = `已下发新监考信息，请及时分配。\n${weburl}`
+  const message = `已下发新监考信息，请及时分配。`
   const notice: Notice = {
     userIds: selDisR.value.join(','),
     noticeMessage: message

@@ -220,14 +220,6 @@ export class CollegeService {
     return resp.data.data?.departments as unknown as Ref<Department[]>
   }
 
-  //
-  static listUsersByNameService = async (depid: string, name: string) => {
-    const resp = await axios.get<ResultVO<{ users: User[] }>>(
-      `${COLLEGE}/departments/${depid}/names/${name}`
-    )
-    return resp.data.data?.users ?? []
-  }
-
   // 学院直接分配
   @StoreClear(invisStore.clear)
   static async addAssignService(inviid: string, user: AssignUser) {
@@ -274,7 +266,8 @@ export class CollegeService {
   }
 
   //
-  static updateUserDepartmentService = async (user: User) => {
+  @StoreClear(usersStore.clear)
+  static async updateUserDepartmentService(user: User) {
     // @ts-ignore
     user.department = JSON.stringify(user.department)
     await axios.post(`${COLLEGE}/departments/updateuser`, user)
@@ -288,7 +281,8 @@ export class CollegeService {
     return true
   }
 
-  static addUserService = async (user: User) => {
+  @StoreClear(usersStore.clear)
+  static async addUserService(user: User) {
     // @ts-ignore
     user.department = JSON.stringify(user.department)
     await axios.post(`${COLLEGE}/users`, user)
@@ -334,14 +328,7 @@ export class CollegeService {
       `${COLLEGE}/cutinvigilation/${oldInviid}`,
       invi
     )
-
     return resp.data.data?.invis as unknown as Ref<Invigilation[]>
-  }
-
-  // 基于用户姓名获取用户信息
-  static getUserByNameServie = async (name: string) => {
-    const resp = await axios.get<ResultVO<{ users: User[] }>>(`${COLLEGE}/users/${name}`)
-    return resp.data.data?.users ?? []
   }
 
   // 用于学院自己分配时，加载指定专业下全部教师
@@ -360,13 +347,15 @@ export class CollegeService {
   }
 
   //
-  static removeUserService = async (uid: string) => {
+  @StoreClear(usersStore.clear)
+  static async removeUserService(uid: string) {
     await axios.delete(`${COLLEGE}/users/${uid}`)
     return true
   }
 
   //
-  static removeCollegeDataService = async () => {
+  @StoreClear(invisStore.clear)
+  static async removeCollegeDataService() {
     await axios.delete(`${COLLEGE}/colleges/datareset`)
     return true
   }
@@ -380,8 +369,7 @@ export class CollegeService {
     return resp.data.data?.departments as unknown as Ref<Department[]>
   }
   // 更新部门名称
-  @StoreClear(departmentsStore.clear)
-  @StoreCache(departmentsStore.departments)
+  @StoreCache(departmentsStore.departments, true)
   static async updateDepartmentNameService(depart: UserDepartment) {
     const resp = await axios.patch<ResultVO<{ departments: Department[] }>>(
       `${COLLEGE}/departments/${depart.depId}`,
