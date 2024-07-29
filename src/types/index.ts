@@ -68,7 +68,6 @@ export interface Invigilation {
   createUnionId?: string
   noticeUserIds?: string[]
   remark?: string
-  updateTime?: string
 }
 
 export interface Operator {

@@ -4,11 +4,15 @@ import type { Department, User } from '@/types'
 
 const departmentR = ref<Department>({})
 const userR = ref<User>({})
-const usersR = ref<User[]>()
+const usersR = ref<User[]>([])
+
 defineExpose({
   selectUser: userR,
-  clearUser: () => (userR.value = {}),
-  clearDepartment: () => (departmentR.value = {})
+  init: () => {
+    departmentR.value = {}
+    usersR.value = []
+    userR.value = {}
+  }
 })
 
 const departmentsR = await CollegeService.listDepartmentsService()

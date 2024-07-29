@@ -244,12 +244,6 @@ export class CollegeService {
     return resp.data.data?.user
   }
 
-  // 更新指定账号教师的角色
-  static updateUserRoleService = async (user: User) => {
-    await axios.post(`${COLLEGE}/roles`, user)
-    return true
-  }
-
   //
   @ELLoading()
   @StoreCache(invisStore.invisAllS)
@@ -263,15 +257,6 @@ export class CollegeService {
     const resp = await axios.get<ResultVO<{ counts: InviCount[] }>>(`${COLLEGE}/invis/counts`)
 
     return resp.data.data?.counts ?? []
-  }
-
-  //
-  @StoreClear(usersStore.clear)
-  static async updateUserDepartmentService(user: User) {
-    // @ts-ignore
-    user.department = JSON.stringify(user.department)
-    await axios.post(`${COLLEGE}/departments/updateuser`, user)
-    return true
   }
 
   // 重置指定账号密码
@@ -379,8 +364,10 @@ export class CollegeService {
   }
 
   @StoreClear(usersStore.clear)
-  static async updateUserSerivce(user: User) {
-    const resp = await axios.patch(`${COLLEGE}/users`, user)
+  static async updateUserSerivce(udi: string, user: User) {
+    // @ts-ignore
+    user.department = JSON.stringify(user.department)
+    const resp = await axios.patch(`${COLLEGE}/users/${user.id}`, user)
     return true
   }
 }
