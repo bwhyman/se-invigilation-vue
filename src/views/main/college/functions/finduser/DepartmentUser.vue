@@ -2,16 +2,17 @@
 import { CollegeService } from '@/services/CollegeService'
 import type { Department, User } from '@/types'
 
-const departmentR = ref<Department>({})
-const userR = ref<User>({})
+const departmentR = ref<Department>()
+const userR = ref<User>()
 const usersR = ref<User[]>([])
 
 defineExpose({
   selectUser: userR,
+  clearUser: () => (userR.value = undefined),
   init: () => {
-    departmentR.value = {}
+    departmentR.value = undefined
     usersR.value = []
-    userR.value = {}
+    userR.value = undefined
   }
 })
 

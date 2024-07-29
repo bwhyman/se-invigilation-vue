@@ -27,8 +27,7 @@ const createUserR = useUserStore().userS
 watch(
   () => exposeR.value?.selectUser,
   () => {
-    if (!exposeR.value?.selectUser.id) return
-    if (!createUserR.value) return
+    if (!exposeR.value?.selectUser?.id || !createUserR.value) return
     selectUsersR.value.push(exposeR.value?.selectUser) && exposeR.value?.clearUser()
   }
 )

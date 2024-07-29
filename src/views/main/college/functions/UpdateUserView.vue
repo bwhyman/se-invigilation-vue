@@ -10,7 +10,7 @@ const exposeR = ref<{
   selectUser: User
   init: Function
 }>()
-const userR = ref<User>({})
+const userR = ref<User>()
 const departmentR = ref<Department>()
 const departmentsR = ref<Department[]>([])
 const userS = useUserStore().userS
@@ -24,6 +24,7 @@ watch(
 )
 //
 const resetPasswordF = async () => {
+  if (!userR.value) return
   await CollegeService.resetPasswordService(userR.value.account!)
   createElNotificationSuccess('密码重置成功')
   clearSelect()
@@ -31,7 +32,7 @@ const resetPasswordF = async () => {
 
 //
 const removeUserF = () => {
-  if (!userR.value.id) {
+  if (!userR.value || !userR.value.id) {
     throw '用户为空，请选择用户'
   }
   ElMessageBox.confirm(`移除用户 ${userR.value?.name}，确定移除？`, 'Warning', {
@@ -47,7 +48,7 @@ const removeUserF = () => {
 
 //
 const updateUserInfoF = async () => {
-  if (!userR.value.id || !userS.value) return
+  if (!userR.value || !userR.value?.id || !userS.value) return
 
   const user: User = {
     id: userR.value.id,
@@ -75,6 +76,7 @@ const updateUserInfoF = async () => {
 
 function clearSelect() {
   exposeR.value?.init()
+  userR.value = undefined
 }
 </script>
 <template>
@@ -82,7 +84,7 @@ function clearSelect() {
     <el-col>
       <DepartmentUser ref="exposeR" />
     </el-col>
-    <template v-if="userR.id">
+    <template v-if="userR?.id">
       <el-col :span="4">
         <el-button type="danger" @click="resetPasswordF">重置密码为账号</el-button>
       </el-col>
