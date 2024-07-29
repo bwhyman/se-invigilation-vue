@@ -23,7 +23,7 @@ const changeF = () => {
     v-model="depidR"
     class="ml-4"
     style="margin-bottom: 10px; margin-right: 10px">
-    <el-radio-button size="large" v-for="(dep, index) of departmentsS" :key="index" :label="dep.id">
+    <el-radio-button size="large" v-for="(dep, index) of departmentsS" :key="index" :value="dep.id">
       {{ dep.name }}
     </el-radio-button>
   </el-radio-group>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import FunctionTag from '@/views/main/component/FunctionTag.vue'
 const components: { name: string; component: Component }[] = [
   {
     name: '学院管理',
@@ -17,27 +18,7 @@ const components: { name: string; component: Component }[] = [
     component: defineAsyncComponent(() => import('./FindUserDingsView.vue'))
   }
 ]
-
-const currentComponentR = ref()
-const currentComponentC = computed(
-  () => components.find((com) => com.name == currentComponentR.value)?.component
-)
-const typeC = computed(() => (name: string) => (name == currentComponentR.value ? 'danger' : ''))
 </script>
 <template>
-  <el-row class="my-row">
-    <el-col>
-      <el-tag
-        v-for="(com, index) of components"
-        :type="typeC(com.name)"
-        :key="index"
-        @click="currentComponentR = com.name"
-        style="cursor: pointer; margin-right: 10px">
-        {{ com.name }}
-      </el-tag>
-    </el-col>
-  </el-row>
-  <template v-if="currentComponentR">
-    <component :is="currentComponentC" />
-  </template>
+  <FunctionTag :tagcoms="components" />
 </template>

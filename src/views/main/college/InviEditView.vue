@@ -34,7 +34,7 @@ const formR = ref<RuleForm>(getInit())
 const submitForm = async (formEl: FormInstance | undefined) => {
   let sub = false
   if (!formEl) return
-  await formEl.validate((valid, fields) => {
+  await formEl.validate((valid) => {
     if (valid) {
       sub = true
     }
@@ -181,13 +181,13 @@ const resetInvi = () => {
           <el-input v-model="formR.courseName" />
         </el-form-item>
         <el-form-item label="授课教师" prop="teacherName">
-          <el-input v-model="formR.teacherName" style="width: 120px" />
+          <el-input v-model="formR.teacherName" style="width: 150px" />
         </el-form-item>
         <el-form-item label="班级" prop="clazz">
           <el-input v-model="formR.clazz" />
         </el-form-item>
         <el-form-item label="日期" prop="date">
-          <el-date-picker
+          <el-time-select
             :disabled="!unlockedR"
             v-model="formR.date"
             type="date"
@@ -195,34 +195,32 @@ const resetInvi = () => {
             value-format="YYYY-MM-DD"
             label="日期"
             placeholder="日期"
-            style="width: 120px" />
+            style="width: 150px" />
         </el-form-item>
 
         <el-form-item label="时间">
           <el-col :span="11">
             <el-form-item prop="stime">
-              <el-time-picker
+              <el-time-select
                 :disabled="!unlockedR"
-                format="HH:mm"
-                type="time"
-                value-format="HH:mm"
                 v-model="formR.stime"
-                label="开始时间"
                 placeholder="开始时间"
+                start="08:00"
+                step="00:10"
+                end="20:00"
                 style="width: 100%" />
             </el-form-item>
           </el-col>
           <el-col class="text-center" :span="2"></el-col>
           <el-col :span="11">
             <el-form-item prop="etime">
-              <el-time-picker
+              <el-time-select
                 :disabled="!unlockedR"
-                type="time"
-                format="HH:mm"
-                value-format="HH:mm"
                 v-model="formR.etime"
-                label="结束时间"
                 placeholder="结束时间"
+                start="09:30"
+                step="00:10"
+                end="22:00"
                 style="width: 100%" />
             </el-form-item>
           </el-col>
@@ -233,7 +231,7 @@ const resetInvi = () => {
             v-model="formR.location"
             :fetch-suggestions="querySearch"
             clearable
-            class="inline-input w-50"
+            style="width: 150px"
             placeholder="地点" />
         </el-form-item>
         <el-form-item label="人数" prop="amount">

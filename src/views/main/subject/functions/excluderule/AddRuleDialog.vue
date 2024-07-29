@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { createElNotificationSuccess } from '@/components/message'
+import { dayOfWeeks, periodOfDays } from '@/services/ExcludeRule'
 import { SubjectService } from '@/services/SubjectService'
 import type { ExcludeRule, User } from '@/types'
 import { Plus } from '@element-plus/icons-vue'
-import { dayOfWeeks, periodOfDays } from '@/services/ExcludeRule'
-import { createElNotificationSuccess } from '@/components/message'
 
 const dialogFormVisible = ref(false)
 const usersR = ref<User[]>([])
@@ -135,9 +135,9 @@ const submitF = async () => {
               @change="dayofWeekRadioChangeF"
               v-model="dayOfWeekR"
               style="margin-bottom: 10px">
-              <el-radio-button :label="1">工作日</el-radio-button>
-              <el-radio-button :label="2">周末</el-radio-button>
-              <el-radio-button :label="3">整周</el-radio-button>
+              <el-radio-button :value="1">工作日</el-radio-button>
+              <el-radio-button :value="2">周末</el-radio-button>
+              <el-radio-button :value="3">整周</el-radio-button>
             </el-radio-group>
             <el-checkbox-group v-model="excludeRuleR.dayweeks" size="large">
               <el-checkbox-button
@@ -156,17 +156,17 @@ const submitF = async () => {
               @change="periodOfDayChangeF"
               v-model="peroidOfDayR"
               style="margin-bottom: 10px">
-              <el-radio-button :label="1">早</el-radio-button>
-              <el-radio-button :label="2">晚</el-radio-button>
-              <el-radio-button :label="3">早晚</el-radio-button>
-              <el-radio-button :label="4">全天</el-radio-button>
+              <el-radio-button :value="1">早</el-radio-button>
+              <el-radio-button :value="2">晚</el-radio-button>
+              <el-radio-button :value="3">早晚</el-radio-button>
+              <el-radio-button :value="4">全天</el-radio-button>
             </el-radio-group>
             <el-checkbox-group v-model="excludeRuleR.periods" size="large">
               <el-checkbox-button
                 @click="peroidOfDayR = 0"
                 v-for="period in periodOfDays"
                 :key="period"
-                :label="period.value">
+                :value="period.value">
                 {{ period.name }}
               </el-checkbox-button>
             </el-checkbox-group>

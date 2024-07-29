@@ -91,8 +91,8 @@ const addInvis = async () => {
   <el-row class="my-row" v-if="invisR.length > 0">
     <el-col style="margin-bottom: 10px" :span="22">
       <el-radio-group v-model="inviTypeR" style="margin-right: 10px; vertical-align: middle">
-        <el-radio-button label="1">阶段</el-radio-button>
-        <el-radio-button label="2">期末</el-radio-button>
+        <el-radio-button value="1">阶段</el-radio-button>
+        <el-radio-button value="2">期末</el-radio-button>
       </el-radio-group>
     </el-col>
     <el-col :span="2">

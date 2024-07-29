@@ -69,7 +69,7 @@ const noticeAssignersF = async () => {
     </el-col>
     <el-col style="margin-bottom: 10px">
       <el-checkbox-group v-model="selectUsersR">
-        <el-checkbox v-for="(user, index) of dingUsers" :key="index" :label="user" size="large">
+        <el-checkbox v-for="(user, index) of dingUsers" :key="index" :value="user" size="large">
           {{ user.name }}
           <el-tag type="danger" v-if="!user.dingUserId">该用户没有钉钉信息无法发送通过</el-tag>
         </el-checkbox>

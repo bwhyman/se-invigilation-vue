@@ -34,7 +34,7 @@ const exportF = async () => {
     <el-col>
       <el-row style="align-items: flex-end">
         <el-col :span="12"><DatesPick ref="datesVueRef" /></el-col>
-        <el-col :span="12" style="margin-bottom: 5px; text-align: right">
+        <el-col :span="12" style="margin-bottom: 20px; text-align: right">
           <el-button type="primary" @click="exportF" v-if="invisR.length > 0">
             导出监考表格
           </el-button>

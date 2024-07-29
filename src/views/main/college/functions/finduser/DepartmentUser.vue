@@ -38,7 +38,12 @@ const departmentChangeF = async () => {
         :label="depart.name"
         :value="depart" />
     </el-select>
-    <el-select value-key="id" v-model="userR" size="large" v-if="departmentR?.id">
+    <el-select
+      value-key="id"
+      v-model="userR"
+      size="large"
+      v-if="departmentR?.id"
+      style="width: 200px">
       <el-option v-for="(user, index) of usersR" :key="index" :label="user.name" :value="user" />
     </el-select>
   </div>

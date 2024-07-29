@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import FunctionTag from '@/views/main/component/FunctionTag.vue'
+
 const components: { name: string; component: Component }[] = [
   {
     name: '关闭分配',
@@ -17,12 +19,8 @@ const components: { name: string; component: Component }[] = [
     component: defineAsyncComponent(() => import('./AddUserView.vue'))
   },
   {
-    name: '移除部门',
-    component: defineAsyncComponent(() => import('./RemoveDepartmentView.vue'))
-  },
-  {
     name: '更新部门',
-    component: defineAsyncComponent(() => import('./UpdateDepartNameView.vue'))
+    component: defineAsyncComponent(() => import('./UpdateDepartView.vue'))
   },
   {
     name: '学期初始化',
@@ -33,27 +31,7 @@ const components: { name: string; component: Component }[] = [
     component: defineAsyncComponent(() => import('./InviDetailsView.vue'))
   }
 ]
-
-const currentComponentR = ref()
-const currentComponentC = computed(
-  () => components.find((com) => com.name == currentComponentR.value)?.component
-)
-const typeC = computed(() => (name: string) => (name == currentComponentR.value ? 'danger' : ''))
 </script>
 <template>
-  <el-row class="my-row">
-    <el-col>
-      <el-tag
-        v-for="(com, index) of components"
-        :type="typeC(com.name)"
-        :key="index"
-        @click="currentComponentR = com.name"
-        style="cursor: pointer; margin-right: 10px">
-        {{ com.name }}
-      </el-tag>
-    </el-col>
-  </el-row>
-  <template v-if="currentComponentR">
-    <component :is="currentComponentC" />
-  </template>
+  <FunctionTag :tagcoms="components" />
 </template>

@@ -123,7 +123,7 @@ const addTimetable = async () => {
     <el-col :span="12">
       <DepartmentUser ref="exposeR" />
     </el-col>
-    <el-col :span="12" v-if="exposeR?.selectUser.account">
+    <el-col :span="12" v-if="exposeR?.selectUser?.account">
       <input type="file" @change="readSingleTimetable" />
       <el-button
         type="success"

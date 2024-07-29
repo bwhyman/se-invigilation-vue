@@ -31,7 +31,7 @@ const noticeDispatchersF = async () => {
         <el-checkbox
           v-for="(user, index) of dispatchers"
           :key="index"
-          :label="user.dingUserId"
+          :value="user.dingUserId"
           size="large">
           {{ user.name }}
         </el-checkbox>

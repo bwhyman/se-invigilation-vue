@@ -38,6 +38,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   inviR.value.status = IMPORT
   inviR.value.importer = stringInviTime({ id: userS.value.id, name: userS.value.name })
   await CollegeService.addInviSerivce(inviR.value)
+  router.push('/college/imported')
   inviR.value = { course: {}, time: {} }
   formR.value = {
     courseName: '',
@@ -50,7 +51,6 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     amount: 1
   }
   createElNotificationSuccess('添加成功')
-  router.push('/college/imported')
 }
 
 const locations = [{ value: '丹青楼' }, { value: '锦绣楼' }, { value: '成栋楼' }]
@@ -148,7 +148,7 @@ const rules = reactive<FormRules<RuleForm>>({
           <el-input v-model="formR.courseName" />
         </el-form-item>
         <el-form-item label="授课教师" prop="teacherName">
-          <el-input v-model="formR.teacherName" style="width: 120px" />
+          <el-input v-model="formR.teacherName" style="width: 150px" />
         </el-form-item>
         <el-form-item label="班级" prop="clazz">
           <el-input v-model="formR.clazz" />
@@ -159,34 +159,32 @@ const rules = reactive<FormRules<RuleForm>>({
             type="date"
             format="YYYY-MM-DD"
             value-format="YYYY-MM-DD"
-            label="日期"
+            aria-label="日期"
             placeholder="日期"
-            style="width: 120px" />
+            style="width: 150px" />
         </el-form-item>
 
         <el-form-item label="时间">
           <el-col :span="11">
             <el-form-item prop="stime">
-              <el-time-picker
-                format="HH:mm"
-                type="time"
-                value-format="HH:mm"
+              <el-time-select
                 v-model="formR.stime"
-                label="开始时间"
                 placeholder="开始时间"
+                start="08:00"
+                step="00:10"
+                end="20:00"
                 style="width: 100%" />
             </el-form-item>
           </el-col>
           <el-col class="text-center" :span="2"></el-col>
           <el-col :span="11">
             <el-form-item prop="etime">
-              <el-time-picker
-                type="time"
-                format="HH:mm"
-                value-format="HH:mm"
+              <el-time-select
                 v-model="formR.etime"
-                label="结束时间"
                 placeholder="结束时间"
+                start="09:30"
+                step="00:10"
+                end="22:00"
                 style="width: 100%" />
             </el-form-item>
           </el-col>
@@ -196,7 +194,7 @@ const rules = reactive<FormRules<RuleForm>>({
             v-model="formR.location"
             :fetch-suggestions="querySearch"
             clearable
-            class="inline-input w-50"
+            style="width: 150px"
             placeholder="地点" />
         </el-form-item>
         <el-form-item label="人数" prop="amount">
