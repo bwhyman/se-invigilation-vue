@@ -35,8 +35,8 @@ export class SubjectService {
   }
 
   //
-  @ELLoading()
   @StoreMapCache(invisStore.invigilationsDispatchMapS)
+  @ELLoading()
   static async listInvisService(status: number, page: number) {
     const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
       `${SUBJECT}/invis/status/${status}/${page}`
@@ -64,6 +64,7 @@ export class SubjectService {
 
   // 加载开放状态教师课表
   @StoreMapCache(timetablesStore.timetableMapS)
+  @ELLoading()
   static async listTimetablesService(week: number, dayweek: number) {
     const resp = await axios.get<ResultVO<{ timetables: Timetable[] }>>(
       `${SUBJECT}/timetables/weeks/${week}/dayweeks/${dayweek}`
@@ -71,8 +72,9 @@ export class SubjectService {
     return resp.data.data?.timetables
   }
 
-  //
+  // 加载指定日期所有监考
   @StoreMapCache(invisStore.dateInvisMapS)
+  @ELLoading()
   static async listDateInvisService(date: string) {
     const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
       `${SUBJECT}/invis/dates/${date}`
@@ -105,8 +107,7 @@ export class SubjectService {
     const resp = await axios.get<ResultVO<{ users: User[] }>>(
       `${SUBJECT}/invidetailusers/${inviid}`
     )
-    const users = resp.data.data?.users
-    return users ?? []
+    return resp.data.data?.users ?? []
   }
 
   @ELLoading()
@@ -117,6 +118,7 @@ export class SubjectService {
 
   // 获取指定监考信息
   @StoreCache(invisStore.currentInviS)
+  @ELLoading()
   static async getInviService(inviid: string) {
     const resp = await axios.get<ResultVO<{ invi: Invigilation }>>(`${SUBJECT}/invis/${inviid}`)
     return resp.data.data?.invi as unknown as Ref<Invigilation>
@@ -142,8 +144,7 @@ export class SubjectService {
   }
 
   //
-  @StoreClear(excludeRulesStore.clear)
-  @StoreCache(excludeRulesStore.excludeRules)
+  @StoreCache(excludeRulesStore.excludeRules, true)
   static async addExcludeRuleService(rule: ExcludeRule) {
     // @ts-ignore
     rule.dayweeks = JSON.stringify(rule.dayweeks)
@@ -156,9 +157,9 @@ export class SubjectService {
     )
     return resp.data.data?.rules as unknown as Ref<ExcludeRule[]>
   }
+
   //
-  @StoreClear(excludeRulesStore.clear)
-  @StoreCache(excludeRulesStore.excludeRules)
+  @StoreCache(excludeRulesStore.excludeRules, true)
   static async delExcludeRuleService(exid: string) {
     const resp = await axios.delete<ResultVO<{ rules: ExcludeRule[] }>>(
       `${SUBJECT}/excluderules/${exid}`

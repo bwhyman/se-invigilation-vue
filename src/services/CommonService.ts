@@ -15,8 +15,8 @@ localStorage.removeItem('role')
 localStorage.removeItem('token')
 
 export class CommonService {
-  @ELLoading()
   @StoreMapCache(invisStore.dateInvisMapS)
+  @ELLoading()
   static async listInvisByDateService(sdate: string, edate: string) {
     const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
       `invis/date/${sdate}/${edate}`
@@ -77,7 +77,7 @@ export class CommonService {
     router.push(this.getPath(role))
   }
 
-  static getPath(role: string) {
+  private static getPath(role: string) {
     let path = ''
     switch (role) {
       case SUBJECT_ADMIN:

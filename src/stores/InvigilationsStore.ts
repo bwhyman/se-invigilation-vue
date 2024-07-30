@@ -1,6 +1,6 @@
 import type { Invigilation } from '@/types'
 
-const invigilationsImportS = ref<Invigilation[]>([])
+const invigilationsImportS = ref<Invigilation[]>()
 //
 const invigilationsDispatchMapS = ref<Map<string, Invigilation[]>>(new Map())
 // 专业指定日期的全部监考
@@ -8,10 +8,10 @@ const dateInvisMapS = ref<Map<string, Invigilation[]>>(new Map())
 
 const currentInviS = ref<Invigilation>()
 
-const invisAllS = ref<Invigilation[]>([])
+const invisAllS = ref<Invigilation[]>()
 
 const clear = () => {
-  invigilationsImportS.value = []
+  invigilationsImportS.value = undefined
   invigilationsDispatchMapS.value.clear()
   dateInvisMapS.value.clear()
 }
