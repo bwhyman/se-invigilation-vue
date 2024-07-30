@@ -16,7 +16,7 @@ const removeInvisF = () => {
 <template>
   <el-row class="my-row">
     <el-col>
-      <el-button type="success" @click="removeInvisF">
+      <el-button type="danger" @click="removeInvisF">
         移除学院全部监考/分配/课表信息，用于学期初始化数据
       </el-button>
     </el-col>

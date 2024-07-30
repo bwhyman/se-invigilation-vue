@@ -1,5 +1,5 @@
-const departmentTotalsMapS = ref<Map<any, number>>(new Map())
-const clear = () => departmentTotalsMapS.value.clear()
+const totalsMapS = ref<Map<any, number>>(new Map())
+const clear = () => totalsMapS.value.clear()
 
-const store = { departmentTotalsMapS, clear }
+const store = { totalsMapS, clear }
 export const useTotalsStore = () => store

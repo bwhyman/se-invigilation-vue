@@ -11,7 +11,7 @@ export const exportInvisDetails = (invis: Invigilation[], details: InviDetail[])
     getExcelCell(invi.course?.clazz ?? ''),
     getExcelCell(`${invi.date} ${invi.time?.starttime}~${invi.time?.endtime}` ?? ''),
     getExcelCell(`${invi.course?.location}` ?? ''),
-    getExcelCell(invi.amount + '' ?? ''),
+    getExcelCell(invi.amount + ''),
     getExcelCell(invi.importer?.userName ?? ''),
     getExcelCell(invi.dispatcher?.userName ?? ''),
     getExcelCell(invi.allocator?.userName ?? ''),
@@ -36,7 +36,7 @@ export const exportInvisDetails = (invis: Invigilation[], details: InviDetail[])
   const detailData = details.map((detail) => [
     getExcelCell(`${(ind += 1)}`, 'right'),
     getExcelCell(detail.departmentName ?? ''),
-    getExcelCell(detail.account + '' ?? '0'),
+    getExcelCell(detail.account + ''),
     getExcelCell(detail.name ?? ''),
     getExcelCell(detail.count + '')
   ])

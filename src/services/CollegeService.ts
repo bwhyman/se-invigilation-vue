@@ -80,7 +80,7 @@ export class CollegeService {
     return resp.data.data?.total ?? 0
   }
 
-  @StoreMapCache(depTotalsStore.departmentTotalsMapS)
+  @StoreMapCache(depTotalsStore.totalsMapS)
   static async getDepatchedTotalService(depid: string) {
     const resp = await axios.get<ResultVO<{ total: number }>>(
       `${COLLEGE}/invigilations/dispatched/${depid}/total`

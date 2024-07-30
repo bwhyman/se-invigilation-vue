@@ -49,8 +49,9 @@ export function StoreMapCache(dataR: Ref<Map<any, any>>, indexs?: number[]) {
         mapKey = temp.join('-')
       }
       const mapValue = val.get(mapKey)
+
       // 响应式对象存在，直接返回
-      if (Object.prototype.toString.call(val) === '[object Map]' && mapValue) {
+      if (Object.prototype.toString.call(val) === '[object Map]' && mapValue != null) {
         return Promise.resolve(mapValue)
       }
       // 响应式对象不存在。异步执行目标方法并将结果置于store

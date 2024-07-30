@@ -41,16 +41,16 @@ export class SubjectService {
     const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
       `${SUBJECT}/invis/status/${status}/${page}`
     )
-    return resp.data.data!.invis as unknown as Invigilation[]
+    return resp.data.data!.invis
   }
 
   //
-  @StoreMapCache(totalsStore.departmentTotalsMapS)
+  @StoreMapCache(totalsStore.totalsMapS)
   static async getTotalsService(status: number) {
     const resp = await axios.get<ResultVO<{ total: number }>>(
       `${SUBJECT}/invis/status/${status}/total`
     )
-    return resp.data.data?.total as unknown as number
+    return resp.data.data?.total
   }
 
   // 改变教师状态监考状态，清空课表缓存。因为按开放教师加载的课表
@@ -68,7 +68,7 @@ export class SubjectService {
     const resp = await axios.get<ResultVO<{ timetables: Timetable[] }>>(
       `${SUBJECT}/timetables/weeks/${week}/dayweeks/${dayweek}`
     )
-    return resp.data.data?.timetables as unknown as Timetable[]
+    return resp.data.data?.timetables
   }
 
   //
@@ -77,7 +77,7 @@ export class SubjectService {
     const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
       `${SUBJECT}/invis/dates/${date}`
     )
-    return resp.data.data?.invis as unknown as Invigilation[]
+    return resp.data.data?.invis
   }
 
   //专业教师监考数量
