@@ -94,7 +94,8 @@ export class CommonService {
   }
 
   // 发送取消监考通知，移除监考日程
-  static noticeDingCancelService = async (invi: Invigilation) => {
+  @ELLoading()
+  static async noticeDingCancelService(invi: Invigilation) {
     const time = `${invi.date} ${invi.time?.starttime}`
     const msg = `监考取消：${invi.course?.courseName}; ${time}`
     await axios.post(`cancelinvinotices/${invi.id}`, { cancelMessage: msg })

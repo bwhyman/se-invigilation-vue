@@ -96,62 +96,64 @@ const addTimetable = async () => {
       <br />
       <el-checkbox
         v-model="sameNameR"
-        label="确认，已修改课表中的同名教师姓名与系统姓名一致"
+        label="确认，已修改课表中的`同名教师`姓名与系统姓名一致"
         size="large"
         style="color: red; font-weight: bold"
         border />
     </el-col>
-    <el-col>
-      <hr />
-    </el-col>
-    <el-col>
-      <input type="file" @change="readTimetables" style="margin-right: 10px" />
-      <el-button
-        type="success"
-        @click="addTimetables"
-        :disabled="importTimetablesR.length == 0 || !sameNameR"
-        style="vertical-align: middle">
-        提交
-      </el-button>
-    </el-col>
-    <el-col>
-      <hr />
-    </el-col>
-    <el-col>
-      <p>删除原课表，导入指定教师课表</p>
-    </el-col>
-    <el-col :span="12">
-      <DepartmentUser ref="exposeR" />
-    </el-col>
-    <el-col :span="12" v-if="exposeR?.selectUser?.account">
-      <input type="file" @change="readSingleTimetable" />
-      <el-button
-        type="success"
-        @click="addTimetable"
-        v-if="importTimetablesR.length > 0 || !sameNameR"
-        style="margin-bottom: 10px">
-        提交
-      </el-button>
-    </el-col>
-    <el-col v-if="importTimetablesR.length > 0">
-      <el-table :data="importTimetablesR">
-        <el-table-column type="index" label="#" width="50" />
-        <el-table-column min-width="10">
-          <template #default="scope">
-            {{ scope.row.name }}
-          </template>
-        </el-table-column>
-        <el-table-column>
-          <template #default="scope">
-            <template v-for="(course, index) of scope.row.courses" :key="index">
-              {{ course.startweek }} - {{ course.endweek }}周 / 星期{{ course.dayweek }} /
-              {{ course.period }}节; {{ course.course.courseName }} / {{ course.course.clazz }} /
-              {{ course.course.location }}
-              <br />
+    <template v-if="sameNameR">
+      <el-col>
+        <hr />
+      </el-col>
+      <el-col>
+        <input type="file" @change="readTimetables" style="margin-right: 10px" />
+        <el-button
+          type="success"
+          @click="addTimetables"
+          :disabled="importTimetablesR.length == 0"
+          style="vertical-align: middle">
+          提交
+        </el-button>
+      </el-col>
+      <el-col>
+        <hr />
+      </el-col>
+      <el-col>
+        <p>删除原课表，导入指定教师课表</p>
+      </el-col>
+      <el-col>
+        <DepartmentUser ref="exposeR" />
+      </el-col>
+      <el-col v-if="exposeR?.selectUser?.account">
+        <input type="file" @change="readSingleTimetable" />
+        <el-button
+          type="success"
+          @click="addTimetable"
+          :disabled="importTimetablesR.length == 0"
+          style="margin-bottom: 10px">
+          提交
+        </el-button>
+      </el-col>
+      <el-col v-if="importTimetablesR.length > 0">
+        <el-table :data="importTimetablesR">
+          <el-table-column type="index" label="#" width="50" />
+          <el-table-column min-width="10">
+            <template #default="scope">
+              {{ scope.row.name }}
             </template>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-col>
+          </el-table-column>
+          <el-table-column>
+            <template #default="scope">
+              <template v-for="(course, index) of scope.row.courses" :key="index">
+                {{ course.startweek }} - {{ course.endweek }}周 / 星期{{ course.dayweek }} /
+                {{ course.period }}节; {{ course.course.courseName }} / {{ course.course.clazz }} /
+                {{ course.course.location }}
+                <br />
+              </template>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-col>
+    </template>
   </el-row>
 </template>

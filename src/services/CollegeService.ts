@@ -135,7 +135,6 @@ export class CollegeService {
 
   // 加载指定专业监考分配负责人
   @StoreMapCache(usersStore.dispatchersS)
-  @ELLoading()
   static async listDispatchersService(depid: string) {
     const resp = await axios.get<ResultVO<{ users: User[] }>>(`${COLLEGE}/dispatchers/${depid}`)
     return resp.data.data?.users ?? []
@@ -208,7 +207,6 @@ export class CollegeService {
 
   //
   @StoreCache(departmentsStore.departments)
-  @ELLoading()
   static async listDepartmentsService() {
     const resp = await axios.get<ResultVO<{ departments: Department[] }>>(`${COLLEGE}/departments`)
     return resp.data.data?.departments as unknown as Ref<Department[]>
@@ -298,7 +296,6 @@ export class CollegeService {
   }
 
   //
-  @ELLoading()
   static async listUserDingIdsService(userIds: string[]) {
     const resp = await axios.post<ResultVO<{ users: User[] }>>(`invinotices/dingids`, userIds)
     return resp.data.data?.users ?? []
@@ -324,7 +321,6 @@ export class CollegeService {
   }
 
   // 加载指定专业下全部教师
-  @ELLoading()
   static async listDepartmentUsersService(depid: string) {
     const resp = await axios.get<ResultVO<{ users: User[] }>>(
       `${COLLEGE}/department/${depid}/users`

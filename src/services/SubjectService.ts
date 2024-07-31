@@ -92,7 +92,6 @@ export class SubjectService {
   //
   // 清空当前监考缓存
   // 清空教师监考数量缓存
-  @ELLoading()
   @StoreClear(invisStore.clear, inviCountsStore.clear, invisStore.clearCurrentInvi)
   static async addAssignUsersService(inviid: string, user: AssignUser) {
     // @ts-ignore
@@ -118,7 +117,6 @@ export class SubjectService {
 
   // 获取指定监考信息
   @StoreCache(invisStore.currentInviS)
-  @ELLoading()
   static async getInviService(inviid: string) {
     const resp = await axios.get<ResultVO<{ invi: Invigilation }>>(`${SUBJECT}/invis/${inviid}`)
     return resp.data.data?.invi as unknown as Ref<Invigilation>

@@ -95,7 +95,11 @@ const submitF = async () => {
       </p>
       <el-form :model="excludeRuleR" label-width="60px">
         <el-form-item label="教师">
-          <el-select v-model="excludeRuleR!.userId" placeholder="教师" size="large">
+          <el-select
+            v-model="excludeRuleR!.userId"
+            placeholder="教师"
+            size="large"
+            style="width: 200px">
             <el-option
               v-for="(user, index) of usersR"
               :key="index"
