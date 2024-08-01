@@ -61,7 +61,7 @@ const routes: RouteRecordRaw[] = [
           },
           {
             path: 'addinvi',
-            component: () => import('@/views/main/college/AddInviView.vue')
+            component: () => import('@/views/main/component/AddInviView.vue')
           },
           {
             path: 'noticedepartments/:depid',
@@ -115,6 +115,10 @@ const routes: RouteRecordRaw[] = [
           {
             path: 'search',
             component: () => import('@/views/main/subject/SearchInviView.vue')
+          },
+          {
+            path: 'addinvi',
+            component: () => import('@/views/main/component/AddInviView.vue')
           }
         ]
       }

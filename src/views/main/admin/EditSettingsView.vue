@@ -12,7 +12,7 @@ const editF = async (setting: Setting) => {
 <template>
   <el-row class="my-row">
     <el-col>
-      <el-table :data="settingsR" style="margin-bottom: 10px">
+      <el-table :data="settingsR">
         <el-table-column type="index" label="#" width="50" />
         <el-table-column width="150">
           <template #default="scope">

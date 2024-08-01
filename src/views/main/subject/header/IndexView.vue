@@ -6,6 +6,7 @@ const menus = [
   { name: '已下发', path: '/subject/dispatched' },
   { name: '已分配', path: '/subject/assigned' },
   { name: '查询', path: '/subject/search' },
+  { name: '录入', path: '/subject/addinvi' },
   { name: '功能', path: '/subject/functions' }
 ]
 

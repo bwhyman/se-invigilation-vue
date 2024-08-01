@@ -59,7 +59,7 @@ const showExprotC = computed(() => selectCollegeR.value?.department?.id && users
       <el-button type="success" @click="addUserDingsF" v-if="showExprotC">导入钉钉信息</el-button>
     </el-col>
     <el-col>
-      <el-table :data="usersR" style="margin-bottom: 10px">
+      <el-table :data="usersR">
         <el-table-column type="index" label="#" width="50" />
         <el-table-column>
           <template #default="scope">

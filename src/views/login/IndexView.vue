@@ -43,7 +43,7 @@ const removeFreePwd = () => {
 
 <template>
   <el-row v-if="showFreeC">
-    <el-col :span="12" :offset="6" style="margin-top: 15px">
+    <el-col :span="12" :offset="6">
       <el-card class="box-card">
         <el-tag effect="plain" size="large" style="margin-bottom: 10px">
           欢迎回来，{{ localNameR }}老师
@@ -63,7 +63,7 @@ const removeFreePwd = () => {
   </el-row>
 
   <el-row v-if="!showFreeC">
-    <el-col :span="12" :offset="6" style="margin-top: 15px" @keyup.enter="login">
+    <el-col :span="12" :offset="6" @keyup.enter="login">
       <el-card class="box-card">
         <div style="margin-bottom: 10px">
           <el-input

@@ -269,7 +269,6 @@ const resetInvi = () => {
       <div style="margin-bottom: 10px">
         删除监考，将向监考教师发送钉钉取消监考工作通知，取消监考日程，并删除监考数据。
       </div>
-
       <el-button type="danger" @click="delInvi">删除监考</el-button>
     </el-col>
   </el-row>

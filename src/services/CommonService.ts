@@ -5,7 +5,7 @@ import { useSettingStore } from '@/stores/SettingStore'
 import { useUserStore } from '@/stores/UserStore'
 import type { Invigilation, ResultVO, Setting, User } from '@/types'
 import { COLLEGE_ADMIN, SUBJECT_ADMIN, SUPER_ADMIN } from './Const'
-import { ELLoading, StoreCache, StoreMapCache } from './Decorators'
+import { ELLoading, StoreCache, StoreClear, StoreMapCache } from './Decorators'
 
 const userStore = useUserStore()
 const invisStore = useInvigilationsStore()
@@ -102,5 +102,19 @@ export class CommonService {
   static setCurrentInviService = (invi: Invigilation | undefined) => {
     const store = useInvigilationsStore()
     store.currentInviS.value = invi
+  }
+
+  // 清空已导入监考缓存
+  @StoreClear(invisStore.clear)
+  static async addInviSerivce(invi: Invigilation) {
+    // @ts-ignore
+    invi.importer = JSON.stringify(invi.importer)
+    // @ts-ignore
+    invi.course = JSON.stringify(invi.course)
+    // @ts-ignore
+    invi.time = JSON.stringify(invi.time)
+
+    await axios.post(`invigilations`, invi)
+    return true
   }
 }

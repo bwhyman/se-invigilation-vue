@@ -59,15 +59,15 @@ const noticeAssignersF = async () => {
 </script>
 <template>
   <el-row class="my-row">
-    <el-col style="margin-bottom: 10px">{{ notice.noticeMessage }}</el-col>
+    <el-col>{{ notice.noticeMessage }}</el-col>
   </el-row>
   <el-row class="my-row">
-    <el-col style="margin-bottom: 10px">
+    <el-col>
       分配结果已保存。
       <br />
       钉钉通知并添加到用户日程？
     </el-col>
-    <el-col style="margin-bottom: 10px">
+    <el-col>
       <el-checkbox-group v-model="selectUsersR">
         <el-checkbox v-for="(user, index) of dingUsers" :key="index" :value="user" size="large">
           {{ user.name }}
@@ -75,7 +75,7 @@ const noticeAssignersF = async () => {
         </el-checkbox>
       </el-checkbox-group>
     </el-col>
-    <el-col style="margin-bottom: 10px">
+    <el-col>
       <el-tag type="danger" v-if="noDingUsers.length > 0" size="large" style="margin-bottom: 10px">
         以下用户没有钉钉信息无法向其发送通过
       </el-tag>
@@ -84,7 +84,7 @@ const noticeAssignersF = async () => {
         {{ user.name }}
       </el-tag>
     </el-col>
-    <el-col style="margin-bottom: 10px">
+    <el-col>
       <el-button
         v-if="!(dingUsers.length == 0)"
         type="success"

@@ -16,8 +16,8 @@ const searchF = async () => {
 </script>
 <template>
   <el-row class="my-row">
+    <el-col>查询用户钉钉信息</el-col>
     <el-col>
-      <p style="margin-bottom: 10px">查询用户钉钉信息</p>
       <el-form :inline="true" v-if="!userR.dingUserId">
         <el-form-item>
           <el-input v-model="userR.mobile" placeholder="钉钉注册手机号"></el-input>

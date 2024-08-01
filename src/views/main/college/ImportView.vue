@@ -62,7 +62,7 @@ const addInvis = async () => {
 </script>
 <template>
   <el-row class="my-row">
-    <el-col style="margin-bottom: 10px">
+    <el-col>
       <p>
         阶段/期末：选择阶段，自动在课程名称后追加`阶段`字符，监考老师相互协调派研究生
         <br />
@@ -80,17 +80,17 @@ const addInvis = async () => {
       </p>
     </el-col>
 
-    <el-col style="margin-bottom: 10px" :span="12">
+    <el-col :span="12">
       <input type="file" @change="readInvis" />
       <a href="./监考表格-模板.xlsx">监考表格-模板.xlsx</a>
     </el-col>
-    <el-col style="margin-bottom: 10px" :span="10">
-      <el-button type="primary" @click="$router.push('/college/addinvi')">手动录入</el-button>
+    <el-col :span="10">
+      <el-button type="primary" @click="$router.push('/college/addinvi')">录入</el-button>
     </el-col>
   </el-row>
   <el-row class="my-row" v-if="invisR.length > 0">
-    <el-col style="margin-bottom: 10px" :span="22">
-      <el-radio-group v-model="inviTypeR" style="margin-right: 10px; vertical-align: middle">
+    <el-col :span="22">
+      <el-radio-group v-model="inviTypeR">
         <el-radio-button value="1">阶段</el-radio-button>
         <el-radio-button value="2">期末</el-radio-button>
       </el-radio-group>

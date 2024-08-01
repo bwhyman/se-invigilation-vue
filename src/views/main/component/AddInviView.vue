@@ -1,0 +1,133 @@
+<script setup lang="ts">
+import { createElNotificationSuccess } from '@/components/message'
+import { CommonService } from '@/services/CommonService'
+import { IMPORT, SUBJECT_ADMIN } from '@/services/Const'
+import { stringInviTime } from '@/services/Utils'
+import { useUserStore } from '@/stores/UserStore'
+import type { Invigilation } from '@/types'
+const userS = useUserStore().userS
+const inviR = ref<Invigilation>({ course: {}, time: {} })
+const inviTypeR = ref(0)
+
+const submitForm = async () => {
+  if (!userS.value) return
+  if (
+    !inviR.value.course?.courseName ||
+    !inviR.value.course?.clazz ||
+    !inviR.value.course?.location ||
+    !inviR.value.course?.teacherName
+  ) {
+    throw '请填写完整课程信息'
+  }
+  if (inviTypeR.value == 0) {
+    throw '请选择`阶段/期末`考试类型'
+  }
+  if (!inviR.value.date || !inviR.value.time?.starttime || !inviR.value.time?.endtime) {
+    throw '请填写完整考试时间'
+  }
+
+  inviR.value.collId = userS.value.department?.collId
+  inviR.value.status = IMPORT
+  inviR.value.importer = stringInviTime({ id: userS.value.id, name: userS.value.name })
+  await CommonService.addInviSerivce(inviR.value)
+  inviR.value = { course: {}, time: {} }
+  inviTypeR.value = 0
+  createElNotificationSuccess('监考录入成功')
+}
+
+const locations = [{ value: '丹青楼' }, { value: '锦绣楼' }, { value: '成栋楼' }]
+const querySearch = (queryString: string, cb: any) => {
+  const results = queryString ? locations.filter((r) => r.value == queryString) : locations
+  cb(results)
+}
+
+watch(inviTypeR, (newValue) => {
+  if (!inviR.value.course || !inviR.value.course.courseName) return
+  inviR.value.course.courseName = inviR.value.course.courseName
+    .replaceAll('阶段', '')
+    .replaceAll('期末', '')
+  let typeName
+  if (newValue == 1) {
+    typeName = '阶段'
+  } else if (newValue == 2) {
+    typeName = '期末'
+  }
+  inviR.value.course.courseName += typeName
+})
+</script>
+<template>
+  <el-row class="my-row">
+    <el-col>
+      <el-form label-width="120px" style="width: 500px">
+        <el-form-item v-if="userS?.role == SUBJECT_ADMIN">
+          <el-tag type="danger" size="large">专业提交的监考，必须由学院统计并统一分配</el-tag>
+        </el-form-item>
+        <el-form-item label="课程名称" prop="courseName">
+          <el-input v-model="inviR.course!.courseName" />
+        </el-form-item>
+        <el-form-item label="类型">
+          <el-radio-group v-model="inviTypeR" style="margin-right: 10px; vertical-align: middle">
+            <el-radio-button value="1">阶段</el-radio-button>
+            <el-radio-button value="2">期末</el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="授课教师" prop="teacherName">
+          <el-input v-model="inviR.course!.teacherName" style="width: 150px" />
+        </el-form-item>
+        <el-form-item label="班级" prop="clazz">
+          <el-input v-model="inviR.course!.clazz" />
+        </el-form-item>
+        <el-form-item label="日期" prop="date">
+          <el-date-picker
+            v-model="inviR.date"
+            type="date"
+            format="YYYY-MM-DD"
+            value-format="YYYY-MM-DD"
+            aria-label="日期"
+            placeholder="日期"
+            style="width: 150px" />
+        </el-form-item>
+
+        <el-form-item label="时间">
+          <el-col :span="11">
+            <el-form-item prop="stime">
+              <el-time-select
+                v-model="inviR.time!.starttime"
+                placeholder="开始时间"
+                start="08:00"
+                step="00:10"
+                end="20:00"
+                style="width: 100%" />
+            </el-form-item>
+          </el-col>
+          <el-col class="text-center" :span="2"></el-col>
+          <el-col :span="11">
+            <el-form-item prop="etime">
+              <el-time-select
+                v-model="inviR.time!.endtime"
+                placeholder="结束时间"
+                start="09:30"
+                step="00:10"
+                end="22:00"
+                style="width: 100%" />
+            </el-form-item>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="地点" prop="location">
+          <el-autocomplete
+            v-model="inviR.course!.location"
+            :fetch-suggestions="querySearch"
+            clearable
+            style="width: 150px"
+            placeholder="地点" />
+        </el-form-item>
+        <el-form-item label="人数" prop="amount">
+          <el-input-number v-model="inviR.amount" :min="1" :max="6" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="submitForm">提交</el-button>
+        </el-form-item>
+      </el-form>
+    </el-col>
+  </el-row>
+</template>

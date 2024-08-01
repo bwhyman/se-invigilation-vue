@@ -151,21 +151,6 @@ export class CollegeService {
   }
 
   //
-  // 清空已导入监考缓存
-  @StoreClear(invisStore.clear)
-  static async addInviSerivce(invi: Invigilation) {
-    // @ts-ignore
-    invi.importer = JSON.stringify(invi.importer)
-    // @ts-ignore
-    invi.course = JSON.stringify(invi.course)
-    // @ts-ignore
-    invi.time = JSON.stringify(invi.time)
-
-    await axios.post(`${COLLEGE}/invigilation`, invi)
-    return true
-  }
-
-  //
   @ELLoading()
   static async addTimetableService(userid: string, timetables: Timetable[]) {
     stringTimetables(timetables)

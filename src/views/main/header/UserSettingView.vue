@@ -19,7 +19,7 @@ const resetPwd = async () => {
 </script>
 <template>
   <el-row class="my-row">
-    <el-col :span="8" style="margin-bottom: 5px">
+    <el-col :span="8">
       <el-input
         type="password"
         v-model="pwdM.p1"

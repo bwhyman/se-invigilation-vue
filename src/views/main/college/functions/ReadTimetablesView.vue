@@ -126,11 +126,7 @@ const addTimetable = async () => {
       </el-col>
       <el-col v-if="exposeR?.selectUser?.account">
         <input type="file" @change="readSingleTimetable" />
-        <el-button
-          type="success"
-          @click="addTimetable"
-          :disabled="importTimetablesR.length == 0"
-          style="margin-bottom: 10px">
+        <el-button type="success" @click="addTimetable" :disabled="importTimetablesR.length == 0">
           提交
         </el-button>
       </el-col>

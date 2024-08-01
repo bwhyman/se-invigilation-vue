@@ -256,7 +256,7 @@ watch(
       <el-col>
         <el-tag size="large">当前</el-tag>
       </el-col>
-      <el-col style="margin-bottom: 10px">
+      <el-col>
         <AssignTable
           :users="currentUsers"
           :dayweek="dayweekCN"
@@ -274,7 +274,7 @@ watch(
           提交
         </el-button>
       </el-col>
-      <el-col style="margin-bottom: 10px">
+      <el-col>
         <AssignTable
           :users="groupUsers"
           :dayweek="dayweekCN"
@@ -286,7 +286,7 @@ watch(
       <el-col>
         <el-tag type="warning" size="large">冲突</el-tag>
       </el-col>
-      <el-col style="margin-bottom: 10px">
+      <el-col>
         <AssignTable
           :users="confUsers"
           :dayweek="dayweekCN"

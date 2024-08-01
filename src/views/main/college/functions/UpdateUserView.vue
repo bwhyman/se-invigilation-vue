@@ -130,10 +130,16 @@ function clearSelect() {
             <el-input v-model="userR.name" />
           </el-form-item>
           <el-form-item label="钉钉userid">
-            <el-input v-model="userR.dingUserId" placeholder="钉钉userid" />
+            <el-input
+              v-model="userR.dingUserId"
+              placeholder="钉钉userid"
+              :disabled="userR.dingUserId && userR.dingUserId?.length > 0" />
           </el-form-item>
           <el-form-item label="钉钉unionid">
-            <el-input v-model="userR.dingUnionId" placeholder="钉钉unionid" />
+            <el-input
+              v-model="userR.dingUnionId"
+              placeholder="钉钉unionid"
+              :disabled="userR.dingUnionId && userR.dingUnionId.length > 0" />
           </el-form-item>
           <el-form-item>
             <el-button type="success" @click="updateUserInfoF">提交</el-button>
