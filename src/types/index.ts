@@ -85,8 +85,8 @@ export interface InviDetail {
 
 export interface Setting {
   id?: string
-  key?: string
-  value?: string
+  skey?: string
+  svalue?: string
 }
 
 export interface InviCount {

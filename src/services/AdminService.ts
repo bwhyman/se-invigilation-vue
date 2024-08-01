@@ -1,17 +1,18 @@
 import axios from '@/axios'
 import { useDepartmentsStore } from '@/stores/DepartmentStore'
+import { useSettingStore } from '@/stores/SettingStore'
 import { useUsersStore } from '@/stores/UsersStore'
-import type { Department, DingUser, ResultVO, User } from '@/types'
-import { StoreCache, StoreClear } from './Decorators'
+import type { Department, DingUser, ResultVO, Setting, User } from '@/types'
+import { StoreCache } from './Decorators'
 
 const usersStore = useUsersStore()
 const departsStore = useDepartmentsStore()
+const settingStore = useSettingStore()
 
 const ADMIN = 'admin'
 
 export class AdminService {
-  @StoreClear(departsStore.clear)
-  @StoreCache(departsStore.collegesS)
+  @StoreCache(departsStore.collegesS, true)
   static async addCollegeService(dep: Department) {
     dep.root = 1
     const resp = await axios.post<ResultVO<{ colleges: Department[] }>>(`${ADMIN}/colleges`, dep)
@@ -48,5 +49,11 @@ export class AdminService {
   static addCollegeUserDingsService = async (collid: string, users: User[]) => {
     const resp = await axios.post(`${ADMIN}/colleges/${collid}/userdings`, users)
     return true
+  }
+
+  @StoreCache(settingStore.settingsR, true)
+  static async updateSettingService(setting: Setting) {
+    const resp = await axios.patch<ResultVO<{ settings: Setting[] }>>(`${ADMIN}/settings`, setting)
+    return resp.data.data?.settings as unknown as Ref<Setting[]>
   }
 }

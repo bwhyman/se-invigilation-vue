@@ -1,9 +1,9 @@
 import type { Setting } from '@/types'
 
-const settingsR = ref<Setting[]>([])
+const settingsR = ref<Setting[]>()
 
 const getFirstWeek = () => {
-  return settingsR.value.find((set) => set.key == 'firstweek')?.value ?? ''
+  return settingsR.value?.find((set) => set.skey == 'firstweek')?.svalue ?? ''
 }
 
 const store = { settingsR, getFirstWeek }

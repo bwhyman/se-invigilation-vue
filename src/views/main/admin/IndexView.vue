@@ -16,6 +16,10 @@ const components: { name: string; component: Component }[] = [
   {
     name: '查询用户钉钉数据',
     component: defineAsyncComponent(() => import('./FindUserDingsView.vue'))
+  },
+  {
+    name: '设置管理',
+    component: defineAsyncComponent(() => import('./EditSettingsView.vue'))
   }
 ]
 </script>

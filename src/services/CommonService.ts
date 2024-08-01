@@ -5,10 +5,11 @@ import { useSettingStore } from '@/stores/SettingStore'
 import { useUserStore } from '@/stores/UserStore'
 import type { Invigilation, ResultVO, Setting, User } from '@/types'
 import { COLLEGE_ADMIN, SUBJECT_ADMIN, SUPER_ADMIN } from './Const'
-import { ELLoading, StoreMapCache } from './Decorators'
+import { ELLoading, StoreCache, StoreMapCache } from './Decorators'
 
 const userStore = useUserStore()
 const invisStore = useInvigilationsStore()
+const settingStore = useSettingStore()
 
 localStorage.removeItem('user')
 localStorage.removeItem('role')
@@ -45,14 +46,10 @@ export class CommonService {
   }
 
   //
-  static getSettingsService = async () => {
-    const settingStore = useSettingStore()
-    if (settingStore.settingsR.value.length != 0) {
-      return settingStore
-    }
+  @StoreCache(settingStore.settingsR)
+  static async getSettingsService() {
     const resp = await axios.get<ResultVO<{ settings: Setting[] }>>('settings')
-    settingStore.settingsR.value = resp.data.data?.settings ?? []
-    return settingStore
+    return (resp.data.data?.settings ?? []) as unknown as Ref<Setting[]>
   }
 
   //
