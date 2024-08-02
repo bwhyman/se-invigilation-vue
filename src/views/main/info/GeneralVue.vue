@@ -11,6 +11,12 @@
       <br />
       即，系统为单向数据流的通知系统，而非审批系统。
     </el-col>
+    <el-col class="my-col info-title" :span="2"><el-tag size="large">录入</el-tag></el-col>
+    <el-col :span="22">
+      支持专业录入监考信息，但专业无权直接分配，必须由学院统计并统一分配。
+      <br />
+      必须选择`阶段/期末`类型，才能提交。没有设置默认值，是为了避免忘记选择而误提交。
+    </el-col>
     <el-col class="my-col info-title" :span="2"><el-tag size="large">其他</el-tag></el-col>
     <el-col :span="22">
       1次监考分配同一教师2次，仅发送一次通知。

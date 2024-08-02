@@ -23,3 +23,7 @@ export const DISPATCH = 1
 export const ASSIGN = 2
 
 export const CLOSED = 0
+//
+export const LOCATIONS = [{ value: '丹青楼' }, { value: '锦绣楼' }, { value: '成栋楼' }]
+//
+export const INVI_TYPES = ['阶段', '期末']

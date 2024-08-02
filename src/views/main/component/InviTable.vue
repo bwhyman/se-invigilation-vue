@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import router from '@/router'
 import {
-  replaceTDateC,
-  bellTitleC,
   beNoticedC,
+  bellTitleC,
+  getInviChinesedayweekC,
   getInviWeekC,
-  getInviChinesedayweekC
+  replaceTDateC
 } from '@/services/Utils'
+import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation, Page } from '@/types'
 import { Bell } from '@element-plus/icons-vue'
 import TotalNumber from './TotalNumber.vue'
-import { useSettingStore } from '@/stores/SettingStore'
 
 const settingStore = useSettingStore()
 
@@ -91,7 +91,7 @@ const scrollToTop = () => {
           <br />
         </template>
         <template v-if="scope.row.importer">
-          导入：
+          录入：
           <el-tag class="curor" :title="replaceTDateC(scope.row.importer.time)">
             {{ scope.row.importer.userName }}
           </el-tag>

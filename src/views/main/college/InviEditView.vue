@@ -3,6 +3,7 @@ import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
 import { CommonService } from '@/services/CommonService'
+import { LOCATIONS } from '@/services/Const'
 import type { Invigilation } from '@/types'
 import type { FormInstance, FormRules } from 'element-plus'
 
@@ -60,7 +61,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   inviR = { course: {}, time: {} }
 }
 
-const locations = [{ value: '丹青楼' }, { value: '锦绣楼' }, { value: '成栋楼' }]
+const locations = LOCATIONS
 const querySearch = (queryString: string, cb: any) => {
   const results = queryString ? locations.filter((r) => r.value == queryString) : locations
   cb(results)

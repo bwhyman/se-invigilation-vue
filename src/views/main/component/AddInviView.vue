@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
 import { CommonService } from '@/services/CommonService'
-import { IMPORT, SUBJECT_ADMIN } from '@/services/Const'
+import { IMPORT, INVI_TYPES, LOCATIONS, SUBJECT_ADMIN } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
 import { useUserStore } from '@/stores/UserStore'
 import type { Invigilation } from '@/types'
 const userS = useUserStore().userS
 const inviR = ref<Invigilation>({ course: {}, time: {} })
-const inviTypeR = ref(0)
+const inviTypeR = ref('')
 
 const submitForm = async () => {
   if (!userS.value) return
@@ -19,7 +19,7 @@ const submitForm = async () => {
   ) {
     throw '请填写完整课程信息'
   }
-  if (inviTypeR.value == 0) {
+  if (inviTypeR.value) {
     throw '请选择`阶段/期末`考试类型'
   }
   if (!inviR.value.date || !inviR.value.time?.starttime || !inviR.value.time?.endtime) {
@@ -31,28 +31,27 @@ const submitForm = async () => {
   inviR.value.importer = stringInviTime({ id: userS.value.id, name: userS.value.name })
   await CommonService.addInviSerivce(inviR.value)
   inviR.value = { course: {}, time: {} }
-  inviTypeR.value = 0
+  inviTypeR.value = ''
   createElNotificationSuccess('监考录入成功')
 }
 
-const locations = [{ value: '丹青楼' }, { value: '锦绣楼' }, { value: '成栋楼' }]
+const locations = LOCATIONS
+
 const querySearch = (queryString: string, cb: any) => {
   const results = queryString ? locations.filter((r) => r.value == queryString) : locations
   cb(results)
 }
 
-watch(inviTypeR, (newValue) => {
-  if (!inviR.value.course || !inviR.value.course.courseName) return
-  inviR.value.course.courseName = inviR.value.course.courseName
-    .replaceAll('阶段', '')
-    .replaceAll('期末', '')
-  let typeName
-  if (newValue == 1) {
-    typeName = '阶段'
-  } else if (newValue == 2) {
-    typeName = '期末'
+watchEffect(() => {
+  if (!inviR.value.course || !inviR.value.course.courseName) {
+    inviTypeR.value = ''
+    return
   }
-  inviR.value.course.courseName += typeName
+
+  INVI_TYPES.forEach((it) => {
+    inviR.value.course!.courseName = inviR.value.course!.courseName!.replaceAll(it, '')
+  })
+  inviR.value.course.courseName += inviTypeR.value
 })
 </script>
 <template>
@@ -60,24 +59,30 @@ watch(inviTypeR, (newValue) => {
     <el-col>
       <el-form label-width="120px" style="width: 500px">
         <el-form-item v-if="userS?.role == SUBJECT_ADMIN">
-          <el-tag type="danger" size="large">专业提交的监考，必须由学院统计并统一分配</el-tag>
+          <el-tag type="danger" size="large">专业提交的监考，将由学院统计并统一分配</el-tag>
         </el-form-item>
-        <el-form-item label="课程名称" prop="courseName">
-          <el-input v-model="inviR.course!.courseName" />
+        <el-form-item label="课程名称">
+          <el-input
+            v-model="inviR.course!.courseName"
+            @keydown.delete="inviR.course!.courseName = ''" />
         </el-form-item>
         <el-form-item label="类型">
-          <el-radio-group v-model="inviTypeR" style="margin-right: 10px; vertical-align: middle">
-            <el-radio-button value="1">阶段</el-radio-button>
-            <el-radio-button value="2">期末</el-radio-button>
+          <el-radio-group
+            v-model="inviTypeR"
+            style="margin-right: 10px; vertical-align: middle"
+            :disabled="!inviR.course?.courseName">
+            <el-radio-button v-for="(type, index) of INVI_TYPES" :key="index" :value="type">
+              {{ type }}
+            </el-radio-button>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="授课教师" prop="teacherName">
+        <el-form-item label="授课教师">
           <el-input v-model="inviR.course!.teacherName" style="width: 150px" />
         </el-form-item>
-        <el-form-item label="班级" prop="clazz">
+        <el-form-item label="班级">
           <el-input v-model="inviR.course!.clazz" />
         </el-form-item>
-        <el-form-item label="日期" prop="date">
+        <el-form-item label="日期">
           <el-date-picker
             v-model="inviR.date"
             type="date"
@@ -90,7 +95,7 @@ watch(inviTypeR, (newValue) => {
 
         <el-form-item label="时间">
           <el-col :span="11">
-            <el-form-item prop="stime">
+            <el-form-item>
               <el-time-select
                 v-model="inviR.time!.starttime"
                 placeholder="开始时间"
@@ -102,7 +107,7 @@ watch(inviTypeR, (newValue) => {
           </el-col>
           <el-col class="text-center" :span="2"></el-col>
           <el-col :span="11">
-            <el-form-item prop="etime">
+            <el-form-item>
               <el-time-select
                 v-model="inviR.time!.endtime"
                 placeholder="结束时间"
@@ -113,7 +118,7 @@ watch(inviTypeR, (newValue) => {
             </el-form-item>
           </el-col>
         </el-form-item>
-        <el-form-item label="地点" prop="location">
+        <el-form-item label="地点">
           <el-autocomplete
             v-model="inviR.course!.location"
             :fetch-suggestions="querySearch"
@@ -121,7 +126,7 @@ watch(inviTypeR, (newValue) => {
             style="width: 150px"
             placeholder="地点" />
         </el-form-item>
-        <el-form-item label="人数" prop="amount">
+        <el-form-item label="人数">
           <el-input-number v-model="inviR.amount" :min="1" :max="6" />
         </el-form-item>
         <el-form-item>

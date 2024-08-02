@@ -10,7 +10,7 @@ const active = ref(4)
   <el-row class="my-row">
     <el-col :span="12" :offset="6">
       <el-steps :active="active" finish-status="success">
-        <el-step title="导入" />
+        <el-step title="录入" />
         <el-step title="下发" />
         <el-step title="分配" />
         <el-step title="通知" />

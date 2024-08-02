@@ -26,7 +26,7 @@ export const exportInvisDetails = (invis: Invigilation[], details: InviDetail[])
     setExcelTitleCell('考试时间'),
     setExcelTitleCell('考试地点'),
     setExcelTitleCell('监考人数'),
-    setExcelTitleCell('导入'),
+    setExcelTitleCell('录入'),
     setExcelTitleCell('下发'),
     setExcelTitleCell('分配'),
     setExcelTitleCell('监考教师')

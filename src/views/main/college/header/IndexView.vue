@@ -3,7 +3,7 @@ const route = useRoute()
 const activeIndexR = ref(route.path)
 
 const menus = [
-  { name: '已导入', path: '/college/imported' },
+  { name: '已录入', path: '/college/imported' },
   { name: '已下发', path: '/college/dispatched' },
   { name: '处理', path: '/college/search' },
   { name: '录入', path: '/college/imports' },
