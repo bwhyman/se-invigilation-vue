@@ -15,7 +15,6 @@ import InviMessage from '../component/InviInfo.vue'
 import AssignTable from './component/AssignTable.vue'
 
 import { createElNotificationSuccess } from '@/components/message'
-import { useSettingStore } from '@/stores/SettingStore'
 import { useUserStore } from '@/stores/UserStore'
 
 const params = useRoute().params as { inviid: string }
@@ -28,13 +27,12 @@ if (!currentInvi.value) {
   throw '获取监考信息错误!'
 }
 
-const settingsStore = useSettingStore()
 //
 const userR = useUserStore().userS
 const assignUsersR = ref<AssignUser>({})
 //
 // 当前分配的监考信息
-let week = getInviWeek(currentInvi.value.date!, settingsStore.getFirstWeek())
+let week = getInviWeek(currentInvi.value.date!)
 let dayweek = getInviDayweek(currentInvi.value.date!)
 const amountR = currentInvi.value.amount!
 

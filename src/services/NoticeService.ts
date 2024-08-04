@@ -1,7 +1,6 @@
-import type { Invigilation, User, Notice } from '@/types'
-import { getInviChineseDayweek, getInviWeek } from './Utils'
+import type { Invigilation, Notice, User } from '@/types'
 import { SubjectService } from './SubjectService'
-import { useSettingStore } from '@/stores/SettingStore'
+import { getInviChineseDayweek, getInviWeek } from './Utils'
 
 export const noticeDingService = async (assignUsers: User[], invi: Invigilation) => {
   const notice: Notice = {
@@ -12,8 +11,8 @@ export const noticeDingService = async (assignUsers: User[], invi: Invigilation)
     unionIds: [],
     noticeUserIds: []
   }
-  const settingsStore = useSettingStore()
-  const week = getInviWeek(notice.date!, settingsStore.getFirstWeek())
+
+  const week = getInviWeek(notice.date!)
   const dayweek = getInviChineseDayweek(notice.date!)
 
   const userIds: string[] = []

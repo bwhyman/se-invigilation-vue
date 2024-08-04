@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { Setting, SwitchButton, Sunrise } from '@element-plus/icons-vue'
-import { COLLEGE_ADMIN, SUBJECT_ADMIN } from '@/services/Const'
 import router from '@/router'
-import type { Component } from 'vue'
+import { COLLEGE_ADMIN, SUBJECT_ADMIN } from '@/services/Const'
 import { useUserStore } from '@/stores/UserStore'
+import { Setting, Sunrise, SwitchButton } from '@element-plus/icons-vue'
+import type { Component } from 'vue'
 
 const role = sessionStorage.getItem('role')
 const user = useUserStore().userS
@@ -18,7 +18,7 @@ if (role == COLLEGE_ADMIN) {
 
 const logout = () => {
   sessionStorage.clear()
-  localStorage.clear()
+  // localStorage.clear()
   window.location.href = '/'
 }
 const info = () => {

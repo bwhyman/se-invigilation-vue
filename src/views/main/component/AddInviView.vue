@@ -17,13 +17,13 @@ const submitForm = async () => {
     !inviR.value.course?.location ||
     !inviR.value.course?.teacherName
   ) {
-    throw '请填写完整课程信息'
+    throw '请填写完整考试课程信息'
   }
-  if (inviTypeR.value) {
+  if (!inviTypeR.value) {
     throw '请选择`阶段/期末`考试类型'
   }
   if (!inviR.value.date || !inviR.value.time?.starttime || !inviR.value.time?.endtime) {
-    throw '请填写完整考试时间'
+    throw '请填写完整考试时间信息'
   }
 
   inviR.value.collId = userS.value.department?.collId
@@ -58,7 +58,7 @@ watchEffect(() => {
   <el-row class="my-row">
     <el-col>
       <el-form label-width="120px" style="width: 500px">
-        <el-form-item v-if="userS?.role == SUBJECT_ADMIN">
+        <el-form-item v-if="userS?.role === SUBJECT_ADMIN">
           <el-tag type="danger" size="large">专业提交的监考，将由学院统计并统一分配</el-tag>
         </el-form-item>
         <el-form-item label="课程名称">
@@ -76,11 +76,19 @@ watchEffect(() => {
             </el-radio-button>
           </el-radio-group>
         </el-form-item>
+        <el-form-item label="班级">
+          <el-input v-model="inviR.course!.clazz" />
+        </el-form-item>
         <el-form-item label="授课教师">
           <el-input v-model="inviR.course!.teacherName" style="width: 150px" />
         </el-form-item>
-        <el-form-item label="班级">
-          <el-input v-model="inviR.course!.clazz" />
+        <el-form-item label="地点">
+          <el-autocomplete
+            v-model="inviR.course!.location"
+            :fetch-suggestions="querySearch"
+            clearable
+            style="width: 150px"
+            placeholder="考试地点" />
         </el-form-item>
         <el-form-item label="日期">
           <el-date-picker
@@ -92,11 +100,11 @@ watchEffect(() => {
             placeholder="日期"
             style="width: 150px" />
         </el-form-item>
-
         <el-form-item label="时间">
           <el-col :span="11">
             <el-form-item>
               <el-time-select
+                :max-time="inviR.time!.endtime"
                 v-model="inviR.time!.starttime"
                 placeholder="开始时间"
                 start="08:00"
@@ -109,6 +117,7 @@ watchEffect(() => {
           <el-col :span="11">
             <el-form-item>
               <el-time-select
+                :min-time="inviR.time!.starttime"
                 v-model="inviR.time!.endtime"
                 placeholder="结束时间"
                 start="09:30"
@@ -118,14 +127,7 @@ watchEffect(() => {
             </el-form-item>
           </el-col>
         </el-form-item>
-        <el-form-item label="地点">
-          <el-autocomplete
-            v-model="inviR.course!.location"
-            :fetch-suggestions="querySearch"
-            clearable
-            style="width: 150px"
-            placeholder="地点" />
-        </el-form-item>
+
         <el-form-item label="人数">
           <el-input-number v-model="inviR.amount" :min="1" :max="6" />
         </el-form-item>

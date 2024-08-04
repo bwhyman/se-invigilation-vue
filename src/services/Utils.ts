@@ -1,8 +1,10 @@
+import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation, Timetable, User } from '@/types'
+const settingStore = useSettingStore()
 
 //
-export const getInviWeek = (date: string, firstWeek: string) => {
-  const startDate = new Date(firstWeek).getTime()
+export const getInviWeek = (date: string) => {
+  const startDate = new Date(settingStore.getFirstWeek()).getTime()
   const inviDate = new Date(date).getTime()
 
   return Math.floor((inviDate - startDate) / (1000 * 60 * 60 * 24 * 7)) + 1
@@ -65,7 +67,7 @@ export const beNoticedC = computed(() => (exid: string, noticeIds: string[] = []
 })
 
 //
-export const getInviWeekC = (firstWeek: string) => {
-  return computed(() => (date: string) => getInviWeek(date, firstWeek))
+export const getInviWeekC = () => {
+  return computed(() => (date: string) => getInviWeek(date))
 }
 export const getInviChinesedayweekC = computed(() => (date: string) => getInviChineseDayweek(date))

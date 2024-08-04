@@ -7,12 +7,9 @@ import {
   getInviWeekC,
   replaceTDateC
 } from '@/services/Utils'
-import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation, Page } from '@/types'
 import { Bell } from '@element-plus/icons-vue'
 import TotalNumber from './TotalNumber.vue'
-
-const settingStore = useSettingStore()
 
 interface Props {
   invis: Invigilation[]
@@ -27,7 +24,7 @@ if (props.page!.noPage) {
   PAGESIZE = props.page?.total!
 }
 
-const inviWeekC = getInviWeekC(settingStore.getFirstWeek())
+const inviWeekC = getInviWeekC()
 
 const changePage = (n: number) => {
   scrollToTop()

@@ -3,7 +3,6 @@ import { createElNotificationSuccess } from '@/components/message'
 import { CollegeService } from '@/services/CollegeService'
 import { CommonService } from '@/services/CommonService'
 import { SubjectService } from '@/services/SubjectService'
-import { useSettingStore } from '@/stores/SettingStore'
 import { useUserStore } from '@/stores/UserStore'
 import type { Invigilation, Notice, User } from '@/types'
 import { getFinalNotice, getInitNotice } from '@/views/main/component/AssignNotice'
@@ -17,7 +16,7 @@ const inviR = await CollegeService.getCollegeInviService(params.inviid)
 if (!inviR || !inviR.value) {
   throw '获取监考信息错误!'
 }
-const settingStore = useSettingStore()
+
 const exposeR = ref<{ selectUser: User; clearUser: Function }>()
 const selectUsersR = ref<User[]>([])
 const newInvisR = ref<Invigilation[]>([])
@@ -70,7 +69,7 @@ const assignF = async () => {
   assignNoticesR.value = []
   for (const invi of newInvisR.value) {
     const assigners = await SubjectService.listInviDetailUsersService(invi.id!)
-    const notice = getInitNotice(assigners, invi, settingStore.getFirstWeek())
+    const notice = getInitNotice(assigners, invi)
     const dingUsers: User[] = []
     const noDingUsers: User[] = []
 

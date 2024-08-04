@@ -2,7 +2,7 @@ import { getInviChineseDayweek, getInviWeek } from '@/services/Utils'
 import type { Invigilation, Notice, User } from '@/types'
 
 // 创建初始化的通知对象
-export const getInitNotice = (users: User[], invis: Invigilation, dayOfFirstWeek: string) => {
+export const getInitNotice = (users: User[], invis: Invigilation) => {
   const notice: Notice = {
     inviId: invis.id,
     date: invis.date,
@@ -11,7 +11,7 @@ export const getInitNotice = (users: User[], invis: Invigilation, dayOfFirstWeek
     unionIds: [],
     noticeUserIds: []
   }
-  const week = getInviWeek(notice.date!, dayOfFirstWeek)
+  const week = getInviWeek(notice.date!)
   const dayweek = getInviChineseDayweek(notice.date!)
   const userNames: string[] = []
   users.forEach((u) => {

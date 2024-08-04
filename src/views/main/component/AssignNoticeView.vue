@@ -4,7 +4,6 @@ import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
 import { COLLEGE_ADMIN, SUBJECT_ADMIN } from '@/services/Const'
 import { SubjectService } from '@/services/SubjectService'
-import { useSettingStore } from '@/stores/SettingStore'
 import type { User } from '@/types'
 import { getFinalNotice, getInitNotice } from './AssignNotice'
 
@@ -24,14 +23,13 @@ const results = await Promise.all([
 
 const assigners = results[0]
 const invigilationR = results[1]
-const settingsStore = useSettingStore()
 
 const selectUsersR = ref<User[]>([...assigners])
 if (!invigilationR || !invigilationR.value) {
   throw `监考信息读取错误`
 }
 
-const notice = getInitNotice(assigners, invigilationR.value, settingsStore.getFirstWeek())
+const notice = getInitNotice(assigners, invigilationR.value)
 
 const dingUsers: User[] = []
 const noDingUsers: User[] = []

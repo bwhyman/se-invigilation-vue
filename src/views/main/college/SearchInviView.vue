@@ -8,7 +8,6 @@ import {
   getInviWeekC,
   replaceTDateC
 } from '@/services/Utils'
-import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation } from '@/types'
 import DatesPick from '@/views/main/component/DatesPick.vue'
 import InvisDetailsDate from '@/views/main/component/InvisDetailsDate.vue'
@@ -40,9 +39,7 @@ watch(
   }
 )
 
-const settingsStore = useSettingStore()
-
-const WeekC = getInviWeekC(settingsStore.getFirstWeek())
+const WeekC = getInviWeekC()
 
 //
 const invisStatusChangeF = (val: number) => {

@@ -3,7 +3,6 @@ import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
 import { getInviChineseDayweek, getInviWeek } from '@/services/Utils'
-import { useSettingStore } from '@/stores/SettingStore'
 import type { Invigilation, NoticeRemark } from '@/types'
 import { render } from 'vue'
 
@@ -11,8 +10,7 @@ const props = defineProps<{ invis: Invigilation[] }>()
 const invis = props.invis
 const invi: Invigilation = invis[0]
 const messageR = ref('')
-const settingStore = useSettingStore()
-const week = getInviWeek(invi.date!, settingStore.getFirstWeek())
+const week = getInviWeek(invi.date!)
 const chineseDayWeek = getInviChineseDayweek(invi.date!)
 messageR.value = `监考信息：${invi.course?.courseName} ${invi.date}第${week}周${chineseDayWeek} ${invi.time?.starttime}。
 请提前20分钟在大厅取卷，监考结束请送至`
