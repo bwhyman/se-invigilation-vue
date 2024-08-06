@@ -21,7 +21,7 @@ const props = defineProps<Props>()
 // 表格全局每页显示个数
 let PAGESIZE = 20
 if (props.page!.noPage) {
-  PAGESIZE = props.page?.total!
+  PAGESIZE = props.page?.total! + 1
 }
 
 const inviWeekC = getInviWeekC()
@@ -49,7 +49,17 @@ const scrollToTop = () => {
     <el-col :span="2">
       <TotalNumber :total="props.page?.total!" />
     </el-col>
-    <el-col :span="22" style="text-align: right"><slot name="top"></slot></el-col>
+    <el-col :span="20">
+      <el-pagination
+        :hide-on-single-page="true"
+        background
+        :current-page="props.page?.currentpage"
+        layout="prev, pager, next"
+        @update:current-page="changePage"
+        :page-size="PAGESIZE"
+        :total="props.page?.total!" />
+    </el-col>
+    <el-col :span="2"><slot name="top"></slot></el-col>
   </el-row>
   <el-table :data="props.invis" style="margin-bottom: 10px">
     <el-table-column type="index" label="" width="50" />
@@ -149,6 +159,7 @@ const scrollToTop = () => {
     </el-col>
     <el-col :span="10">
       <el-pagination
+        :hide-on-single-page="true"
         background
         :current-page="props.page?.currentpage"
         layout="prev, pager, next"

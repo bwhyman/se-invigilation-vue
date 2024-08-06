@@ -1,9 +1,9 @@
 <script setup lang="ts"></script>
 <template>
   <el-row>
-    <el-col class="my-col info-title" :span="2"><el-tag size="large">下发</el-tag></el-col>
+    <el-col class="info-title" :span="2"><el-tag size="large">下发</el-tag></el-col>
     <el-col :span="22">学院下发监考后，专业将收到钉钉监考分配提醒通知。</el-col>
-    <el-col class="my-col info-title" :span="2"><el-tag size="large">分配</el-tag></el-col>
+    <el-col class="info-title" :span="2"><el-tag size="large">分配</el-tag></el-col>
     <el-col :span="22">
       监考分配为一个整体，只有未分配/已分配2种状态。即不支持2人次监考先分配一人，再分配另一人。强制一次性分配可有效避免遗漏。
       <br />
@@ -17,7 +17,7 @@
       <br />
       分配后，可选择是否通知教师。
     </el-col>
-    <el-col class="my-col info-title" :span="2"><el-tag size="large">通知</el-tag></el-col>
+    <el-col class="info-title" :span="2"><el-tag size="large">通知</el-tag></el-col>
     <el-col :span="22">
       系统以第一监考教师创建钉钉监考日程，不再由专业负责人创建，避免负责人收到非必要监考提醒。
       <br />
@@ -29,13 +29,13 @@
       <br />
       忘记发送通知，重新分配监考给原教师，再发送通知即可。
     </el-col>
-    <el-col class="my-col info-title" :span="2"><el-tag size="large">查询</el-tag></el-col>
+    <el-col class="info-title" :span="2"><el-tag size="large">查询</el-tag></el-col>
     <el-col :span="22">
       默认显示专业8日内所有监考，以紧凑样式渲染便于截图等。
       <br />
       可打开日历面板，定位任意起止日期查询。
     </el-col>
-    <el-col class="my-col info-title" :span="2"><el-tag size="large">功能</el-tag></el-col>
+    <el-col class="info-title" :span="2"><el-tag size="large">功能</el-tag></el-col>
     <el-col :span="22">
       关闭分配，专业可以关闭指定教师，不在分配视图中显示。
       <br />

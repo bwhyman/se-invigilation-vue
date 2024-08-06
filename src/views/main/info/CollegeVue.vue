@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 <template>
   <el-row>
-    <el-col class="my-col info-title" :span="2">
+    <el-col class="info-title" :span="2">
       <el-tag size="large">录入</el-tag>
     </el-col>
     <el-col :span="22">
@@ -13,7 +13,7 @@
       <br />
       可手动单项录入监考。
     </el-col>
-    <el-col class="my-col info-title" :span="2">
+    <el-col class="info-title" :span="2">
       <el-tag size="large">下发</el-tag>
     </el-col>
     <el-col :span="22">
@@ -21,7 +21,7 @@
       <br />
       通知专业，向专业发送监考分配提醒通知。
     </el-col>
-    <el-col class="my-col info-title" :span="2">
+    <el-col class="info-title" :span="2">
       <el-tag size="large">处理</el-tag>
     </el-col>
     <el-col :span="22">
@@ -29,7 +29,7 @@
       <br />
       添加紧凑的信息。
     </el-col>
-    <el-col class="my-col info-title" :span="2">
+    <el-col class="info-title" :span="2">
       <el-tag size="large">编辑</el-tag>
     </el-col>
     <el-col :span="22">
@@ -39,15 +39,15 @@
       <br />
       移除监考，如果已分配则移除监考分配信息，同时发送监考取消通知/取消日程。
     </el-col>
-    <el-col class="my-col info-title" :span="2">
+    <el-col class="info-title" :span="2">
       <el-tag size="large">分配</el-tag>
     </el-col>
     <el-col :span="22">
-      剪裁，可将监考`剪裁`出一个监考人数为1的新监考，原监考人数-1。
+      剪裁，在录入状态下，可将监考`剪裁`出一个监考人数为1的新监考，原监考人数-1。
       <br />
       分配，学院可不受监考人数限制/部门等限制，直接任意分配监考。
     </el-col>
-    <el-col class="my-col info-title" :span="2">
+    <el-col class="info-title" :span="2">
       <el-tag size="large">功能</el-tag>
     </el-col>
     <el-col :span="22">

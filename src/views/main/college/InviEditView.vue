@@ -260,7 +260,7 @@ const resetInvi = () => {
   <el-row class="my-row">
     <el-col>
       <div style="margin-bottom: 10px">
-        将已下发至专业监考取消，转为导入未分配状态，如果已经分配，将取消分配并向监考教师发送取消通知。
+        将已下发至专业监考取消，转为录入未分配状态，如果已经分配，将取消分配并向监考教师发送取消通知。
       </div>
       <el-button type="danger" @click="resetInvi">重置监考</el-button>
     </el-col>

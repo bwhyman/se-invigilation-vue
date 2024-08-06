@@ -1,4 +1,6 @@
 import type { Invigilation } from '@/types'
+import { useTotalsStore } from './TotalsStore'
+const depTotalsStore = useTotalsStore()
 
 const invigilationsImportS = ref<Invigilation[]>()
 //
@@ -14,6 +16,7 @@ const clear = () => {
   invigilationsImportS.value = undefined
   invigilationsDispatchMapS.value.clear()
   dateInvisMapS.value.clear()
+  depTotalsStore.clear()
 }
 const clearCurrentInvi = () => (currentInviS.value = undefined)
 const store = {

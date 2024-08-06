@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { IMPORT } from '@/services/Const'
 import type { Invigilation } from '@/types'
-import { Scissor, Edit, SoldOut } from '@element-plus/icons-vue'
-import { editF, assignF, cutF } from './Opteration'
+import { Edit, Scissor, SoldOut } from '@element-plus/icons-vue'
+import { assignF, cutF, editF } from './Opteration'
 const props = defineProps<{ invi: Invigilation }>()
+const invi = props.invi
 </script>
 <template>
   <el-dropdown>
@@ -11,12 +13,12 @@ const props = defineProps<{ invi: Invigilation }>()
       <el-dropdown-menu>
         <el-dropdown-item
           :icon="Scissor"
-          @click="cutF(props.invi)"
-          v-if="props.invi?.amount && props.invi.amount > 1">
+          @click="cutF(invi)"
+          v-if="invi?.amount && invi.amount > 1 && invi.status === IMPORT">
           剪裁
         </el-dropdown-item>
-        <el-dropdown-item :icon="SoldOut" @click="assignF(props.invi)">分配</el-dropdown-item>
-        <el-dropdown-item :icon="Edit" @click="editF(props.invi)">编辑</el-dropdown-item>
+        <el-dropdown-item :icon="SoldOut" @click="assignF(invi)">分配</el-dropdown-item>
+        <el-dropdown-item :icon="Edit" @click="editF(invi)">编辑</el-dropdown-item>
       </el-dropdown-menu>
     </template>
   </el-dropdown>

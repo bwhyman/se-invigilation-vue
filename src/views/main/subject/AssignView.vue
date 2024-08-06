@@ -228,20 +228,6 @@ watch(
         <InviMessage :invi="currentInvi" />
       </el-col>
     </el-row>
-    <!--  -->
-    <el-row class="my-row">
-      <el-col :span="2">
-        <el-tag type="warning">说明</el-tag>
-      </el-col>
-      <el-col :span="22">
-        提交，保存监考分配记录，在下一步独立操作发送钉钉监考通知。
-        <br />
-        重复提交，将覆盖原分配记录，并保存新记录。
-        <br />
-        同一名教师可带自己研究生参加同一场监考，算2次监考。
-        <br />
-      </el-col>
-    </el-row>
     <el-row class="my-row" v-if="departmentComment.length > 0">
       <el-col :span="2">
         <el-tag type="warning">备注</el-tag>
@@ -252,7 +238,8 @@ watch(
     </el-row>
     <el-row class="my-row" v-if="currentUsers.length > 0">
       <el-col>
-        <el-tag size="large">当前</el-tag>
+        <el-tag size="large" style="margin-right: 10px">当前</el-tag>
+        可重新分配覆盖原记录
       </el-col>
       <el-col>
         <AssignTable

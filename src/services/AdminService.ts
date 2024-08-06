@@ -47,7 +47,7 @@ export class AdminService {
   }
 
   static addCollegeUserDingsService = async (collid: string, users: User[]) => {
-    const resp = await axios.post(`${ADMIN}/colleges/${collid}/userdings`, users)
+    await axios.post(`${ADMIN}/colleges/${collid}/userdings`, users)
     return true
   }
 
