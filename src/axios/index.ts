@@ -1,7 +1,7 @@
-import axios from 'axios'
-import type { ResultVO } from '@/types'
 import router from '@/router'
 import { useUserStore } from '@/stores/UserStore'
+import type { ResultVO } from '@/types'
+import axios from 'axios'
 
 axios.defaults.baseURL = '/api/'
 

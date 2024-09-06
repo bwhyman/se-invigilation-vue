@@ -54,23 +54,26 @@ const submitC = computed(
 <template>
   <el-row class="my-row">
     <el-col>
-      <p style="margin-bottom: 10px">手动添加教师，需输入用户钉钉注册手机号</p>
-      <el-form :inline="true" v-if="!userR.dingUserId">
+      <p style="margin-bottom: 10px">基于钉钉注册手机号查询用户</p>
+      <el-form :inline="true">
         <el-form-item>
           <el-input v-model="userR.mobile" placeholder="钉钉注册手机号"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="success" :disabled="userR.mobile?.length == 0" @click="searchF">
-            提交
+            查询
           </el-button>
         </el-form-item>
       </el-form>
       <!--  -->
-      <el-form label-width="120px" style="width: 600px" v-if="userR.dingUserId">
+      <p style="margin-bottom: 10px">
+        手动录入用户。没有钉钉数据无法发送钉钉消息，但不影响监考数据记录
+      </p>
+      <el-form label-width="120px" style="width: 600px">
         <el-form-item label="*姓名">
           <el-input v-model="userR.name" />
         </el-form-item>
-        <el-form-item label="*工号">
+        <el-form-item label="*帐号">
           <el-input v-model="userR.account" />
         </el-form-item>
         <el-form-item label="钉钉userid">
@@ -80,7 +83,7 @@ const submitC = computed(
           <el-input v-model="userR.dingUnionId" disabled />
         </el-form-item>
         <el-form-item label="*手机号">
-          <el-input v-model="userR.mobile" disabled />
+          <el-input v-model="userR.mobile" />
         </el-form-item>
         <el-form-item label="*部门">
           <el-select

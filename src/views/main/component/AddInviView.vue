@@ -59,7 +59,9 @@ watchEffect(() => {
     <el-col>
       <el-form label-width="120px" style="width: 500px">
         <el-form-item v-if="userS?.role === SUBJECT_ADMIN">
-          <el-tag type="danger" size="large">专业提交的监考，将由学院统计并统一分配</el-tag>
+          <el-tag type="danger" size="large">
+            用于录入随堂阶段考试等教务处系统中没有的考试。专业提交的监考，将由学院统计并统一分配。
+          </el-tag>
         </el-form-item>
         <el-form-item label="课程名称">
           <el-input

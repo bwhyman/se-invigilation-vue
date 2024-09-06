@@ -82,7 +82,7 @@ const addInvis = async () => {
 
     <el-col :span="12">
       <input type="file" @change="readInvis" />
-      <a href="./监考表格-模板.xlsx">监考表格-模板.xlsx</a>
+      <a href="/监考表格-模板.xlsx">监考表格-模板.xlsx</a>
     </el-col>
     <el-col :span="10">
       <el-button type="primary" @click="$router.push('/college/addinvi')">录入</el-button>
