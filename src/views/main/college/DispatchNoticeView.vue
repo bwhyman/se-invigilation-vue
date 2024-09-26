@@ -8,6 +8,10 @@ const params = useRoute().params as { depid: string }
 
 const dispatchers = await CollegeService.listDispatchersService(params.depid)
 const selDisR = ref<string[]>([])
+//
+if (dispatchers.length == 1) {
+  dispatchers[0].dingUserId && selDisR.value.push(dispatchers[0].dingUserId)
+}
 
 const noticeDispatchersF = async () => {
   const message = `已下发新监考信息，请及时分配。`
@@ -38,7 +42,9 @@ const noticeDispatchersF = async () => {
       </el-checkbox-group>
     </el-col>
     <el-col>
-      <el-button type="success" @click="noticeDispatchersF" :disabled="!selDisR">提交</el-button>
+      <el-button type="success" @click="noticeDispatchersF" :disabled="selDisR.length == 0">
+        提交
+      </el-button>
     </el-col>
   </el-row>
 </template>

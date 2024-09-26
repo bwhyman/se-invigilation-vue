@@ -28,6 +28,12 @@ export const readTimetableExcel = (file: Blob, isCollege = true) => {
             if (!x || x.v.trim().length == 0) continue
 
             const sections = (x.v.split('\n') as string[]).filter((str) => str !== '')
+            for (const sec of sections) {
+              if (sec.startsWith('分组')) {
+                sections.splice(sections.indexOf(sec), 1)
+              }
+            }
+
             const len = sections.length
             if (len % 4 != 0) {
               reject(
