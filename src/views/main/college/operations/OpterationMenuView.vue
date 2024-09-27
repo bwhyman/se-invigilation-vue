@@ -4,7 +4,6 @@ import type { Invigilation } from '@/types'
 import { Edit, Scissor, SoldOut } from '@element-plus/icons-vue'
 import { assignF, cutF, editF } from './Opteration'
 const props = defineProps<{ invi: Invigilation }>()
-const invi = props.invi
 </script>
 <template>
   <el-dropdown>
@@ -17,8 +16,8 @@ const invi = props.invi
           v-if="invi?.amount && invi.amount > 1 && invi.status === IMPORT">
           剪裁
         </el-dropdown-item>
-        <el-dropdown-item :icon="SoldOut" @click="assignF(invi)">分配</el-dropdown-item>
-        <el-dropdown-item :icon="Edit" @click="editF(invi)">编辑</el-dropdown-item>
+        <el-dropdown-item :icon="SoldOut" @click="assignF(props.invi)">分配</el-dropdown-item>
+        <el-dropdown-item :icon="Edit" @click="editF(props.invi)">编辑</el-dropdown-item>
       </el-dropdown-menu>
     </template>
   </el-dropdown>
