@@ -5,7 +5,6 @@ import { ASSIGN } from '@/services/Const'
 import { SubjectService } from '@/services/SubjectService'
 import type { Invigilation, Page } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
-import { Edit } from '@element-plus/icons-vue'
 
 const inviS = ref<Invigilation[]>([])
 const total = await SubjectService.getTotalsService(ASSIGN)
@@ -40,7 +39,7 @@ const editF = (invi: Invigilation) => {
     <el-col>
       <InviTable :invis="inviS" :page="pageR" :show-executor="true">
         <template #action="action">
-          <el-button type="primary" :icon="Edit" circle @click="editF(action.invi)" />
+          <el-button type="primary" @click="editF(action.invi)">分配</el-button>
         </template>
       </InviTable>
     </el-col>

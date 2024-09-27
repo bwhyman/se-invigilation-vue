@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { createElLoading } from '@/components/loading'
 import { createElNotificationSuccess } from '@/components/message'
 import { CollegeService } from '@/services/CollegeService'
 import type { ImportTimetable, Timetable, User } from '@/types'
@@ -14,7 +15,7 @@ const readTimetables = async (event: Event) => {
   if (!element || !element.files) {
     return
   }
-
+  const loading = createElLoading()
   const { readTimetableExcel, readPostGTimetableExcel } = await import(
     '@/services/excel/TimetableExcel'
   )
@@ -24,11 +25,14 @@ const readTimetables = async (event: Event) => {
       readTimetableExcel(element.files[0]),
       readPostGTimetableExcel(element.files[0])
     ])
-
+    users.length = 0
+    timetables.length = 0
+    importTimetablesR.value = []
     users.push(...results[0].value)
     importTimetablesR.value = results[1]
     importTimetablesR.value.push(...results[2])
   } finally {
+    loading.close()
     element.value = ''
   }
   console.log(importTimetablesR.value)
