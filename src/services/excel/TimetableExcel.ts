@@ -189,15 +189,17 @@ export const readPostGTimetableExcel = (file: Blob) => {
             // 拆分为每组，包含教室与周
             for (const groups of temp.split(';')) {
               if (groups.length == 0) break
-              const locAndWeek = groups.split(',')
-              //
+              const localIndex = groups.indexOf(',')
               const courses: Timetable[] = []
-              const weeks = locAndWeek[1].replaceAll('第', '').replaceAll('周', '')
+              const weeks = groups
+                .substring(localIndex + 1)
+                .replaceAll('第', '')
+                .replaceAll('周', '')
               getWeeks(weeks, courses)
               courses.forEach((course) => {
                 course.course = {}
                 if (!course.course) return
-                course.course.location = locAndWeek[0]
+                course.course.location = groups.substring(0, localIndex)
                 course.course.clazz = '研究生'
                 // 节
                 course.period = period
