@@ -4,7 +4,8 @@
 
 #### 2024-09-30
 
-基于Github Actions实现持续部署。
+基于Github Actions实现持续部署。  
+换个action实现。
 
 #### 2024-09-27
 
