@@ -39,3 +39,16 @@ jobs:
           # 仅复制文件，不复制目录
           strip_components: 1
           rm: true
+
+  deploy:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          password: ${{ secrets.PASSWORD }}
+          # docker compose up --force-recreate --no-deps -d nginx
+          script: ${{ secrets.SCRIPT_AFTER }}
