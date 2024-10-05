@@ -55,7 +55,7 @@ axios.interceptors.response.use(
 
     const data: ResultVO<{}> = resp.data
     if (data.code < 300) {
-      parseObject(resp.data.data)
+      parseObject(resp.data)
       return resp
     }
     if (data.code == 401 || data.code == 403) {
@@ -72,5 +72,29 @@ axios.interceptors.response.use(
     return Promise.reject(error.message)
   }
 )
+export const useGet = async <T>(url: string) => {
+  const resp = await axios.get<ResultVO<T>>(url)
+  return resp.data.data
+}
+
+export const usePost = async <T>(url: string, data: unknown) => {
+  const resp = await axios.post<ResultVO<T>>(url, data)
+  return resp.data.data
+}
+
+export const usePut = async <T>(url: string) => {
+  const resp = await axios.put<ResultVO<T>>(url)
+  return resp.data.data
+}
+
+export const usePatch = async <T>(url: string, data: unknown) => {
+  const resp = await axios.patch<ResultVO<T>>(url, data)
+  return resp.data.data
+}
+
+export const useDelete = async <T>(url: string) => {
+  const resp = await axios.delete<ResultVO<T>>(url)
+  return resp.data.data
+}
 
 export default axios

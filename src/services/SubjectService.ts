@@ -1,4 +1,4 @@
-import axios from '@/axios'
+import { useDelete, useGet, usePost } from '@/axios'
 import { useExcludeRulesStore } from '@/stores/ExcludeRuleStore'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 import { useTimetablesStore } from '@/stores/TimetableStore'
@@ -11,7 +11,6 @@ import type {
   InviCount,
   Invigilation,
   Notice,
-  ResultVO,
   Timetable,
   User
 } from '@/types'
@@ -30,27 +29,21 @@ export class SubjectService {
   // 加载专业内全部教师
   @StoreCache(usersStore.usersS)
   static async listUsersService() {
-    const resp = await axios.get<ResultVO<{ users: User[] }>>(`${SUBJECT}/users`)
-    return resp.data.data?.users as unknown as Ref<User[]>
+    const data = await useGet<User[]>(`${SUBJECT}/users`)
+    return data as unknown as Ref<User[]>
   }
 
   //
   @StoreMapCache(invisStore.invigilationsDispatchMapS)
   @ELLoading()
   static async listInvisService(status: number, page: number) {
-    const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
-      `${SUBJECT}/invis/status/${status}/${page}`
-    )
-    return resp.data.data!.invis
+    return await useGet<Invigilation[]>(`${SUBJECT}/invis/status/${status}/${page}`)
   }
 
   //
   @StoreMapCache(totalsStore.totalsMapS)
   static async getTotalsService(status: number) {
-    const resp = await axios.get<ResultVO<{ total: number }>>(
-      `${SUBJECT}/invis/status/${status}/total`
-    )
-    return resp.data.data?.total
+    return await useGet<number>(`${SUBJECT}/invis/status/${status}/total`)
   }
 
   // 改变教师状态监考状态，清空课表缓存。因为按开放教师加载的课表
@@ -58,35 +51,29 @@ export class SubjectService {
   @StoreClear(timetablesStore.clear, usersStore.clear)
   @StoreCache(usersStore.usersS)
   static async updateUsersInviStatuService(users: User[]) {
-    const resp = await axios.post<ResultVO<{ users: User[] }>>(`${SUBJECT}/invistatus`, users)
-    return resp.data.data?.users as unknown as Ref<User[]>
+    const data = await usePost<User[]>(`${SUBJECT}/invistatus`, users)
+    return data as unknown as Ref<User[]>
   }
 
   // 加载开放状态教师课表
   @StoreMapCache(timetablesStore.timetableMapS)
   @ELLoading()
   static async listTimetablesService(week: number, dayweek: number) {
-    const resp = await axios.get<ResultVO<{ timetables: Timetable[] }>>(
-      `${SUBJECT}/timetables/weeks/${week}/dayweeks/${dayweek}`
-    )
-    return resp.data.data?.timetables
+    return await useGet<Timetable[]>(`${SUBJECT}/timetables/weeks/${week}/dayweeks/${dayweek}`)
   }
 
   // 加载指定日期所有监考
   @StoreMapCache(invisStore.dateInvisMapS)
   @ELLoading()
   static async listDateInvisService(date: string) {
-    const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
-      `${SUBJECT}/invis/dates/${date}`
-    )
-    return resp.data.data?.invis
+    return await useGet<Invigilation[]>(`${SUBJECT}/invis/dates/${date}`)
   }
 
   //专业教师监考数量
   @StoreCache(inviCountsStore.inviCounts)
   static async listCountsService() {
-    const resp = await axios.get<ResultVO<{ counts: InviCount[] }>>(`${SUBJECT}/invidetails/counts`)
-    return resp.data.data?.counts as unknown as Ref<InviCount[]>
+    const data = await useGet<InviCount[]>(`${SUBJECT}/invidetails/counts`)
+    return data as unknown as Ref<InviCount[]>
   }
 
   //
@@ -98,47 +85,44 @@ export class SubjectService {
     user.allocator = JSON.stringify(user.allocator)
     // @ts-ignore
     user.executor = JSON.stringify(user.executor)
-    await axios.post(`${SUBJECT}/invidetails/${inviid}`, user)
+    await usePost(`${SUBJECT}/invidetails/${inviid}`, user)
     return true
   }
 
   static listInviDetailUsersService = async (inviid: string) => {
-    const resp = await axios.get<ResultVO<{ users: User[] }>>(
-      `${SUBJECT}/invidetailusers/${inviid}`
-    )
-    return resp.data.data?.users ?? []
+    return await useGet<User[]>(`${SUBJECT}/invidetailusers/${inviid}`)
   }
 
   @ELLoading()
   static async noticeUsersService(notice: Notice) {
-    const resp = await axios.post<ResultVO<{ code: string }>>(`${SUBJECT}/assignnotices`, notice)
-    return resp.data.data?.code
+    const data = await usePost<string>(`${SUBJECT}/assignnotices`, notice)
+    return data ?? ''
   }
 
   // 获取指定监考信息
   @StoreCache(invisStore.currentInviS)
   static async getInviService(inviid: string) {
-    const resp = await axios.get<ResultVO<{ invi: Invigilation }>>(`${SUBJECT}/invis/${inviid}`)
-    return resp.data.data?.invi as unknown as Ref<Invigilation>
+    const data = await useGet<Invigilation>(`${SUBJECT}/invis/${inviid}`)
+    return data as unknown as Ref<Invigilation>
   }
 
   //
   static getDepartmentCommentService = async () => {
-    const resp = await axios.get<ResultVO<{ comment: string }>>(`${SUBJECT}/comments`)
-    return resp.data.data?.comment ?? ''
+    const data = await useGet<string>(`${SUBJECT}/comments`)
+    return data ?? ''
   }
 
   //
   static addDepartmentCommentService = async (comment: string) => {
-    await axios.post(`${SUBJECT}/comments`, { comment: comment })
+    await usePost(`${SUBJECT}/comments`, { comment: comment })
     return true
   }
 
   //
   @StoreCache(excludeRulesStore.excludeRules)
   static async listExcludeRulesService() {
-    const resp = await axios.get<ResultVO<{ rules: ExcludeRule[] }>>(`${SUBJECT}/excluderules`)
-    return resp.data.data?.rules as unknown as Ref<ExcludeRule[]>
+    const data = await useGet<ExcludeRule[]>(`${SUBJECT}/excluderules`)
+    return data as unknown as Ref<ExcludeRule[]>
   }
 
   //
@@ -149,20 +133,15 @@ export class SubjectService {
     // @ts-ignore
     rule.periods = JSON.stringify(rule.periods)
 
-    const resp = await axios.post<ResultVO<{ rules: ExcludeRule[] }>>(
-      `${SUBJECT}/excluderules`,
-      rule
-    )
-    return resp.data.data?.rules as unknown as Ref<ExcludeRule[]>
+    const data = await usePost<ExcludeRule[]>(`${SUBJECT}/excluderules`, rule)
+    return data as unknown as Ref<ExcludeRule[]>
   }
 
   //
   @StoreCache(excludeRulesStore.excludeRules, true)
   static async delExcludeRuleService(exid: string) {
-    const resp = await axios.delete<ResultVO<{ rules: ExcludeRule[] }>>(
-      `${SUBJECT}/excluderules/${exid}`
-    )
-    excludeRulesStore.excludeRules.value = resp.data.data?.rules ?? []
-    return resp.data.data?.rules as unknown as Ref<ExcludeRule[]>
+    const data = await useDelete<ExcludeRule[]>(`${SUBJECT}/excluderules/${exid}`)
+    excludeRulesStore.excludeRules.value = data
+    return data as unknown as Ref<ExcludeRule[]>
   }
 }

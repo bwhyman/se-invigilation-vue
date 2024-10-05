@@ -48,4 +48,4 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           # cd /home/services/se-invigilation/
           # docker compose up --force-recreate --no-deps -d nginx
-          script: ${{ secrets.SCRIPT_AFTER }}
+          script: ${{ secrets.RECREATE_CONTAINER }}

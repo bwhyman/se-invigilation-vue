@@ -2,10 +2,14 @@
 
 ### Update
 
+#### 2024-10-06
+
+优化返回结果。
+
 #### 2024-09-30
 
-基于Github Actions实现持续部署。  
-换个action实现。
+实现基于Github Actionsd的持续部署。  
+换个scp-action实现，可以通用。
 
 #### 2024-09-27
 

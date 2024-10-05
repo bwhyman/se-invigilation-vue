@@ -1,4 +1,4 @@
-import axios from '@/axios'
+import { useDelete, useGet, usePatch, usePost, usePut } from '@/axios'
 import { useDepartmentsStore } from '@/stores/DepartmentStore'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 import { useTotalsStore } from '@/stores/TotalsStore'
@@ -12,7 +12,6 @@ import type {
   Invigilation,
   Notice,
   NoticeRemark,
-  ResultVO,
   Timetable,
   User,
   UserDepartment
@@ -32,10 +31,8 @@ export class CollegeService {
   //
   @StoreCache(departmentsStore.departmentsOpened)
   static async listOpenedDepartmentsService() {
-    const resp = await axios.get<ResultVO<{ departments: Department[] }>>(
-      `${COLLEGE}/departments/opened`
-    )
-    return resp.data.data!.departments as unknown as Ref<Department[]>
+    const data = await useGet<Department[]>(`${COLLEGE}/departments/opened`)
+    return data as unknown as Ref<Department[]>
   }
 
   //
@@ -57,45 +54,31 @@ export class CollegeService {
       // @ts-ignore
       i.department && (i.department = JSON.stringify(i.department))
     })
-
-    const resp = await axios.post<ResultVO<{ invis: Invigilation[] }>>(
-      `${COLLEGE}/invigilations`,
-      invis
-    )
-    return resp.data.data?.invis ?? []
+    return await usePost<Invigilation[]>(`${COLLEGE}/invigilations`, invis)
   }
 
   @StoreCache(invisStore.invigilationsImportS)
   @ELLoading()
   static async listImportedService() {
-    const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
-      `${COLLEGE}/invilations/imported`
-    )
-    return resp.data.data!.invis as unknown as Ref<Invigilation[]>
+    const data = await useGet<Invigilation[]>(`${COLLEGE}/invilations/imported`)
+    return data as unknown as Ref<Invigilation[]>
   }
 
   static getImportedTotalService = async () => {
-    const resp = await axios.get<ResultVO<{ total: number }>>(
-      `${COLLEGE}/invigilations/imported/total`
-    )
-    return resp.data.data?.total ?? 0
+    const data = await useGet<number>(`${COLLEGE}/invigilations/imported/total`)
+    return data ?? 0
   }
 
   @StoreMapCache(depTotalsStore.totalsMapS)
   static async getDepatchedTotalService(depid: string) {
-    const resp = await axios.get<ResultVO<{ total: number }>>(
-      `${COLLEGE}/invigilations/dispatched/${depid}/total`
-    )
-    return resp.data.data?.total ?? 0
+    const data = await useGet<number>(`${COLLEGE}/invigilations/dispatched/${depid}/total`)
+    return data ?? 0
   }
 
   @StoreMapCache(invisStore.invigilationsDispatchMapS)
   @ELLoading()
   static async listDepatchedsService(depid: string, page: number) {
-    const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
-      `${COLLEGE}/invilations/dispatched/${depid}/${page}`
-    )
-    return resp.data.data?.invis ?? []
+    return await useGet<Invigilation[]>(`${COLLEGE}/invilations/dispatched/${depid}/${page}`)
   }
 
   //
@@ -109,52 +92,42 @@ export class CollegeService {
       // @ts-ignore
       i.department && (i.department = JSON.stringify(i.department))
     })
-    const resp = await axios.patch<ResultVO<{ invis: Invigilation[] }>>(
-      `${COLLEGE}/invigilations/dispatch`,
-      invis
-    )
-    return resp.data.data?.invis as unknown as Ref<Invigilation[]>
+    const data = await usePatch<Invigilation[]>(`${COLLEGE}/invigilations/dispatch`, invis)
+    return data as unknown as Ref<Invigilation[]>
   }
 
   //
   @StoreCache(usersStore.usersS)
   @ELLoading()
   static async listCollegeUsersService() {
-    const resp = await axios.get<ResultVO<{ users: User[] }>>(`${COLLEGE}/users`)
-    return resp.data.data?.users as unknown as Ref<User[]>
+    const data = await useGet<User[]>(`${COLLEGE}/users`)
+    return data as unknown as Ref<User[]>
   }
 
   //
   @ELLoading()
   static async addTimetablesService(timetables: Timetable[]) {
     stringTimetables(timetables)
-    await axios.post(`${COLLEGE}/timetables`, timetables)
-
+    await usePost(`${COLLEGE}/timetables`, timetables)
     return true
   }
 
   // 加载指定专业监考分配负责人
   @StoreMapCache(usersStore.dispatchersS)
   static async listDispatchersService(depid: string) {
-    const resp = await axios.get<ResultVO<{ users: User[] }>>(`${COLLEGE}/dispatchers/${depid}`)
-    return resp.data.data?.users ?? []
+    return await useGet<User[]>(`${COLLEGE}/dispatchers/${depid}`)
   }
 
   @ELLoading()
   static async noticeDispatcherService(notice: Notice) {
-    const resp = await axios.post<ResultVO<{ dingResp: DingNoticeResponse }>>(
-      `${COLLEGE}/dispatchnotices`,
-      notice
-    )
-    const dingResp = resp.data.data?.dingResp
-    return dingResp
+    return await usePost<DingNoticeResponse>(`${COLLEGE}/dispatchnotices`, notice)
   }
 
   //
   @ELLoading()
   static async addTimetableService(userid: string, timetables: Timetable[]) {
     stringTimetables(timetables)
-    await axios.post(`${COLLEGE}/timetables/${userid}`, timetables)
+    await usePost(`${COLLEGE}/timetables/${userid}`, timetables)
     return true
   }
 
@@ -168,44 +141,38 @@ export class CollegeService {
     invi.course = JSON.stringify(invi.course)
     // @ts-ignore
     invi.dispatcher = JSON.stringify(invi.dispatcher)
-    const resp = await axios.patch<ResultVO<{ invi: Invigilation }>>(
-      `${COLLEGE}/invigilations/edit`,
-      invi
-    )
+    const data = await usePatch<Invigilation>(`${COLLEGE}/invigilations/edit`, invi)
 
-    return resp.data.data?.invi as unknown as Ref<Invigilation>
+    return data as unknown as Ref<Invigilation>
   }
 
   // 删除监考
   @StoreClear(invisStore.clear)
   static async delInviService(inviid: string) {
-    await axios.delete(`${COLLEGE}/invigilations/${inviid}`)
+    await useDelete(`${COLLEGE}/invigilations/${inviid}`)
     return true
   }
 
   // 重置监考为未下发状态，重置信息等
   @StoreClear(invisStore.clear)
   static async resetInviService(inviid: string) {
-    await axios.put(`${COLLEGE}/invigilations/${inviid}/status`)
+    await usePut(`${COLLEGE}/invigilations/${inviid}/status`)
     return true
   }
 
   //
   @StoreCache(departmentsStore.departments)
   static async listDepartmentsService() {
-    const resp = await axios.get<ResultVO<{ departments: Department[] }>>(`${COLLEGE}/departments`)
-    return resp.data.data?.departments as unknown as Ref<Department[]>
+    const data = await useGet<Department[]>(`${COLLEGE}/departments`)
+    return data as unknown as Ref<Department[]>
   }
 
   //
   @StoreClear(departmentsStore.clear)
   @StoreCache(departmentsStore.departments, true)
   static async updateDepartmentInviStatusService(departs: Department[]) {
-    const resp = await axios.patch<ResultVO<{ departments: Department[] }>>(
-      `${COLLEGE}/departments/invistatus`,
-      departs
-    )
-    return resp.data.data?.departments as unknown as Ref<Department[]>
+    const data = await usePatch<Department[]>(`${COLLEGE}/departments/invistatus`, departs)
+    return data as unknown as Ref<Department[]>
   }
 
   // 学院直接分配
@@ -219,38 +186,30 @@ export class CollegeService {
     user.dispatcher = JSON.stringify(user.dispatcher)
     // @ts-ignore
     user.department = JSON.stringify(user.department)
-    const resp = await axios.post<ResultVO<{ invi: Invigilation }>>(
-      `${COLLEGE}/assigns/invis/${inviid}`,
-      user
-    )
-    return resp.data.data?.invi
+    return await usePost<Invigilation>(`${COLLEGE}/assigns/invis/${inviid}`, user)
   }
 
   //
   static getUserService = async (account: string) => {
-    const resp = await axios.get<ResultVO<{ user: User }>>(`users/${account}`)
-    return resp.data.data?.user
+    return await useGet<User>(`users/${account}`)
   }
 
   //
   @StoreCache(invisStore.invisAllS)
   @ELLoading()
   static async listCollegeInviDetailsService() {
-    const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(`${COLLEGE}/invis/all`)
-    return resp.data.data?.invis as unknown as Ref<Invigilation[]>
+    const data = await useGet<Invigilation[]>(`${COLLEGE}/invis/all`)
+    return data as unknown as Ref<Invigilation[]>
   }
 
   // 获取全学院每位教师监考数量
   static listCollegeCountsService = async () => {
-    const resp = await axios.get<ResultVO<{ counts: InviCount[] }>>(`${COLLEGE}/invis/counts`)
-
-    return resp.data.data?.counts ?? []
+    return await useGet<InviCount[]>(`${COLLEGE}/invis/counts`)
   }
 
   // 重置指定账号密码
   static resetPasswordService = async (account: string) => {
-    await axios.put(`${COLLEGE}/passwords/${account}`)
-
+    await usePut(`${COLLEGE}/passwords/${account}`)
     return true
   }
 
@@ -258,7 +217,7 @@ export class CollegeService {
   static async addUserService(user: User) {
     // @ts-ignore
     user.department = JSON.stringify(user.department)
-    await axios.post(`${COLLEGE}/users`, user)
+    await usePost(`${COLLEGE}/users`, user)
 
     return true
   }
@@ -266,24 +225,20 @@ export class CollegeService {
   //
   @ELLoading()
   static async sendInviRemarkNoticeService(notice: NoticeRemark) {
-    const resp = await axios.post<ResultVO<{ result: { request_id: string } }>>(
-      `${COLLEGE}/invinotices`,
-      notice
-    )
-    return resp.data.data?.result.request_id ?? ''
+    const data = await usePost<{ request_id: string }>(`${COLLEGE}/invinotices`, notice)
+    return data.request_id ?? ''
   }
 
   // 获取指定学院，指定id的监考信息
   @StoreCache(invisStore.currentInviS)
   static async getCollegeInviService(inviid: string) {
-    const resp = await axios.get<ResultVO<{ invi: Invigilation }>>(`${COLLEGE}/invis/${inviid}`)
-    return resp.data.data?.invi as unknown as Ref<Invigilation>
+    const data = await useGet<Invigilation>(`${COLLEGE}/invis/${inviid}`)
+    return data as unknown as Ref<Invigilation>
   }
 
   //
   static async listUserDingIdsService(userIds: string[]) {
-    const resp = await axios.post<ResultVO<{ users: User[] }>>(`invinotices/dingids`, userIds)
-    return resp.data.data?.users ?? []
+    return await usePost<User[]>(`invinotices/dingids`, userIds)
   }
 
   //
@@ -298,65 +253,54 @@ export class CollegeService {
     // @ts-ignore
     invi.time = JSON.stringify(invi.time)
 
-    const resp = await axios.post<ResultVO<{ invis: Invigilation[] }>>(
-      `${COLLEGE}/cutinvigilation/${oldInviid}`,
-      invi
-    )
-    return resp.data.data?.invis as unknown as Ref<Invigilation[]>
+    const data = await usePost<Invigilation[]>(`${COLLEGE}/cutinvigilation/${oldInviid}`, invi)
+    return data as unknown as Ref<Invigilation[]>
   }
 
   // 加载指定专业下全部教师
   static async listDepartmentUsersService(depid: string) {
-    const resp = await axios.get<ResultVO<{ users: User[] }>>(
-      `${COLLEGE}/department/${depid}/users`
-    )
-    return resp.data.data?.users ?? []
+    return await useGet<User[]>(`${COLLEGE}/department/${depid}/users`)
   }
 
   // 基于钉钉注册手机号，获取用户信息
   @ELLoading()
   static async getDingUserService(mobile: string) {
-    const resp = await axios.get<ResultVO<{ dinguser: DingUser }>>(`${COLLEGE}/mobiles/${mobile}`)
-    return resp.data.data?.dinguser
+    const data = await useGet<DingUser>(`${COLLEGE}/mobiles/${mobile}`)
+    return data
   }
 
   //
   @StoreClear(usersStore.clear)
   static async removeUserService(uid: string) {
-    await axios.delete(`${COLLEGE}/users/${uid}`)
+    await useDelete(`${COLLEGE}/users/${uid}`)
     return true
   }
 
   //
   @StoreClear(invisStore.clear)
   static async removeCollegeDataService() {
-    await axios.delete(`${COLLEGE}/colleges/datareset`)
+    await useDelete(`${COLLEGE}/colleges/datareset`)
     return true
   }
 
   //
   @StoreCache(departmentsStore.departments, true)
   static async removeDepartmentService(depid: string) {
-    const resp = await axios.delete<ResultVO<{ departments: Department[] }>>(
-      `${COLLEGE}/departments/${depid}`
-    )
-    return resp.data.data?.departments as unknown as Ref<Department[]>
+    const data = await useDelete<Department[]>(`${COLLEGE}/departments/${depid}`)
+    return data as unknown as Ref<Department[]>
   }
   // 更新部门名称
   @StoreCache(departmentsStore.departments, true)
   static async updateDepartmentNameService(depart: UserDepartment) {
-    const resp = await axios.patch<ResultVO<{ departments: Department[] }>>(
-      `${COLLEGE}/departments/${depart.depId}`,
-      depart
-    )
-    return resp.data.data?.departments as unknown as Ref<Department[]>
+    const data = await usePatch<Department[]>(`${COLLEGE}/departments/${depart.depId}`, depart)
+    return data as unknown as Ref<Department[]>
   }
 
   @StoreClear(usersStore.clear)
   static async updateUserSerivce(udi: string, user: User) {
     // @ts-ignore
     user.department = JSON.stringify(user.department)
-    await axios.patch(`${COLLEGE}/users/${user.id}`, user)
+    await usePatch(`${COLLEGE}/users/${user.id}`, user)
     return true
   }
 }

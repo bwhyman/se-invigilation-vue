@@ -1,8 +1,8 @@
-import axios from '@/axios'
+import { useGet, usePatch, usePost } from '@/axios'
 import { useDepartmentsStore } from '@/stores/DepartmentStore'
 import { useSettingStore } from '@/stores/SettingStore'
 import { useUsersStore } from '@/stores/UsersStore'
-import type { Department, DingUser, ResultVO, Setting, User } from '@/types'
+import type { Department, DingUser, Setting, User } from '@/types'
 import { StoreCache } from './Decorators'
 
 const usersStore = useUsersStore()
@@ -15,45 +15,45 @@ export class AdminService {
   @StoreCache(departsStore.collegesS, true)
   static async addCollegeService(dep: Department) {
     dep.root = 1
-    const resp = await axios.post<ResultVO<{ colleges: Department[] }>>(`${ADMIN}/colleges`, dep)
-    return resp.data.data?.colleges as unknown as Ref<Department[]>
+    const data = await usePost<Department[]>(`${ADMIN}/colleges`, dep)
+    return data as unknown as Ref<Department[]>
   }
 
   //
   @StoreCache(departsStore.collegesS)
   static async listCollegesService() {
-    const resp = await axios.get<ResultVO<{ colleges: Department[] }>>(`${ADMIN}/colleges`)
-    return resp.data.data?.colleges as unknown as Ref<Department[]>
+    const data = await useGet<Department[]>(`${ADMIN}/colleges`)
+    return data as unknown as Ref<Department[]>
   }
 
   //
   static addUsersService = async (u: { collId: string; collegeName: string; users: User[] }) => {
     console.log(u)
 
-    await axios.post(`${ADMIN}/users`, u)
+    await usePost(`${ADMIN}/users`, u)
   }
 
   //
   @StoreCache(usersStore.dingUsersS)
   static async getDingUsersService(dingdepid: string) {
-    const resp = await axios.get<ResultVO<{ users: DingUser[] }>>(`${ADMIN}/dingusers/${dingdepid}`)
-    return resp.data.data?.users as unknown as Ref<DingUser[]>
+    const data = await useGet<DingUser[]>(`${ADMIN}/dingusers/${dingdepid}`)
+    return data as unknown as Ref<DingUser[]>
   }
 
   @StoreCache(usersStore.usersS)
   static async getCollegeUsersService(collid: string) {
-    const resp = await axios.get<ResultVO<{ users: User[] }>>(`${ADMIN}/colleges/${collid}/users`)
-    return resp.data.data?.users as unknown as Ref<User[]>
+    const data = await useGet<User[]>(`${ADMIN}/colleges/${collid}/users`)
+    return data as unknown as Ref<User[]>
   }
 
   static addCollegeUserDingsService = async (collid: string, users: User[]) => {
-    await axios.post(`${ADMIN}/colleges/${collid}/userdings`, users)
+    await usePost(`${ADMIN}/colleges/${collid}/userdings`, users)
     return true
   }
 
   @StoreCache(settingStore.settingsR, true)
   static async updateSettingService(setting: Setting) {
-    const resp = await axios.patch<ResultVO<{ settings: Setting[] }>>(`${ADMIN}/settings`, setting)
-    return resp.data.data?.settings as unknown as Ref<Setting[]>
+    const data = await usePatch<Setting[]>(`${ADMIN}/settings`, setting)
+    return data as unknown as Ref<Setting[]>
   }
 }

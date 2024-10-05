@@ -1,4 +1,4 @@
-import axios from '@/axios'
+import axios, { useGet, usePost } from '@/axios'
 import router from '@/router'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 import { useSettingStore } from '@/stores/SettingStore'
@@ -19,16 +19,13 @@ export class CommonService {
   @StoreMapCache(invisStore.dateInvisMapS)
   @ELLoading()
   static async listInvisByDateService(sdate: string, edate: string) {
-    const resp = await axios.get<ResultVO<{ invis: Invigilation[] }>>(
-      `invis/date/${sdate}/${edate}`
-    )
-    return resp.data.data?.invis ?? []
+    return await useGet<Invigilation[]>(`invis/date/${sdate}/${edate}`)
   }
   // login
   static loginService = async (user: User, freePwd: boolean) => {
     const data = { account: user.account, password: user.password, ltoken: freePwd }
-    const resp = await axios.post<ResultVO<{ user: User }>>('login', data)
-    const us = resp.data.data?.user
+    const resp = await axios.post<ResultVO<User>>('login', data)
+    const us = resp.data.data
     if (!us) {
       throw '登录错误，请重新登录'
     }
@@ -48,22 +45,22 @@ export class CommonService {
   //
   @StoreCache(settingStore.settingsR)
   static async getSettingsService() {
-    const resp = await axios.get<ResultVO<{ settings: Setting[] }>>('settings')
-    return (resp.data.data?.settings ?? []) as unknown as Ref<Setting[]>
+    const data = await useGet<Setting[]>('settings')
+    return data as unknown as Ref<Setting[]>
   }
 
   //
   static updateSelfPassword = async (pwd: string) => {
-    await axios.post('passwords', { password: pwd })
+    await usePost('passwords', { password: pwd })
   }
 
   //
   static freePwdService = async () => {
     const ltoken = userStore.getLKoken()
-    const resp = await axios.get<ResultVO<{ user: User }>>('l-login', {
+    const resp = await axios.get<ResultVO<User>>('l-login', {
       headers: { ltoken: ltoken }
     })
-    const us = resp.data.data?.user
+    const us = resp.data.data
     if (!us) {
       throw '登录错误，请重新登录'
     }
@@ -95,7 +92,7 @@ export class CommonService {
   static async noticeDingCancelService(invi: Invigilation) {
     const time = `${invi.date} ${invi.time?.starttime}`
     const msg = `监考取消：${invi.course?.courseName}; ${time}`
-    await axios.post(`cancelinvinotices/${invi.id}`, { cancelMessage: msg })
+    await usePost(`cancelinvinotices/${invi.id}`, { cancelMessage: msg })
   }
 
   //
@@ -114,7 +111,7 @@ export class CommonService {
     // @ts-ignore
     invi.time = JSON.stringify(invi.time)
 
-    await axios.post(`invigilations`, invi)
+    await usePost(`invigilations`, invi)
     return true
   }
 }
