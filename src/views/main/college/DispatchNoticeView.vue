@@ -20,11 +20,6 @@ const noticeDispatchersF = async () => {
     noticeMessage: message
   }
   const result = await CollegeService.noticeDispatcherService(notice)
-  console.log(typeof result == 'object')
-
-  // console.log(result)
-  // console.log(result.errcode)
-  // console.log(result.task_id)
   if (result?.errcode != 0) {
     throw '发送钉钉通知错误，请重新尝试'
   }

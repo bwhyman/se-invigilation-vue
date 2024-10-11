@@ -53,11 +53,11 @@ const updateUserInfoF = async () => {
   const user: User = {
     id: userR.value.id,
     name: userR.value.name,
-    dingUserId: userR.value.dingUserId,
-    dingUnionId: userR.value.dingUnionId,
-    role: userR.value.role
+    role: userR.value.role,
+    mobile: userR.value.mobile
   }
-
+  userR.value.dingUserId && (user.dingUserId = userR.value.dingUserId)
+  userR.value.dingUnionId && (user.dingUnionId = userR.value.dingUnionId)
   const depart = departmentsR.value.find((d) => d.id == departmentR.value?.id)
   if (depart) {
     const dep: UserDepartment = {
@@ -77,6 +77,18 @@ const updateUserInfoF = async () => {
 function clearSelect() {
   exposeR.value?.init()
   userR.value = undefined
+}
+
+const selectDingtalkF = async (number: string) => {
+  if (!userR.value || !number) {
+    throw '手机号为空'
+  }
+  const dingUser = await CollegeService.getDingUserService(number)
+  if (!dingUser) {
+    throw '无法查询到钉钉用户'
+  }
+  userR.value.dingUserId = dingUser.userid
+  userR.value.dingUnionId = dingUser.unionid
 }
 </script>
 <template>
@@ -98,7 +110,7 @@ function clearSelect() {
       </el-col>
       <el-col></el-col>
       <el-col>
-        <el-form label-width="120px" style="width: 500px">
+        <el-form label-width="120px" style="width: 400px">
           <el-form-item label="部门">
             <el-select
               value-key="id"
@@ -129,17 +141,23 @@ function clearSelect() {
           <el-form-item label="姓名">
             <el-input v-model="userR.name" />
           </el-form-item>
+          <el-form-item label="手机号">
+            <el-input v-model="userR.mobile" />
+          </el-form-item>
+          <el-col :span="4">
+            <el-button
+              type="success"
+              @click="selectDingtalkF(userR.mobile!)"
+              v-if="!userR.dingUserId || !userR.dingUnionId">
+              基于手机号更新用户钉钉数据
+            </el-button>
+          </el-col>
+
           <el-form-item label="钉钉userid">
-            <el-input
-              v-model="userR.dingUserId"
-              placeholder="钉钉userid"
-              :disabled="userR.dingUserId && userR.dingUserId?.length > 0" />
+            <el-input v-model="userR.dingUserId" placeholder="钉钉userid" />
           </el-form-item>
           <el-form-item label="钉钉unionid">
-            <el-input
-              v-model="userR.dingUnionId"
-              placeholder="钉钉unionid"
-              :disabled="userR.dingUnionId && userR.dingUnionId.length > 0" />
+            <el-input v-model="userR.dingUnionId" placeholder="钉钉unionid" />
           </el-form-item>
           <el-form-item>
             <el-button type="success" @click="updateUserInfoF">提交</el-button>
