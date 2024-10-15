@@ -11,9 +11,6 @@ const departR = ref<Department>()
 
 const searchF = async () => {
   const dingUser = await CollegeService.getDingUserService(userR.value.mobile!)
-  if (!dingUser?.userid || !dingUser.unionid) {
-    throw '无法查询到钉钉用户'
-  }
   userR.value.name = dingUser?.name
   userR.value.dingUserId = dingUser?.userid
   userR.value.dingUnionId = dingUser?.unionid

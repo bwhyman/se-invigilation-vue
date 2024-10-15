@@ -266,6 +266,9 @@ export class CollegeService {
   @ELLoading()
   static async getDingUserService(mobile: string) {
     const data = await useGet<DingUser>(`${COLLEGE}/mobiles/${mobile}`)
+    if (!data) {
+      throw '无法查询到钉钉用户'
+    }
     return data
   }
 

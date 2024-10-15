@@ -84,9 +84,6 @@ const selectDingtalkF = async (number: string) => {
     throw '手机号为空'
   }
   const dingUser = await CollegeService.getDingUserService(number)
-  if (!dingUser) {
-    throw '无法查询到钉钉用户'
-  }
   userR.value.dingUserId = dingUser.userid
   userR.value.dingUnionId = dingUser.unionid
 }
