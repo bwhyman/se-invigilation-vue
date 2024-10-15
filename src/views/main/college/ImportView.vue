@@ -7,9 +7,10 @@ import { stringInviTime } from '@/services/Utils'
 import { useUserStore } from '@/stores/UserStore'
 import type { Invigilation } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
+import InviTypes from '@/views/main/component/InviTypes.vue'
 
 const invisR = ref<Invigilation[]>([])
-const inviTypeR = ref(0)
+const inviTypeR = ref<{ type: string }>()
 const userS = useUserStore().userS
 
 const pageR = ref<{ currentpage?: number; total?: number; url?: string }>({
@@ -36,21 +37,6 @@ const readInvis = async (event: Event) => {
     element.value = ''
   }
 }
-
-watch(inviTypeR, (newValue) => {
-  if (invisR.value.length == 0) {
-    return
-  }
-  invisR.value.forEach((invi) => {
-    invi.course!.courseName = invi.course!.courseName?.replaceAll('阶段', '').replaceAll('期末', '')
-    if (newValue == 1) {
-      invi.course!.courseName += '阶段'
-    }
-    if (newValue == 2) {
-      invi.course!.courseName += '期末'
-    }
-  })
-})
 
 const addInvis = async () => {
   const result = invisR.value
@@ -90,16 +76,13 @@ const addInvis = async () => {
   </el-row>
   <el-row class="my-row" v-if="invisR.length > 0">
     <el-col :span="22">
-      <el-radio-group v-model="inviTypeR">
-        <el-radio-button value="1">阶段</el-radio-button>
-        <el-radio-button value="2">期末</el-radio-button>
-      </el-radio-group>
+      <InviTypes :invis="invisR" ref="inviTypeR" />
     </el-col>
     <el-col :span="2">
       <el-button
         type="success"
         @click="addInvis"
-        :disabled="inviTypeR == 0"
+        :disabled="!inviTypeR?.type"
         style="vertical-align: middle">
         导入
       </el-button>

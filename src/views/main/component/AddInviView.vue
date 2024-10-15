@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
 import { CommonService } from '@/services/CommonService'
-import { IMPORT, INVI_TYPES, LOCATIONS, SUBJECT_ADMIN } from '@/services/Const'
+import { IMPORT, LOCATIONS, SUBJECT_ADMIN } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
 import { useUserStore } from '@/stores/UserStore'
 import type { Invigilation } from '@/types'
+import InviTypes from './InviTypes.vue'
 const userS = useUserStore().userS
 const inviR = ref<Invigilation>({ course: {}, time: {} })
-const inviTypeR = ref('')
+const inviTypeR = ref<{ type: string }>()
 
 const submitForm = async () => {
   if (!userS.value) return
@@ -19,8 +20,8 @@ const submitForm = async () => {
   ) {
     throw '请填写完整考试课程信息'
   }
-  if (!inviTypeR.value) {
-    throw '请选择`阶段/期末`考试类型'
+  if (!inviTypeR.value?.type) {
+    throw '请选择考试类型'
   }
   if (!inviR.value.date || !inviR.value.time?.starttime || !inviR.value.time?.endtime) {
     throw '请填写完整考试时间信息'
@@ -31,7 +32,7 @@ const submitForm = async () => {
   inviR.value.importer = stringInviTime({ id: userS.value.id, name: userS.value.name })
   await CommonService.addInviSerivce(inviR.value)
   inviR.value = { course: {}, time: {} }
-  inviTypeR.value = ''
+  inviTypeR.value.type = ''
   createElNotificationSuccess('监考录入成功')
 }
 
@@ -41,18 +42,6 @@ const querySearch = (queryString: string, cb: any) => {
   const results = queryString ? locations.filter((r) => r.value == queryString) : locations
   cb(results)
 }
-
-watchEffect(() => {
-  if (!inviR.value.course || !inviR.value.course.courseName) {
-    inviTypeR.value = ''
-    return
-  }
-
-  INVI_TYPES.forEach((it) => {
-    inviR.value.course!.courseName = inviR.value.course!.courseName!.replaceAll(it, '')
-  })
-  inviR.value.course.courseName += inviTypeR.value
-})
 </script>
 <template>
   <el-row class="my-row">
@@ -69,14 +58,7 @@ watchEffect(() => {
             @keydown.delete="inviR.course!.courseName = ''" />
         </el-form-item>
         <el-form-item label="类型">
-          <el-radio-group
-            v-model="inviTypeR"
-            style="margin-right: 10px; vertical-align: middle"
-            :disabled="!inviR.course?.courseName">
-            <el-radio-button v-for="(type, index) of INVI_TYPES" :key="index" :value="type">
-              {{ type }}
-            </el-radio-button>
-          </el-radio-group>
+          <InviTypes :invis="[inviR]" ref="inviTypeR" />
         </el-form-item>
         <el-form-item label="班级">
           <el-input v-model="inviR.course!.clazz" />
