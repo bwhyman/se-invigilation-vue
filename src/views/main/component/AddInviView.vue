@@ -42,6 +42,23 @@ const querySearch = (queryString: string, cb: any) => {
   const results = queryString ? locations.filter((r) => r.value == queryString) : locations
   cb(results)
 }
+
+const timeSelectR = ref<{ endSTime?: string; endETime?: string }>({})
+
+watch(
+  () => inviR.value.time?.starttime,
+  () => {
+    if (!inviR.value.time?.starttime) return
+    const stime = inviR.value.time?.starttime
+    const mins = stime.split(':')[1]
+    const hoursT = Number.parseInt(stime.split(':')[0]) + 1
+    const sHours = hoursT < 10 ? `0${hoursT}` : hoursT
+    const es = hoursT + 2
+    const eHours = es < 10 ? `0${es}` : es
+    timeSelectR.value.endSTime = `${sHours}:${mins}`
+    timeSelectR.value.endETime = `${eHours}:${mins}`
+  }
+)
 </script>
 <template>
   <el-row class="my-row">
@@ -97,16 +114,16 @@ const querySearch = (queryString: string, cb: any) => {
                 style="width: 100%" />
             </el-form-item>
           </el-col>
-          <el-col class="text-center" :span="2"></el-col>
+          <el-col class="text-center" :span="1"></el-col>
           <el-col :span="11">
             <el-form-item>
               <el-time-select
-                :min-time="inviR.time!.starttime"
+                :disabled="!inviR.time!.starttime"
                 v-model="inviR.time!.endtime"
                 placeholder="结束时间"
-                start="09:30"
-                step="00:10"
-                end="22:00"
+                :start="timeSelectR.endSTime"
+                step="00:30"
+                :end="timeSelectR.endETime"
                 style="width: 100%" />
             </el-form-item>
           </el-col>
