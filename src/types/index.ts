@@ -21,7 +21,7 @@ export interface UserDepartment {
 export interface Department {
   id?: string
   name?: string
-  college?: string
+  college?: { collId: string; collegeName: string }
   root?: number
   inviStatus?: number
   dingDepid?: string

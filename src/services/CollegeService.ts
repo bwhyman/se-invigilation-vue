@@ -306,4 +306,13 @@ export class CollegeService {
     await usePatch(`${COLLEGE}/users/${user.id}`, user)
     return true
   }
+
+  @StoreClear(departmentsStore.clear)
+  @StoreCache(departmentsStore.departments)
+  static async addDepartmentService(depart: Department) {
+    // @ts-ignore
+    depart.college = JSON.stringify(depart.college)
+    const data = await usePost(`${COLLEGE}/departments`, depart)
+    return data as unknown as Ref<Department[]>
+  }
 }
