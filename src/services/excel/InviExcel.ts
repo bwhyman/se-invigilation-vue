@@ -39,7 +39,7 @@ const readInviRow = (r: any, reject: any) => {
   const invi: Invigilation = {}
 
   // course name
-  let courseName = r['课程名称']
+  let courseName = r['课程名称'].trim()
   if (!courseName || courseName.length == 0) {
     reject('课程名称为空')
     return
@@ -52,20 +52,22 @@ const readInviRow = (r: any, reject: any) => {
   invi.course.courseName = courseName
 
   // teacher name
-  let teacherName = r['授课教师']
+  let teacherName = r['授课教师'].trim()
   ~teacherName.indexOf('[') && (teacherName = teacherName.substring(0, teacherName.indexOf('[')))
   invi.course.teacherName = teacherName
 
   // class
-  if (r['班级'] && r['班级'].length > 0) {
-    invi.course.clazz = r['班级']
+  const clazz = r['班级'].trim()
+  if (clazz) {
+    invi.course.clazz = clazz
   }
-  if (!r['考试日期']) {
+  const date = r['考试日期'].trim()
+  if (!date || date.length == 0) {
     reject('监考日期为空。表格中日期使用文本类型，不要使用日期类型')
     return
   }
   // 监考日期
-  const inviDate = getInviDate(r['考试日期'], reject)
+  const inviDate = getInviDate(date, reject)
   if (!inviDate) return
   invi.date = inviDate
 
@@ -76,18 +78,18 @@ const readInviRow = (r: any, reject: any) => {
   invi.time.endtime = rtime.etime
 
   //
-  invi.amount = Number(`${r['监考人数']}`.replace('人', ''))
+  invi.amount = Number(`${r['监考人数']}`.replace('人', '').trim())
   if (!invi.amount) {
     reject('监考人数读取错误')
     return
   }
   //
-  invi.course.location = r['地点'].replaceAll('（T）', '')
-  if (!invi.course.location || invi.course.location.length == 0) {
+  const localion = r['地点'].replaceAll('（T）', '').trim()
+  if (!localion || localion.length == 0) {
     reject('监考地点为空')
     return
   }
-
+  invi.course.location = localion
   return invi
 }
 
@@ -133,8 +135,8 @@ const getTime = (time: string, stime: string, etime: string, reject: (str: strin
     reject('考试时间读取错误。格式：08:00')
     return
   }
-  rtime.stime = getTimeFix(rtime.stime)
-  rtime.etime = getTimeFix(rtime.etime)
+  rtime.stime = getTimeFix(rtime.stime.trim())
+  rtime.etime = getTimeFix(rtime.etime.trim())
 
   return rtime
 }
