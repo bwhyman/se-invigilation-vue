@@ -109,7 +109,7 @@ watch(
                 v-model="inviR.time!.starttime"
                 placeholder="开始时间"
                 start="08:00"
-                step="00:10"
+                step="00:05"
                 end="20:00"
                 style="width: 100%" />
             </el-form-item>

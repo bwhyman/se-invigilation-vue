@@ -15,7 +15,9 @@ defineExpose({ dateRangeR })
 </script>
 <template>
   <div style="display: inline-block; margin-right: 10px">
-    <p style="margin-bottom: 10px">打开面板单击日历确定开始/截至日期段。</p>
+    <p style="margin-bottom: 10px">
+      打开日历面板，单击日历日期确定开始日期，再次单击确定截至日期。
+    </p>
     <div class="demo-date-picker" style="display: inline-block; margin-right: 10px">
       <div class="block">
         <el-date-picker
