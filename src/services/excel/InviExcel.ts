@@ -11,21 +11,26 @@ export const readInviExcel = (file: Blob) => {
       const wb = XLSX.read(data, { type: 'binary' })
       const sheet = wb.Sheets[wb.SheetNames[0]]
 
-      for (const r of XLSX.utils.sheet_to_json(sheet) as any) {
-        const invi = readInviRow(r, reject)
-        if (!invi) return
-        invi.status = IMPORT
-        if (~invi.course!.location!.replaceAll('，', ',').indexOf(',')) {
-          const array = r['地点'].replace('，', ',').split(',') as string[]
-          for (const loc of array) {
-            const invi2 = JSON.parse(JSON.stringify(invi))
-            invi2.location = loc
-            invis.push(invi2)
+      try {
+        for (const r of XLSX.utils.sheet_to_json(sheet) as any) {
+          const invi = readInviRow(r)
+          if (!invi) return
+          invi.status = IMPORT
+          const moreLocations = invi.course!.location!.replaceAll('，', ',')
+          if (~moreLocations.indexOf(',')) {
+            const array = moreLocations.split(',') as string[]
+            for (const loc of array) {
+              const invi2 = JSON.parse(JSON.stringify(invi))
+              invi2.location = loc
+              invis.push(invi2)
+            }
+            continue
           }
-          continue
+          invis.push(invi)
         }
-
-        invis.push(invi)
+      } catch (error) {
+        reject(error)
+        return
       }
     }
     reader.onloadend = () => {
@@ -35,14 +40,13 @@ export const readInviExcel = (file: Blob) => {
   })
 }
 
-const readInviRow = (r: any, reject: any) => {
+const readInviRow = (r: any) => {
   const invi: Invigilation = {}
 
   // course name
   let courseName = r['课程名称']
   if (!courseName || courseName.length == 0) {
-    reject('课程名称为空')
-    return
+    throw '课程名称为空'
   }
   courseName = courseName.trim()
   ~courseName.indexOf('[') && (courseName = courseName.substring(0, courseName.indexOf('[')))
@@ -57,32 +61,42 @@ const readInviRow = (r: any, reject: any) => {
     teacherName = teacherName.trim()
     ~teacherName.indexOf('[') && (teacherName = teacherName.substring(0, teacherName.indexOf('[')))
   }
-  invi.course.teacherName = teacherName ?? '*'
+  invi.course.teacherName = teacherName ?? '外院系教师'
 
   // class
-  const clazz = r['班级']
-  invi.course.clazz = clazz ? clazz.trim() : '*'
+  const clazz = r['班级']?.trim()
+  invi.course.clazz = clazz ?? '*'
 
   // 监考日期
   const date = r['考试日期']
   if (date) {
-    const inviDate = getDateFix(date, reject)
+    const inviDate = getDateFix(date)
     invi.date = inviDate
   }
   //
-  const dateTime = r['考试时间']
+  const dateTime = r['考试时间']?.trim()
   if (dateTime) {
-    const rtime = getTime(dateTime, reject)
+    const rtime = getTime(dateTime)
     invi.time.starttime = rtime?.stime
     invi.time.endtime = rtime?.etime
   }
 
+  let startTime = r['开始时间'] as string | undefined
+  startTime = startTime?.trim()
+  let endTime = r['结束时间'] as string | undefined
+  endTime = endTime?.trim()
+  if ((!invi.time.starttime && !startTime) || (!invi.time.endtime && !endTime)) {
+    throw `读取到${invi.course.courseName}，考试时间为空`
+  }
+
   // 监考时间
-  if (r['开始时间'] && r['结束时间']) {
-    const rtime = getStartEndTime(r['开始时间'], r['结束时间'], reject)
+  if (startTime && endTime) {
+    const rtime = getStartEndTime(startTime, endTime)
     if (!rtime) {
-      reject(`读取到${r['开始时间']}~${r['结束时间']}；错误`)
-      return
+      throw `读取到${invi.course.courseName}，${startTime}~${endTime}；错误`
+    }
+    if (!invi.date && !rtime.date) {
+      throw `读取到${invi.course.courseName}，考试日期为空`
     }
     rtime.date && (invi.date = rtime.date)
     invi.time.starttime = rtime.stime
@@ -90,44 +104,36 @@ const readInviRow = (r: any, reject: any) => {
   }
 
   //
-  let amount = r['监考人数']
-  if (!amount) {
-    reject(`${invi.course.courseName}；监考人数读取错误`)
-    return
-  }
-  amount = Number(amount.replace('人', '').trim())
+  const amount = parseInt(r['监考人数']?.replace('人', '')?.trim())
   if (Number.isNaN(amount)) {
-    reject(`${invi.course.courseName}；监考人数读取错误`)
-    return
+    throw `读取到${invi.course.courseName}，监考人数错误`
   }
   invi.amount = amount
 
   //
-  const localion = r['地点']
+  const localion = r['地点']?.replaceAll('（T）', '')?.trim()
   if (!localion) {
-    reject(`${invi.course.courseName}；监考地点为空`)
-    return
+    throw `读取到${invi.course.courseName}，监考地点为空`
   }
-  invi.course.location = localion.replaceAll('（T）', '').trim()
+  invi.course.location = localion
   return invi
 }
 
-const getTime = (time: string, reject: (str: string) => void) => {
+const getTime = (time: string) => {
   const rtime = { stime: '', etime: '' }
   const inviTime = time.replaceAll('-', '~').replaceAll('：', ':')
   if (!inviTime.includes(':')) {
-    reject(`读取到${inviTime}；考试时间读取错误。格式：08:00`)
+    throw `读取到${inviTime}，考试时间错误。格式：08:00`
   }
   rtime.stime = getTimeFix(inviTime.split('~')[0])
   rtime.etime = getTimeFix(inviTime.split('~')[1])
   return rtime
 }
 
-const getStartEndTime = (stime: string, etime: string, reject: (str: string) => void) => {
+const getStartEndTime = (stime: string, etime: string) => {
   const rtime = { stime: '', etime: '', date: '' }
-  if (stime && stime.length >= 6) {
-    const date = getDateFix(stime.split(' ')[0], reject)
-    date && (rtime.date = date)
+  if (stime.length >= 6) {
+    const date = getDateFix(stime.split(' ')[0])
     if (date) {
       rtime.date = date
       stime = stime.split(' ')[1]
@@ -135,17 +141,12 @@ const getStartEndTime = (stime: string, etime: string, reject: (str: string) => 
     }
   }
 
-  if (stime && stime.length > 0) {
-    rtime.stime = stime.replaceAll('：', ':')
-    rtime.etime = etime.replaceAll('：', ':')
-  }
+  rtime.stime = stime.replaceAll('：', ':')
+  rtime.etime = etime.replaceAll('：', ':')
+
   if (!rtime.stime.includes(':') || !rtime.etime.includes(':')) {
-    let msg = rtime.stime
-    if (!rtime.etime.includes(':')) {
-      msg = rtime.etime
-    }
-    reject(`读取到${msg}；考试时间读取错误。格式：08:00`)
-    return
+    const msg = `${rtime.stime}~${rtime.etime}`
+    throw `读取到${msg}，考试时间错误。格式：08:00`
   }
   rtime.stime = getTimeFix(rtime.stime.trim())
   rtime.etime = getTimeFix(rtime.etime.trim())
@@ -164,16 +165,14 @@ const getTimeFix = (time: string) => {
   return timeA.join(':')
 }
 // 日期补位
-const getDateFix = (date: string, reject: (str: string) => void) => {
+const getDateFix = (date: string) => {
   const inviDate = date.replaceAll('/', '-').replaceAll('.', '-')
   const dateStrArray = inviDate.split('-')
   if (!dateStrArray || dateStrArray.length == 0) {
-    reject(`读取到${dateStrArray}；考试日期读取失败`)
-    return
+    throw `读取到${dateStrArray}，考试日期错误`
   }
   if (dateStrArray[0].length !== 4) {
-    reject(`读取到${dateStrArray[0]}；考试年份请使用4位，例如，2024`)
-    return
+    throw `读取到${dateStrArray[0]}，考试年份请使用4位，例如，2024`
   }
   // 补位
   if (dateStrArray[1].length == 1) {
@@ -185,8 +184,7 @@ const getDateFix = (date: string, reject: (str: string) => void) => {
 
   const temp = dateStrArray.join('-')
   if (temp.length != 10) {
-    reject(`读取到${temp}；考试日期请使用格式：2024-08-04`)
-    return
+    throw `读取到${temp}，考试日期请使用格式：2024-08-04`
   }
   return temp
 }
