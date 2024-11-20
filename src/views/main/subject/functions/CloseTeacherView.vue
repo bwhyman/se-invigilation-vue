@@ -6,12 +6,7 @@ import type { User } from '@/types'
 const usersS = await SubjectService.listUsersService()
 //
 const btnR = ref(true)
-
-const userStatusR = ref<User[]>([])
-usersS.value.forEach((us) => {
-  userStatusR.value.push({ id: us.id, inviStatus: us.inviStatus, name: us.name })
-})
-
+const userStatusR = ref<User[]>(usersS.value)
 //
 const activeC = computed(() => (status: number) => status == 1)
 const changeStatus = (user: User) => {

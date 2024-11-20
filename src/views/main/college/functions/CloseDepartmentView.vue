@@ -2,8 +2,8 @@
 import { createElNotificationSuccess } from '@/components/message'
 import { CollegeService } from '@/services/CollegeService'
 import type { Department } from '@/types'
-
-const departmentR = await CollegeService.listDepartmentsService()
+const deps = await CollegeService.listDepartmentsService()
+const departmentR = ref(deps.value)
 
 // 更新专业监考下发显示
 const btnR = ref(true)

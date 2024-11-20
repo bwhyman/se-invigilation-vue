@@ -1,6 +1,6 @@
 import type { Setting } from '@/types'
 
-const settingsR = ref<Setting[]>()
+const settingsR = shallowRef<Setting[]>()
 
 const getFirstWeek = () => {
   return settingsR.value?.find((set) => set.skey == 'firstweek')?.svalue ?? ''

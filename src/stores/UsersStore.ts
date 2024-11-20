@@ -1,9 +1,9 @@
 import type { DingUser, User } from '@/types/index'
 
-const usersS = ref<User[]>()
-const dingUsersS = ref<DingUser[]>()
+const usersS = shallowRef<User[]>()
+const dingUsersS = shallowRef<DingUser[]>()
 
-const dispatchersS = ref<Map<string, User>>(new Map())
+const dispatchersS = shallowRef<Map<string, User>>(new Map())
 
 const clear = () => (usersS.value = undefined)
 const store = { usersS, dingUsersS, dispatchersS, clear }

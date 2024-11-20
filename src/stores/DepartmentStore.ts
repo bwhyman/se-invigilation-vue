@@ -1,8 +1,8 @@
 import type { Department } from '@/types'
 
-const departments = ref<Department[]>()
-const collegesS = ref<Department[]>()
-const departmentsOpened = ref<Department[]>()
+const departments = shallowRef<Department[]>()
+const collegesS = shallowRef<Department[]>()
+const departmentsOpened = shallowRef<Department[]>()
 const clear = () => {
   departments.value = undefined
   departmentsOpened.value = undefined

@@ -16,7 +16,7 @@ interface Props {
   page?: Page
   showExecutor?: boolean
 }
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), { invis: () => [] })
 
 // 表格全局每页显示个数
 let PAGESIZE = 20

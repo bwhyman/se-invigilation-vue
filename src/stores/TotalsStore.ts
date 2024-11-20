@@ -1,4 +1,4 @@
-const totalsMapS = ref<Map<any, number>>(new Map())
+const totalsMapS = shallowRef<Map<any, number>>(new Map())
 const clear = () => totalsMapS.value.clear()
 
 const store = { totalsMapS, clear }

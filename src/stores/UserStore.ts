@@ -25,7 +25,7 @@ const decode = (str: string) => {
 }
 
 const u = sessionStorage.getItem('user')
-const userS = ref<User>()
+const userS = shallowRef<User>()
 u && (userS.value = JSON.parse(decode(u)))
 
 const setUserSessionStorage = (user: User, token: string, role: string) => {
