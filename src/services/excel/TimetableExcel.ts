@@ -60,7 +60,6 @@ export const readTimetableExcel = (file: Blob, isCollege = true) => {
               getWeeks(weeks, wArrays)
               wArrays.forEach((w) => {
                 const temp: { courseName?: string; location?: string; clazz?: string } = {}
-                w.teacherName = teach.name
                 w.period = tempP
                 w.dayweek = k + 1
                 temp.courseName = name
@@ -206,7 +205,6 @@ export const readPostGTimetableExcel = (file: Blob) => {
                 course.course.courseName = cellRows[k].substring(0, cellRows[k].indexOf('（'))
                 // 星期
                 course.dayweek = i + 1
-                course.teacherName = teacherName
               })
 
               timetable.courses.push(...courses)

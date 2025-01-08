@@ -19,6 +19,7 @@ defineExpose({
 const departmentsR = await CollegeService.listDepartmentsService()
 
 const departmentChangeF = async () => {
+  userR.value = undefined
   usersR.value = await CollegeService.listDepartmentUsersService(departmentR.value?.id!)
 }
 </script>

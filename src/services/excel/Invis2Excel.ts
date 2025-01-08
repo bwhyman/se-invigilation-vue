@@ -9,8 +9,8 @@ export const exportInvisDetails = (invis: Invigilation[], details: InviDetail[])
     getExcelCell(invi.course?.teacherName ?? ''),
     getExcelCell(invi.course?.courseName ?? ''),
     getExcelCell(invi.course?.clazz ?? ''),
-    getExcelCell(`${invi.date} ${invi.time?.starttime}~${invi.time?.endtime}` ?? ''),
-    getExcelCell(`${invi.course?.location}` ?? ''),
+    getExcelCell(`${invi.date} ${invi.time?.starttime}~${invi.time?.endtime}`),
+    getExcelCell(`${invi.course?.location}`),
     getExcelCell(invi.amount + ''),
     getExcelCell(invi.importer?.userName ?? ''),
     getExcelCell(invi.dispatcher?.userName ?? ''),
@@ -60,15 +60,15 @@ export const exportInvisDetails = (invis: Invigilation[], details: InviDetail[])
 }
 
 //
-export const exportInvisDetailsDate = (invis: Invigilation[], sdate: string, edate: string) => {
+export const exportInvisDetailsDate = (invis: Invigilation[], sdate?: string, edate?: string) => {
   let index = 0
   const data: any[][] = invis.map((invi) => [
     getExcelCell(`${(index += 1)}`, 'right'),
     getExcelCell(invi.course?.teacherName ?? ''),
     getExcelCell(invi.course?.courseName ?? ''),
     getExcelCell(invi.course?.clazz ?? ''),
-    getExcelCell(`${invi.date} ${invi.time?.starttime}~${invi.time?.endtime}` ?? ''),
-    getExcelCell(`${invi.course?.location}` ?? ''),
+    getExcelCell(`${invi.date} ${invi.time?.starttime}~${invi.time?.endtime}`),
+    getExcelCell(`${invi.course?.location}`),
     getExcelCell(invi.executor?.map((exe) => exe.userName).join('; ') ?? '')
   ])
 
@@ -86,7 +86,13 @@ export const exportInvisDetailsDate = (invis: Invigilation[], sdate: string, eda
   const jsonWorkSheet = XLSX.utils.aoa_to_sheet(data)
   jsonWorkSheet['!cols'] = getCellWidth(data)
   XLSX.utils.book_append_sheet(workBook, jsonWorkSheet, `监考信息`)
-  return XLSX.writeFile(workBook, `监考信息-${sdate}-${edate}.xlsx`)
+  let suff
+  if (sdate) {
+    suff = `${sdate}-${edate}`
+  } else {
+    suff = '全部'
+  }
+  return XLSX.writeFile(workBook, `监考信息-${suff}.xlsx`)
 }
 
 const setExcelTitleCell = (data: string, ali: string = 'center') => {

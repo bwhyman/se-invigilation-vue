@@ -33,6 +33,12 @@ export class SubjectService {
     return data as unknown as Ref<User[]>
   }
 
+  @StoreCache(invisStore.invigilationsDispatchedS)
+  @ELLoading()
+  static async listDispatchedsService() {
+    return await useGet<Invigilation[]>(`${SUBJECT}/invis/dispatcheds`)
+  }
+
   //
   @StoreMapCache(invisStore.invigilationsDispatchMapS)
   @ELLoading()
@@ -143,5 +149,10 @@ export class SubjectService {
     const data = await useDelete<ExcludeRule[]>(`${SUBJECT}/excluderules/${exid}`)
     excludeRulesStore.excludeRules.value = data
     return data as unknown as Ref<ExcludeRule[]>
+  }
+
+  static async listDepartInvisAllService() {
+    const data = await useGet<Invigilation[]>(`${SUBJECT}/invis/all`)
+    return data
   }
 }

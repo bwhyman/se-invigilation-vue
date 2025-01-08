@@ -1,4 +1,5 @@
 import { useDelete, useGet, usePatch, usePost, usePut } from '@/axios'
+import { useDepartmentAvgStore } from '@/stores/DepartmentAvgStore'
 import { useDepartmentsStore } from '@/stores/DepartmentStore'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 import { useTotalsStore } from '@/stores/TotalsStore'
@@ -6,6 +7,7 @@ import { useUsersStore } from '@/stores/UsersStore'
 import type {
   AssignUser,
   Department,
+  DepartmentAvg,
   DingNoticeResponse,
   DingUser,
   InviCount,
@@ -26,6 +28,7 @@ const departmentsStore = useDepartmentsStore()
 const usersStore = useUsersStore()
 const invisStore = useInvigilationsStore()
 const depTotalsStore = useTotalsStore()
+const departmentAvgStore = useDepartmentAvgStore()
 
 export class CollegeService {
   //
@@ -314,5 +317,22 @@ export class CollegeService {
     depart.college = JSON.stringify(depart.college)
     const data = await usePost(`${COLLEGE}/departments`, depart)
     return data as unknown as Ref<Department[]>
+  }
+
+  @StoreCache(departmentAvgStore.depAvgS)
+  private static async getAvsInfoAPI() {
+    const data = await useGet<{
+      departmentquantity: DepartmentAvg[]
+      teacherquantity: DepartmentAvg[]
+    }>(`${COLLEGE}/invis/avg`)
+    return data as unknown as Ref<{
+      departmentquantity: DepartmentAvg[]
+      teacherquantity: DepartmentAvg[]
+    }>
+  }
+
+  static async listDepartmentAvgsService() {
+    await CollegeService.getAvsInfoAPI()
+    return departmentAvgStore.depAvgC
   }
 }

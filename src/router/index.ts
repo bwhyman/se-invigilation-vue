@@ -93,7 +93,7 @@ const routes: RouteRecordRaw[] = [
         },
         children: [
           {
-            path: 'dispatched/:page?',
+            path: 'dispatched',
             component: () => import('@/views/main/subject/DispatchedListView.vue')
           },
           {

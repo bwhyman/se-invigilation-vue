@@ -96,7 +96,7 @@ const addTimetable = async () => {
       <br />
       提交时自动删除原全部课表。
       <br />
-      请将同名教师姓名，改为钉钉群中名称。例如，电气李丹
+      请将同名教师姓名，改为系统录入名称。例如，电气李丹
       <br />
       <el-checkbox
         v-model="sameNameR"

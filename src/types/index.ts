@@ -37,7 +37,6 @@ export interface Timetable {
   period?: string
   course?: Course
   userId?: string
-  teacherName?: string
 }
 
 export interface Course {
@@ -174,6 +173,12 @@ export interface ExcludeRule {
   endweek?: number
   dayweeks?: number[]
   periods?: string[]
+}
+
+export interface DepartmentAvg {
+  depId: string
+  departmentQuantity?: number
+  teacherQuantity?: number
 }
 
 export interface ResultVO<T> {

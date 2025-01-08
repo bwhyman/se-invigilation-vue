@@ -22,6 +22,7 @@ export const getInitNotice = (users: User[], invis: Invigilation) => {
     notice.etime
   }
 监考课程：${invis.course?.courseName}
+监考班级：${invis.course?.clazz}
 监考地点：${invis.course?.location}
 监考教师：${userNames.join('; ')}`
   notice.noticeMessage = noticeMessage

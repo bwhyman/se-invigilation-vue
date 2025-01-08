@@ -93,7 +93,7 @@ const selectDingtalkF = async (number: string) => {
     <el-col>
       <DepartmentUser ref="exposeR" />
     </el-col>
-    <template v-if="userR?.id">
+    <template v-if="exposeR?.selectUser && userR?.id">
       <el-col :span="4">
         <el-button type="danger" @click="resetPasswordF">重置密码为账号</el-button>
       </el-col>
