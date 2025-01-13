@@ -8,6 +8,7 @@ const depAvgS = shallowRef<{
 const depAvgMap = new Map<string, string>()
 
 const depAvgC = computed(() => {
+  depAvgMap.clear()
   depAvgS.value?.departmentquantity.map((dep) => {
     const teacherQuantity =
       depAvgS.value?.teacherquantity.find((dept) => dept.depId === dep.depId)?.teacherQuantity ?? 1
@@ -15,8 +16,9 @@ const depAvgC = computed(() => {
   })
   return depAvgMap
 })
-
+const clear = () => (depAvgS.value = undefined)
 export const useDepartmentAvgStore = () => ({
   depAvgS,
-  depAvgC
+  depAvgC,
+  clear
 })

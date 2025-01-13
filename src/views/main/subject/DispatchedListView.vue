@@ -8,7 +8,7 @@ import InviTable from '@/views/main/component/InviTable.vue'
 
 const result = await Promise.all([
   SubjectService.getTotalsService(DISPATCH),
-  SubjectService.listDispatchedsService(DISPATCH)
+  SubjectService.listDispatchedsService()
 ])
 const inviS = result[1]
 const total = result[0]

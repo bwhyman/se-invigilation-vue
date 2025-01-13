@@ -179,7 +179,7 @@ export class CollegeService {
   }
 
   // 学院直接分配
-  @StoreClear(invisStore.clear)
+  @StoreClear(invisStore.clear, departmentAvgStore.clear)
   static async addAssignService(inviid: string, user: AssignUser) {
     // @ts-ignore
     user.allocator = JSON.stringify(user.allocator)

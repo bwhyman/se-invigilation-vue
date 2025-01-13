@@ -79,6 +79,8 @@ const assignF = async () => {
     const noticeFinal = getFinalNotice(notice, assigners)
     assignNoticesR.value.push(noticeFinal)
   }
+  // 重新加载个部门教师平均监考数量
+  CollegeService.listDepartmentAvgsService()
   createElNotificationSuccess('监考分配成功')
 }
 
