@@ -1,19 +1,13 @@
 import axios, { useGet, usePost } from '@/axios'
 import router from '@/router'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
-import { useSettingStore } from '@/stores/SettingStore'
 import { useUserStore } from '@/stores/UserStore'
-import type { Invigilation, ResultVO, Setting, User } from '@/types'
+import type { Invigilation, ResultVO, User } from '@/types'
 import { COLLEGE_ADMIN, SUBJECT_ADMIN, SUPER_ADMIN } from './Const'
-import { ELLoading, StoreCache, StoreClear, StoreMapCache } from './Decorators'
+import { ELLoading, StoreClear, StoreMapCache } from './Decorators'
 
 const userStore = useUserStore()
 const invisStore = useInvigilationsStore()
-const settingStore = useSettingStore()
-
-localStorage.removeItem('user')
-localStorage.removeItem('role')
-localStorage.removeItem('token')
 
 export class CommonService {
   @StoreMapCache(invisStore.dateInvisMapS)
@@ -40,13 +34,6 @@ export class CommonService {
     }
 
     router.push(this.getPath(role))
-  }
-
-  //
-  @StoreCache(settingStore.settingsR)
-  static async getSettingsService() {
-    const data = await useGet<Setting[]>('settings')
-    return data as unknown as Ref<Setting[]>
   }
 
   //

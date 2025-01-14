@@ -86,6 +86,7 @@ export interface Setting {
   id?: string
   skey?: string
   svalue?: string
+  state?: number
 }
 
 export interface InviCount {
@@ -179,6 +180,13 @@ export interface DepartmentAvg {
   depId: string
   departmentQuantity?: number
   teacherQuantity?: number
+}
+
+export interface CollegeSetting {
+  id?: string
+  collId?: string
+  settingId?: string
+  svalue?: string
 }
 
 export interface ResultVO<T> {

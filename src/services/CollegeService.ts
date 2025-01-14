@@ -2,6 +2,7 @@ import { useDelete, useGet, usePatch, usePost, usePut } from '@/axios'
 import { useDepartmentAvgStore } from '@/stores/DepartmentAvgStore'
 import { useDepartmentsStore } from '@/stores/DepartmentStore'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
+import { useSettingStore } from '@/stores/SettingStore'
 import { useTotalsStore } from '@/stores/TotalsStore'
 import { useUsersStore } from '@/stores/UsersStore'
 import type {
@@ -14,6 +15,7 @@ import type {
   Invigilation,
   Notice,
   NoticeRemark,
+  Setting,
   Timetable,
   User,
   UserDepartment
@@ -29,12 +31,15 @@ const usersStore = useUsersStore()
 const invisStore = useInvigilationsStore()
 const depTotalsStore = useTotalsStore()
 const departmentAvgStore = useDepartmentAvgStore()
+const settingStore = useSettingStore()
+
+const addPreUrl = (url: string) => `${COLLEGE}/${url}`
 
 export class CollegeService {
   //
   @StoreCache(departmentsStore.departmentsOpened)
   static async listOpenedDepartmentsService() {
-    const data = await useGet<Department[]>(`${COLLEGE}/departments/opened`)
+    const data = await useGet<Department[]>(addPreUrl('departments/opened'))
     return data as unknown as Ref<Department[]>
   }
 
@@ -57,31 +62,31 @@ export class CollegeService {
       // @ts-ignore
       i.department && (i.department = JSON.stringify(i.department))
     })
-    return await usePost<Invigilation[]>(`${COLLEGE}/invigilations`, invis)
+    return await usePost<Invigilation[]>(addPreUrl('invigilations'), invis)
   }
 
   @StoreCache(invisStore.invigilationsImportS)
   @ELLoading()
   static async listImportedService() {
-    const data = await useGet<Invigilation[]>(`${COLLEGE}/invilations/imported`)
+    const data = await useGet<Invigilation[]>(addPreUrl('invilations/imported'))
     return data as unknown as Ref<Invigilation[]>
   }
 
   static getImportedTotalService = async () => {
-    const data = await useGet<number>(`${COLLEGE}/invigilations/imported/total`)
+    const data = await useGet<number>(addPreUrl('invigilations/imported/total'))
     return data ?? 0
   }
 
   @StoreMapCache(depTotalsStore.totalsMapS)
   static async getDepatchedTotalService(depid: string) {
-    const data = await useGet<number>(`${COLLEGE}/invigilations/dispatched/${depid}/total`)
+    const data = await useGet<number>(addPreUrl(`invigilations/dispatched/${depid}/total`))
     return data ?? 0
   }
 
   @StoreMapCache(invisStore.invigilationsDispatchMapS)
   @ELLoading()
   static async listDepatchedsService(depid: string, page: number) {
-    return await useGet<Invigilation[]>(`${COLLEGE}/invilations/dispatched/${depid}/${page}`)
+    return await useGet<Invigilation[]>(addPreUrl(`invilations/dispatched/${depid}/${page}`))
   }
 
   //
@@ -95,7 +100,7 @@ export class CollegeService {
       // @ts-ignore
       i.department && (i.department = JSON.stringify(i.department))
     })
-    const data = await usePatch<Invigilation[]>(`${COLLEGE}/invigilations/dispatch`, invis)
+    const data = await usePatch<Invigilation[]>(addPreUrl('invigilations/dispatch'), invis)
     return data as unknown as Ref<Invigilation[]>
   }
 
@@ -103,7 +108,7 @@ export class CollegeService {
   @StoreCache(usersStore.usersS)
   @ELLoading()
   static async listCollegeUsersService() {
-    const data = await useGet<User[]>(`${COLLEGE}/users`)
+    const data = await useGet<User[]>(addPreUrl('users'))
     return data as unknown as Ref<User[]>
   }
 
@@ -111,26 +116,26 @@ export class CollegeService {
   @ELLoading()
   static async addTimetablesService(timetables: Timetable[]) {
     stringTimetables(timetables)
-    await usePost(`${COLLEGE}/timetables`, timetables)
+    await usePost(addPreUrl('timetables'), timetables)
     return true
   }
 
   // 加载指定专业监考分配负责人
   @StoreMapCache(usersStore.dispatchersS)
   static async listDispatchersService(depid: string) {
-    return await useGet<User[]>(`${COLLEGE}/dispatchers/${depid}`)
+    return await useGet<User[]>(addPreUrl(`dispatchers/${depid}`))
   }
 
   @ELLoading()
   static async noticeDispatcherService(notice: Notice) {
-    return await usePost<DingNoticeResponse>(`${COLLEGE}/dispatchnotices`, notice)
+    return await usePost<DingNoticeResponse>(addPreUrl('dispatchnotices'), notice)
   }
 
   //
   @ELLoading()
   static async addTimetableService(userid: string, timetables: Timetable[]) {
     stringTimetables(timetables)
-    await usePost(`${COLLEGE}/timetables/${userid}`, timetables)
+    await usePost(addPreUrl(`timetables/${userid}`), timetables)
     return true
   }
 
@@ -144,7 +149,7 @@ export class CollegeService {
     invi.course = JSON.stringify(invi.course)
     // @ts-ignore
     invi.dispatcher = JSON.stringify(invi.dispatcher)
-    const data = await usePatch<Invigilation>(`${COLLEGE}/invigilations/edit`, invi)
+    const data = await usePatch<Invigilation>(addPreUrl('invigilations/edit'), invi)
 
     return data as unknown as Ref<Invigilation>
   }
@@ -152,21 +157,21 @@ export class CollegeService {
   // 删除监考
   @StoreClear(invisStore.clear)
   static async delInviService(inviid: string) {
-    await useDelete(`${COLLEGE}/invigilations/${inviid}`)
+    await useDelete(addPreUrl(`invigilations/${inviid}`))
     return true
   }
 
   // 重置监考为未下发状态，重置信息等
   @StoreClear(invisStore.clear)
   static async resetInviService(inviid: string) {
-    await usePut(`${COLLEGE}/invigilations/${inviid}/status`)
+    await usePut(addPreUrl(`invigilations/${inviid}/status`))
     return true
   }
 
   //
   @StoreCache(departmentsStore.departments)
   static async listDepartmentsService() {
-    const data = await useGet<Department[]>(`${COLLEGE}/departments`)
+    const data = await useGet<Department[]>(addPreUrl('departments'))
     return data as unknown as Ref<Department[]>
   }
 
@@ -174,7 +179,7 @@ export class CollegeService {
   @StoreClear(departmentsStore.clear)
   @StoreCache(departmentsStore.departments, true)
   static async updateDepartmentInviStatusService(departs: Department[]) {
-    const data = await usePatch<Department[]>(`${COLLEGE}/departments/invistatus`, departs)
+    const data = await usePatch<Department[]>(addPreUrl('departments/invistatus'), departs)
     return data as unknown as Ref<Department[]>
   }
 
@@ -189,30 +194,30 @@ export class CollegeService {
     user.dispatcher = JSON.stringify(user.dispatcher)
     // @ts-ignore
     user.department = JSON.stringify(user.department)
-    return await usePost<Invigilation>(`${COLLEGE}/assigns/invis/${inviid}`, user)
+    return await usePost<Invigilation>(addPreUrl(`assigns/invis/${inviid}`), user)
   }
 
   //
   static getUserService = async (account: string) => {
-    return await useGet<User>(`users/${account}`)
+    return await useGet<User>(addPreUrl(`users/${account}`))
   }
 
   //
   @StoreCache(invisStore.invisAllS)
   @ELLoading()
   static async listCollegeInviDetailsService() {
-    const data = await useGet<Invigilation[]>(`${COLLEGE}/invis/all`)
+    const data = await useGet<Invigilation[]>(addPreUrl('invis/all'))
     return data as unknown as Ref<Invigilation[]>
   }
 
   // 获取全学院每位教师监考数量
   static listCollegeCountsService = async () => {
-    return await useGet<InviCount[]>(`${COLLEGE}/invis/counts`)
+    return await useGet<InviCount[]>(addPreUrl('invis/count'))
   }
 
   // 重置指定账号密码
   static resetPasswordService = async (account: string) => {
-    await usePut(`${COLLEGE}/passwords/${account}`)
+    await usePut(addPreUrl(`passwords/${account}`))
     return true
   }
 
@@ -220,7 +225,7 @@ export class CollegeService {
   static async addUserService(user: User) {
     // @ts-ignore
     user.department = JSON.stringify(user.department)
-    await usePost(`${COLLEGE}/users`, user)
+    await usePost(addPreUrl('users'), user)
 
     return true
   }
@@ -228,20 +233,20 @@ export class CollegeService {
   //
   @ELLoading()
   static async sendInviRemarkNoticeService(notice: NoticeRemark) {
-    const data = await usePost<{ request_id: string }>(`${COLLEGE}/invinotices`, notice)
+    const data = await usePost<{ request_id: string }>(addPreUrl('invinotices'), notice)
     return data.request_id ?? ''
   }
 
   // 获取指定学院，指定id的监考信息
   @StoreCache(invisStore.currentInviS)
   static async getCollegeInviService(inviid: string) {
-    const data = await useGet<Invigilation>(`${COLLEGE}/invis/${inviid}`)
+    const data = await useGet<Invigilation>(addPreUrl(`invis/${inviid}`))
     return data as unknown as Ref<Invigilation>
   }
 
   //
   static async listUserDingIdsService(userIds: string[]) {
-    return await usePost<User[]>(`invinotices/dingids`, userIds)
+    return await usePost<User[]>(addPreUrl('invinotices/dingid'), userIds)
   }
 
   //
@@ -256,19 +261,19 @@ export class CollegeService {
     // @ts-ignore
     invi.time = JSON.stringify(invi.time)
 
-    const data = await usePost<Invigilation[]>(`${COLLEGE}/cutinvigilation/${oldInviid}`, invi)
+    const data = await usePost<Invigilation[]>(addPreUrl(`cutinvigilation/${oldInviid}`), invi)
     return data as unknown as Ref<Invigilation[]>
   }
 
   // 加载指定专业下全部教师
   static async listDepartmentUsersService(depid: string) {
-    return await useGet<User[]>(`${COLLEGE}/department/${depid}/users`)
+    return await useGet<User[]>(addPreUrl(`department/${depid}/users`))
   }
 
   // 基于钉钉注册手机号，获取用户信息
   @ELLoading()
   static async getDingUserService(mobile: string) {
-    const data = await useGet<DingUser>(`${COLLEGE}/mobiles/${mobile}`)
+    const data = await useGet<DingUser>(addPreUrl(`mobiles/${mobile}`))
     if (!data) {
       throw '无法查询到钉钉用户'
     }
@@ -278,27 +283,27 @@ export class CollegeService {
   //
   @StoreClear(usersStore.clear)
   static async removeUserService(uid: string) {
-    await useDelete(`${COLLEGE}/users/${uid}`)
+    await useDelete(addPreUrl(`users/${uid}`))
     return true
   }
 
   //
   @StoreClear(invisStore.clear)
   static async removeCollegeDataService() {
-    await useDelete(`${COLLEGE}/colleges/datareset`)
+    await useDelete(addPreUrl('colleges/datareset'))
     return true
   }
 
   //
   @StoreCache(departmentsStore.departments, true)
   static async removeDepartmentService(depid: string) {
-    const data = await useDelete<Department[]>(`${COLLEGE}/departments/${depid}`)
+    const data = await useDelete<Department[]>(addPreUrl(`departments/${depid}`))
     return data as unknown as Ref<Department[]>
   }
   // 更新部门名称
   @StoreCache(departmentsStore.departments, true)
   static async updateDepartmentNameService(depart: UserDepartment) {
-    const data = await usePatch<Department[]>(`${COLLEGE}/departments/${depart.depId}`, depart)
+    const data = await usePatch<Department[]>(addPreUrl(`departments/${depart.depId}`), depart)
     return data as unknown as Ref<Department[]>
   }
 
@@ -306,7 +311,7 @@ export class CollegeService {
   static async updateUserSerivce(udi: string, user: User) {
     // @ts-ignore
     user.department = JSON.stringify(user.department)
-    await usePatch(`${COLLEGE}/users/${user.id}`, user)
+    await usePatch(addPreUrl(`users/${user.id}`), user)
     return true
   }
 
@@ -315,7 +320,7 @@ export class CollegeService {
   static async addDepartmentService(depart: Department) {
     // @ts-ignore
     depart.college = JSON.stringify(depart.college)
-    const data = await usePost(`${COLLEGE}/departments`, depart)
+    const data = await usePost(addPreUrl('departments'), depart)
     return data as unknown as Ref<Department[]>
   }
 
@@ -324,7 +329,7 @@ export class CollegeService {
     const data = await useGet<{
       departmentquantity: DepartmentAvg[]
       teacherquantity: DepartmentAvg[]
-    }>(`${COLLEGE}/invis/avg`)
+    }>(addPreUrl('invis/avg'))
     return data as unknown as Ref<{
       departmentquantity: DepartmentAvg[]
       teacherquantity: DepartmentAvg[]
@@ -334,5 +339,17 @@ export class CollegeService {
   static async listDepartmentAvgsService() {
     await CollegeService.getAvsInfoAPI()
     return departmentAvgStore.depAvgC
+  }
+
+  //
+  @StoreCache(settingStore.settingsR)
+  static async listSettingsService() {
+    const data = await useGet<Setting[]>(addPreUrl('settings'))
+    return data as unknown as Ref<Setting[]>
+  }
+
+  @StoreCache(settingStore.settingsR, true)
+  static async updateSettingService(setting: Setting) {
+    await usePost(addPreUrl('settings'), setting)
   }
 }

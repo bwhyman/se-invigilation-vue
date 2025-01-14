@@ -27,6 +27,10 @@ const components: { name: string; component: Component }[] = [
     component: defineAsyncComponent(() => import('./AddDepartmentView.vue'))
   },
   {
+    name: '设置',
+    component: defineAsyncComponent(() => import('./SettingsView.vue'))
+  },
+  {
     name: '学期初始化',
     component: defineAsyncComponent(() => import('./RemoveCollegeData.vue'))
   },

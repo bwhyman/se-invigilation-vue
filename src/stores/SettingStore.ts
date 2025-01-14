@@ -6,5 +6,7 @@ const getFirstWeek = () => {
   return settingsR.value?.find((set) => set.skey == 'firstweek')?.svalue ?? ''
 }
 
-const store = { settingsR, getFirstWeek }
+const clear = () => (settingsR.value = undefined)
+
+const store = { settingsR, getFirstWeek, clear }
 export const useSettingStore = () => store
