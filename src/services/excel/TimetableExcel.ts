@@ -167,17 +167,11 @@ export const readPostGTimetableExcel = (file: Blob) => {
           // 24年度研究生课表分隔符
           const cellRows: string[] = cell.replaceAll('\r', '').split('\n')
 
-          if (cellRows.length % 2 != 0) {
-            reject(
-              `研究生课表中，课程片段行数应为2项的倍数，课程/教师。<br>
-              <span style="color: red">星期${i + 1}/第${period}节</span>，读取到${
-                cellRows.length
-              }行！`
-            )
-            return
-          }
-
           for (let k = 0; k < cellRows.length; k += 2) {
+            // 如果是奇数行，则与上一名教师上相同的课
+            if (cellRows[k].startsWith('【')) {
+              cellRows.splice(k, 0, cellRows[k - 2])
+            }
             const row2 = cellRows[k + 1]
             // 教师名称
             const teacherName = row2.substring(1, row2.indexOf('】'))
