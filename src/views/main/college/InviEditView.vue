@@ -188,7 +188,7 @@ const resetInvi = () => {
           <el-input v-model="formR.clazz" />
         </el-form-item>
         <el-form-item label="日期" prop="date">
-          <el-time-select
+          <el-date-picker
             :disabled="!unlockedR"
             v-model="formR.date"
             type="date"
