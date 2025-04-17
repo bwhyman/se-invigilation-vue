@@ -212,7 +212,7 @@ export class CollegeService {
 
   // 获取全学院每位教师监考数量
   static listCollegeCountsService = async () => {
-    return await useGet<InviCount[]>(addPreUrl('invis/count'))
+    return await useGet<InviCount[]>(addPreUrl('invis/counts'))
   }
 
   // 重置指定账号密码
