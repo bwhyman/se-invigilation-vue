@@ -6,16 +6,7 @@ import { useTimetablesStore } from '@/stores/TimetableStore'
 import { useTotalsStore } from '@/stores/TotalsStore'
 import { useUsersStore } from '@/stores/UsersStore'
 import { useInviCountsStore } from '@/stores/inviCountsStore'
-import type {
-  AssignUser,
-  ExcludeRule,
-  InviCount,
-  Invigilation,
-  Notice,
-  Setting,
-  Timetable,
-  User
-} from '@/types'
+import type { ExcludeRule, InviCount, Invigilation, Setting, Timetable, User } from '@/types'
 import { ELLoading, StoreCache, StoreClear, StoreMapCache } from './Decorators'
 
 const SUBJECT = 'subject'
@@ -87,27 +78,8 @@ export class SubjectService {
     return data as unknown as Ref<InviCount[]>
   }
 
-  //
-  // 清空当前监考缓存
-  // 清空教师监考数量缓存
-  @StoreClear(invisStore.clear, inviCountsStore.clear, invisStore.clearCurrentInvi)
-  static async addAssignUsersService(inviid: string, user: AssignUser) {
-    // @ts-ignore
-    user.allocator = JSON.stringify(user.allocator)
-    // @ts-ignore
-    user.executor = JSON.stringify(user.executor)
-    await usePost(addPreUrl(`invidetails/${inviid}`), user)
-    return true
-  }
-
   static listInviDetailUsersService = async (inviid: string) => {
     return await useGet<User[]>(addPreUrl(`invidetailusers/${inviid}`))
-  }
-
-  @ELLoading()
-  static async noticeUsersService(notice: Notice) {
-    const data = await usePost<string>(addPreUrl('assignnotices'), notice)
-    return data ?? ''
   }
 
   // 获取指定监考信息

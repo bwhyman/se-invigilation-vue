@@ -1,13 +1,15 @@
 import axios, { useGet, usePost } from '@/axios'
 import router from '@/router'
+import { useInviCountsStore } from '@/stores/inviCountsStore'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 import { useUserStore } from '@/stores/UserStore'
-import type { Invigilation, ResultVO, User } from '@/types'
+import type { AssignUser, Invigilation, Notice, ResultVO, User } from '@/types'
 import { COLLEGE_ADMIN, SUBJECT_ADMIN, SUPER_ADMIN } from './Const'
 import { ELLoading, StoreClear, StoreMapCache } from './Decorators'
 
 const userStore = useUserStore()
 const invisStore = useInvigilationsStore()
+const inviCountsStore = useInviCountsStore()
 
 export class CommonService {
   @StoreMapCache(invisStore.dateInvisMapS)
@@ -99,6 +101,25 @@ export class CommonService {
     invi.time = JSON.stringify(invi.time)
 
     await usePost(`invigilations`, invi)
+    return true
+  }
+
+  @ELLoading()
+  static async noticeUsersService(notice: Notice) {
+    const data = await usePost<string>('assignnotices', notice)
+    return data ?? ''
+  }
+
+  //
+  // 清空当前监考缓存
+  // 清空教师监考数量缓存
+  @StoreClear(invisStore.clear, inviCountsStore.clear, invisStore.clearCurrentInvi)
+  static async addAssignUsersService(inviid: string, user: AssignUser) {
+    // @ts-ignore
+    user.allocator = JSON.stringify(user.allocator)
+    // @ts-ignore
+    user.executor = JSON.stringify(user.executor)
+    await usePost(`invidetails/${inviid}`, user)
     return true
   }
 }

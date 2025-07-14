@@ -2,6 +2,7 @@
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
+import { CommonService } from '@/services/CommonService'
 import { COLLEGE_ADMIN, SUBJECT_ADMIN } from '@/services/Const'
 import { SubjectService } from '@/services/SubjectService'
 import type { User } from '@/types'
@@ -43,7 +44,7 @@ const noticeAssignersF = async () => {
     throw `请勿重复发送通知。如需更改请返回分配页面重新分配监考`
   }
   const noticeFinal = getFinalNotice(notice, selectUsersR.value)
-  const msg = await SubjectService.noticeUsersService(noticeFinal)
+  const msg = await CommonService.noticeUsersService(noticeFinal)
   //
   const role = sessionStorage.getItem('role')
   if (role == SUBJECT_ADMIN) {
@@ -52,7 +53,7 @@ const noticeAssignersF = async () => {
   if (role == COLLEGE_ADMIN) {
     router.push('/college/imported')
   }
-  msg && createElNotificationSuccess(`通知发送成功。编号：${msg}`)
+  createElNotificationSuccess(`通知发送成功`)
 }
 </script>
 <template>

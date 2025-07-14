@@ -93,7 +93,7 @@ const closeTagF = (index: number) => {
 //
 const noticeF = async () => {
   for (const notice of assignNoticesR.value) {
-    let msg = await SubjectService.noticeUsersService(notice)
+    let msg = await CommonService.noticeUsersService(notice)
     msg && createElNotificationSuccess(`通知发送成功。编号：${msg}`)
   }
 }
