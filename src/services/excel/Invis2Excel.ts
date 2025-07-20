@@ -54,8 +54,8 @@ export const exportInvisDetails = (invis: Invigilation[], details: InviDetail[])
   jsonWorkSheet['!cols'] = getCellWidth(data)
   const jsonWorkSheet2 = XLSX.utils.aoa_to_sheet(detailData)
   jsonWorkSheet2['!cols'] = getCellWidth(detailData)
-  XLSX.utils.book_append_sheet(workBook, jsonWorkSheet, `监考详细信息`)
   XLSX.utils.book_append_sheet(workBook, jsonWorkSheet2, `监考统计`)
+  XLSX.utils.book_append_sheet(workBook, jsonWorkSheet, `监考详细信息`)
   return XLSX.writeFile(workBook, '监考详细信息.xlsx')
 }
 

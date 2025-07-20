@@ -63,9 +63,7 @@ export interface Invigilation {
   dispatcher?: Operator
   allocator?: Operator
   executor?: Operator[]
-  calendarId?: string
-  createUnionId?: string
-  noticeUserIds?: string[]
+  dingNotice?: DingNotice
   remark?: string
 }
 
@@ -137,19 +135,33 @@ export interface DingUser {
 
 export interface Notice {
   inviId?: string
-  createUnionId?: string
   date?: string
   stime?: string
   etime?: string
-  unionIds?: string[]
   noticeMessage?: string
-  userIds?: string
-  noticeUserIds?: string[]
   remindMinutes?: number
+  dingNotice?: DingNotice
 }
 
-export interface DingCancel {
-  cancelMessage: string
+export interface DingNotice {
+  userIds?: string[]
+  dingIds?: string
+  calendars?: DingCalendar[]
+}
+
+export interface DingCalendar {
+  unionId?: string
+  eventId?: string
+}
+
+export interface DispatcherNotice {
+  dingIds: string
+  message: string
+}
+
+export interface CancelNotice {
+  message?: string
+  dingNotice?: DingNotice
 }
 
 export interface NoticeRemark {

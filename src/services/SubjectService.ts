@@ -83,10 +83,10 @@ export class SubjectService {
   }
 
   // 获取指定监考信息
-  @StoreCache(invisStore.currentInviS)
+  //@StoreCache(invisStore.currentInviS)
   static async getInviService(inviid: string) {
     const data = await useGet<Invigilation>(addPreUrl(`invis/${inviid}`))
-    return data as unknown as Ref<Invigilation>
+    return shallowRef(data)
   }
 
   //

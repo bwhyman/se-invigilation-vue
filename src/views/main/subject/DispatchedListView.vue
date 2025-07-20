@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import router from '@/router'
-import { CommonService } from '@/services/CommonService'
 import { DISPATCH } from '@/services/Const'
 import { SubjectService } from '@/services/SubjectService'
 import type { Invigilation, Page } from '@/types'
@@ -21,7 +20,6 @@ const pageR = ref<Page>({
 
 //
 const assignF = (invi: Invigilation) => {
-  CommonService.setCurrentInviService(invi)
   router.push(`/subject/assigns/${invi.id}`)
 }
 </script>

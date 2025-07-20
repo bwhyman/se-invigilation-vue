@@ -2,6 +2,7 @@
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
+import { CommonService } from '@/services/CommonService'
 import { getInviChineseDayweek, getInviWeek } from '@/services/Utils'
 import type { Invigilation, NoticeRemark } from '@/types'
 import { render } from 'vue'
@@ -25,7 +26,7 @@ const dialogFormVisible = ref(true)
 
 //
 const sendF = async () => {
-  const users = await CollegeService.listUserDingIdsService(userids)
+  const users = await CommonService.listUserDingIdsService(userids)
   if (users.length == 0) {
     throw '获取用户钉钉账号失败'
   }

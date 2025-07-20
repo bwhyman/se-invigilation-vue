@@ -5,6 +5,7 @@ import { CLOSED } from '@/services/Const'
 import { SubjectService } from '@/services/SubjectService'
 import {
   confTime,
+  getCancelNotice,
   getInviChineseDayweek,
   getInviDayweek,
   getInviWeek,
@@ -178,13 +179,10 @@ const submitUsers = async () => {
     throw '分配教师数与所需监考数不匹配'
   }
 
-  if (currentInvi.value!.calendarId) {
-    const userIds: string[] = []
-    currentInvi.value!.executor!.forEach((ex) => {
-      const user = usersS.value.find((u) => u.id == ex.userId)
-      user && userIds.push(user.dingUserId!)
-    })
-  }
+  // 判断是否需要发送
+  const cancelNotice = getCancelNotice(currentInvi.value)
+  cancelNotice && (await CommonService.noticeDingCancelService(cancelNotice, currentInvi.value.id!))
+
   assignUsersR.value.allocator = stringInviTime({ id: userR.value!.id, name: userR.value!.name })
   assignUsersR.value.executor = []
   assignUsersR.value.userIds = []
@@ -193,8 +191,9 @@ const submitUsers = async () => {
     assignUsersR.value.userIds?.push(us.id!)
   })
 
-  await CommonService.noticeDingCancelService(currentInvi.value)
+  currentInvi.value.executor = assignUsersR.value.executor
   await CommonService.addAssignUsersService(currentInvi.value!.id!, assignUsersR.value)
+
   createElNotificationSuccess('监考已分配')
   router.push(`/subject/notices/${params.inviid}`)
 }

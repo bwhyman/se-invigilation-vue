@@ -1,13 +1,7 @@
 <script setup lang="ts">
 import router from '@/router'
-import {
-  beNoticedC,
-  bellTitleC,
-  getInviChinesedayweekC,
-  getInviWeekC,
-  replaceTDateC
-} from '@/services/Utils'
-import type { Invigilation, Page } from '@/types'
+import { getInviChineseDayweek, getInviWeek, replaceTDate } from '@/services/Utils'
+import type { Invigilation, Operator, Page } from '@/types'
 import { Bell } from '@element-plus/icons-vue'
 import TotalNumber from './TotalNumber.vue'
 
@@ -23,8 +17,6 @@ let PAGESIZE = 20
 if (props.page!.noPage) {
   PAGESIZE = props.page?.total! + 1
 }
-
-const inviWeekC = getInviWeekC()
 
 const changePage = (n: number) => {
   scrollToTop()
@@ -76,7 +68,7 @@ const scrollToTop = () => {
       <template #default="scope">
         {{ scope.row.date }}
         <br />
-        第 {{ inviWeekC(scope.row.date) }} 周 / {{ getInviChinesedayweekC(scope.row.date) }}
+        第 {{ getInviWeek(scope.row.date) }} 周 / {{ getInviChineseDayweek(scope.row.date) }}
         <br />
         {{ scope.row.time.starttime }} ~
         {{ scope.row.time.endtime }}
@@ -99,21 +91,21 @@ const scrollToTop = () => {
         </template>
         <template v-if="scope.row.importer">
           录入：
-          <el-tag class="curor" :title="replaceTDateC(scope.row.importer.time)">
+          <el-tag class="curor" :title="replaceTDate(scope.row.importer.time)">
             {{ scope.row.importer.userName }}
           </el-tag>
           <br />
         </template>
         <template v-if="scope.row.dispatcher">
           下发：
-          <el-tag class="curor" :title="replaceTDateC(scope.row.dispatcher.time)">
+          <el-tag class="curor" :title="replaceTDate(scope.row.dispatcher.time)">
             {{ scope.row.dispatcher.userName }}
           </el-tag>
           <br />
         </template>
         <template v-if="scope.row.allocator">
           分配：
-          <el-tag class="curor" :title="replaceTDateC(scope.row.allocator.time)">
+          <el-tag class="curor" :title="replaceTDate(scope.row.allocator.time)">
             {{ scope.row.allocator.userName }}
           </el-tag>
           <br />
@@ -123,20 +115,20 @@ const scrollToTop = () => {
     <el-table-column v-if="props.showExecutor">
       <template #default="scope">
         <div v-if="scope.row.executor">
-          <template v-for="(exeUser, index) of scope.row.executor" :key="index">
+          <template v-for="(exeUser, index) of scope.row.executor as Operator[]" :key="index">
             <el-tag
               size="large"
               class="curor"
               style="min-width: 60px"
-              :title="replaceTDateC(exeUser.time)">
+              :title="replaceTDate(exeUser.time)">
               {{ exeUser.userName }}
             </el-tag>
             <el-icon
-              :title="bellTitleC(scope.row)"
               class="curor"
               color="green"
               size="large"
-              v-if="beNoticedC(exeUser.userId, scope.row.noticeUserIds)"
+              :title="(scope.row as Invigilation).dingNotice?.calendars?.[0].eventId ?? ''"
+              v-if="(scope.row as Invigilation).dingNotice?.userIds?.includes(exeUser.userId)"
               style="vertical-align: middle">
               <Bell />
             </el-icon>

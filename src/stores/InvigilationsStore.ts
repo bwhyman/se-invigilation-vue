@@ -9,8 +9,6 @@ const invigilationsDispatchMapS = shallowRef<Map<string, Invigilation[]>>(new Ma
 // 专业指定日期的全部监考
 const dateInvisMapS = shallowRef<Map<string, Invigilation[]>>(new Map())
 
-const currentInviS = shallowRef<Invigilation>()
-
 const invisAllS = shallowRef<Invigilation[]>()
 
 const clear = () => {
@@ -20,15 +18,12 @@ const clear = () => {
   dateInvisMapS.value.clear()
   depTotalsStore.clear()
 }
-const clearCurrentInvi = () => (currentInviS.value = undefined)
 const store = {
   invigilationsImportS,
   invigilationsDispatchedS,
   invigilationsDispatchMapS,
-  currentInviS,
   invisAllS,
   dateInvisMapS,
-  clear,
-  clearCurrentInvi
+  clear
 }
 export const useInvigilationsStore = () => store

@@ -3,7 +3,7 @@ import router from '@/router'
 import { useInviCountsStore } from '@/stores/inviCountsStore'
 import { useInvigilationsStore } from '@/stores/InvigilationsStore'
 import { useUserStore } from '@/stores/UserStore'
-import type { AssignUser, Invigilation, Notice, ResultVO, User } from '@/types'
+import type { AssignUser, CancelNotice, Invigilation, Notice, ResultVO, User } from '@/types'
 import { COLLEGE_ADMIN, SUBJECT_ADMIN, SUPER_ADMIN } from './Const'
 import { ELLoading, StoreClear, StoreMapCache } from './Decorators'
 
@@ -78,16 +78,8 @@ export class CommonService {
 
   // 发送取消监考通知，移除监考日程
   @ELLoading()
-  static async noticeDingCancelService(invi: Invigilation) {
-    const time = `${invi.date} ${invi.time?.starttime}`
-    const msg = `监考取消：${invi.course?.courseName}; ${time}`
-    await usePost(`cancelinvinotices/${invi.id}`, { cancelMessage: msg })
-  }
-
-  //
-  static setCurrentInviService = (invi: Invigilation | undefined) => {
-    const store = useInvigilationsStore()
-    store.currentInviS.value = invi
+  static async noticeDingCancelService(notice: CancelNotice, inviid: string) {
+    await usePost(`cancelinvinotices/${inviid}`, notice)
   }
 
   // 清空已导入监考缓存
@@ -113,7 +105,7 @@ export class CommonService {
   //
   // 清空当前监考缓存
   // 清空教师监考数量缓存
-  @StoreClear(invisStore.clear, inviCountsStore.clear, invisStore.clearCurrentInvi)
+  @StoreClear(invisStore.clear, inviCountsStore.clear)
   static async addAssignUsersService(inviid: string, user: AssignUser) {
     // @ts-ignore
     user.allocator = JSON.stringify(user.allocator)
@@ -121,5 +113,10 @@ export class CommonService {
     user.executor = JSON.stringify(user.executor)
     await usePost(`invidetails/${inviid}`, user)
     return true
+  }
+
+  //
+  static async listUserDingIdsService(userIds: string[]) {
+    return await usePost<User[]>('invinotices/dingids', userIds)
   }
 }

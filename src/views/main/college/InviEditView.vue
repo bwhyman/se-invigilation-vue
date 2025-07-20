@@ -4,11 +4,14 @@ import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
 import { CommonService } from '@/services/CommonService'
 import { LOCATIONS } from '@/services/Const'
+import { getCancelNotice } from '@/services/Utils'
 import type { Invigilation } from '@/types'
 import type { FormInstance, FormRules } from 'element-plus'
 
 const params = useRoute().params as { inviid: string }
 const invi = await CollegeService.getCollegeInviService(params.inviid)
+console.log(invi)
+
 const isAssigned = computed(() => invi.value && invi.value.executor)
 const unlockedR = computed(() => invi.value && !invi.value.executor)
 if (!invi.value) {
@@ -138,18 +141,18 @@ const rules = reactive<FormRules<RuleForm>>({
   ]
 })
 
+// 判断是否需要发送
+const cancelNotice = getCancelNotice(invi.value)
+
 const delInvi = () => {
   ElMessageBox.confirm('删除监考将不可恢复，确定删除？', 'Warning', {
     confirmButtonText: 'OK',
     cancelButtonText: 'Cancel',
     type: 'warning'
   }).then(async () => {
-    await Promise.all([
-      CommonService.noticeDingCancelService(invi.value),
-      CollegeService.delInviService(invi.value!.id!)
-    ])
+    cancelNotice && (await CommonService.noticeDingCancelService(cancelNotice, invi.value.id!))
+    await CollegeService.delInviService(invi.value!.id!)
     createElNotificationSuccess('监考已删除')
-    CommonService.setCurrentInviService(undefined)
     router.push(`/college/imported`)
   })
 }
@@ -160,9 +163,8 @@ const resetInvi = () => {
     cancelButtonText: 'Cancel',
     type: 'warning'
   }).then(async () => {
-    await CommonService.noticeDingCancelService(invi.value)
+    cancelNotice && (await CommonService.noticeDingCancelService(cancelNotice, invi.value.id!))
     await CollegeService.resetInviService(invi.value!.id!)
-    CommonService.setCurrentInviService(undefined)
     createElNotificationSuccess('监考已重置')
     router.push(`/college/imported`)
   })

@@ -2,7 +2,7 @@
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
-import type { Notice } from '@/types'
+import type { DispatcherNotice } from '@/types'
 const params = useRoute().params as { depid: string }
 // notice
 
@@ -15,9 +15,9 @@ if (dispatchers.length == 1) {
 
 const noticeDispatchersF = async () => {
   const message = `已下发新监考信息，请及时分配。`
-  const notice: Notice = {
-    userIds: selDisR.value.join(','),
-    noticeMessage: message
+  const notice: DispatcherNotice = {
+    dingIds: selDisR.value.join(','),
+    message: message
   }
   const result = await CollegeService.noticeDispatcherService(notice)
   if (result?.errcode != 0) {

@@ -1,5 +1,5 @@
 import { useSettingStore } from '@/stores/SettingStore'
-import type { Invigilation, Timetable, User } from '@/types'
+import type { CancelNotice, Invigilation, Timetable, User } from '@/types'
 const settingStore = useSettingStore()
 
 //
@@ -58,16 +58,20 @@ export const confTime = (date: string, time: string, period: string) => {
 }
 
 //
-export const replaceTDateC = computed(() => (date: string) => date.replace('T', ' '))
+export const replaceTDate = (date: string) => date.replace('T', ' ')
 
 //
-export const bellTitleC = computed(() => (invi: Invigilation) => `ID: ${invi.calendarId}`)
-export const beNoticedC = computed(() => (exid: string, noticeIds: string[] = []) => {
+export const isNoticed = (exid: string, noticeIds: string[] = []) => {
   return noticeIds.indexOf(exid) != -1
-})
-
-//
-export const getInviWeekC = () => {
-  return computed(() => (date: string) => getInviWeek(date))
 }
-export const getInviChinesedayweekC = computed(() => (date: string) => getInviChineseDayweek(date))
+
+export const getCancelNotice = (invi: Invigilation) => {
+  if (invi.dingNotice) {
+    const time = `${invi.date} ${invi.time?.starttime}`
+    const msg = `监考取消：${invi.course?.courseName}; ${time}`
+    const cancelN: CancelNotice = { message: msg }
+    cancelN.dingNotice = invi.dingNotice
+    return cancelN
+  }
+  return null
+}

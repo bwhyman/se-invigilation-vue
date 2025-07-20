@@ -40,19 +40,13 @@ for (const us of assigners) {
 }
 
 const noticeAssignersF = async () => {
-  if (invigilationR.value?.calendarId != null) {
-    throw `请勿重复发送通知。如需更改请返回分配页面重新分配监考`
+  if (invigilationR.value.dingNotice) {
+    throw '请勿重复发送通知'
   }
   const noticeFinal = getFinalNotice(notice, selectUsersR.value)
-  const msg = await CommonService.noticeUsersService(noticeFinal)
+  await CommonService.noticeUsersService(noticeFinal)
   //
-  const role = sessionStorage.getItem('role')
-  if (role == SUBJECT_ADMIN) {
-    router.push('/subject/dispatched')
-  }
-  if (role == COLLEGE_ADMIN) {
-    router.push('/college/imported')
-  }
+  router.push('/subject/dispatched')
   createElNotificationSuccess(`通知发送成功`)
 }
 </script>

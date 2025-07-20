@@ -1,13 +1,7 @@
 <script setup lang="ts">
 import router from '@/router'
 import { CommonService } from '@/services/CommonService'
-import {
-  beNoticedC,
-  bellTitleC,
-  getInviChinesedayweekC,
-  getInviWeekC,
-  replaceTDateC
-} from '@/services/Utils'
+import { getInviChineseDayweek, getInviWeek, replaceTDate } from '@/services/Utils'
 import type { Invigilation } from '@/types'
 import DatesPick from '@/views/main/component/DatesPick.vue'
 import InvisDetailsDate from '@/views/main/component/InvisDetailsDate.vue'
@@ -39,8 +33,6 @@ watch(
   }
 )
 
-const WeekC = getInviWeekC()
-
 //
 const invisStatusChangeF = (val: number) => {
   // 未通知
@@ -48,9 +40,7 @@ const invisStatusChangeF = (val: number) => {
     //  已分配
     const x = invis.filter((invi) => invi.executor)
     // 未通知
-    invisR.value = x.filter(
-      (invi) => !invi.noticeUserIds || invi.amount != invi.noticeUserIds.length
-    )
+    invisR.value = x.filter((invi) => !invi.dingNotice)
     return
   }
   // 全部
@@ -169,7 +159,7 @@ const listSameInvis = (invi: Invigilation) => {
           <template #default="scope">
             {{ scope.row.date }}
             <br />
-            第 {{ WeekC(scope.row.date) }} 周 / {{ getInviChinesedayweekC(scope.row.date) }}
+            第 {{ getInviWeek(scope.row.date) }} 周 / {{ getInviChineseDayweek(scope.row.date) }}
             <br />
             {{ scope.row.time.starttime }} ~ {{ scope.row.time.endtime }}
           </template>
@@ -194,15 +184,15 @@ const listSameInvis = (invi: Invigilation) => {
                   size="large"
                   class="curor"
                   style="min-width: 60px"
-                  :title="replaceTDateC(exeUser.time)">
+                  :title="replaceTDate(exeUser.time)">
                   {{ exeUser.userName }}
                 </el-tag>
                 <el-icon
-                  :title="bellTitleC(scope.row)"
                   class="curor"
                   color="green"
                   size="large"
-                  v-if="beNoticedC(exeUser.userId, scope.row.noticeUserIds)"
+                  :title="(scope.row as Invigilation).dingNotice?.calendars?.[0].eventId ?? ''"
+                  v-if="(scope.row as Invigilation).dingNotice?.userIds?.includes(exeUser.userId)"
                   style="vertical-align: middle">
                   <Bell />
                 </el-icon>

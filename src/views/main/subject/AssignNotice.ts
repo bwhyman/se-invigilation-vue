@@ -1,5 +1,5 @@
 import { getInviChineseDayweek, getInviWeek } from '@/services/Utils'
-import type { Invigilation, Notice, User } from '@/types'
+import type { DingCalendar, Invigilation, Notice, User } from '@/types'
 
 // 创建初始化的通知对象
 export const getInitNotice = (users: User[], invis: Invigilation) => {
@@ -7,9 +7,7 @@ export const getInitNotice = (users: User[], invis: Invigilation) => {
     inviId: invis.id,
     date: invis.date,
     stime: invis.time?.starttime,
-    etime: invis.time?.endtime,
-    unionIds: [],
-    noticeUserIds: []
+    etime: invis.time?.endtime
   }
   const week = getInviWeek(notice.date!)
   const dayweek = getInviChineseDayweek(notice.date!)
@@ -26,9 +24,6 @@ export const getInitNotice = (users: User[], invis: Invigilation) => {
 监考地点：${invis.course?.location}
 监考教师：${userNames.join('; ')}`
   notice.noticeMessage = noticeMessage
-  if (invis.calendarId != null) {
-    throw `请勿重复发送通知。如需更改请返回分配页面重新分配监考`
-  }
 
   // 计算监考前一天9点
   const x = new Date(`${invis.date}T${invis.time?.starttime}`).getTime()
@@ -39,21 +34,23 @@ export const getInitNotice = (users: User[], invis: Invigilation) => {
   z.setSeconds(0)
   const remindMinutes = (x - z.getTime()) / (1000 * 60)
   notice.remindMinutes = remindMinutes
+
   return notice
 }
 
 // 更新通知用户情况，追加数据
 export const getFinalNotice = (notice: Notice, users: User[]) => {
   const userIds: string[] = []
+  const dingIds: string[] = []
+  const calendars: DingCalendar[] = []
+
   users.forEach((u) => {
-    notice.noticeUserIds?.push(u.id!)
-    notice.unionIds?.push(u.dingUnionId!)
-    userIds.push(u.dingUserId!)
+    userIds.push(u.id!)
+    dingIds.push(u.dingUserId!)
+    calendars.push({ unionId: u.dingUnionId })
   })
-  // 改为监考第一名教师发起日程
-  notice.createUnionId = users[0].dingUnionId
-  // @ts-ignore
-  notice.noticeUserIds = JSON.stringify(notice.noticeUserIds)
-  notice.userIds = userIds.join(',')
+  // dingIds，直接转分割的字符串。利于后端直接处理
+  notice.dingNotice = { userIds: userIds, dingIds: dingIds.join(','), calendars: calendars }
+
   return notice
 }

@@ -11,9 +11,9 @@ import type {
   DepartmentAvg,
   DingNoticeResponse,
   DingUser,
+  DispatcherNotice,
   InviCount,
   Invigilation,
-  Notice,
   NoticeRemark,
   Setting,
   Timetable,
@@ -127,7 +127,7 @@ export class CollegeService {
   }
 
   @ELLoading()
-  static async noticeDispatcherService(notice: Notice) {
+  static async noticeDispatcherService(notice: DispatcherNotice) {
     return await usePost<DingNoticeResponse>(addPreUrl('dispatchnotices'), notice)
   }
 
@@ -140,8 +140,7 @@ export class CollegeService {
   }
 
   //
-  @StoreClear(invisStore.clear, invisStore.clearCurrentInvi)
-  @StoreCache(invisStore.currentInviS)
+  @StoreClear(invisStore.clear)
   static async updateInviService(invi: Invigilation) {
     // @ts-ignore
     invi.time = JSON.stringify(invi.time)
@@ -194,7 +193,7 @@ export class CollegeService {
     user.dispatcher = JSON.stringify(user.dispatcher)
     // @ts-ignore
     user.department = JSON.stringify(user.department)
-    return await usePost<Invigilation>(addPreUrl(`assigns/invis/${inviid}`), user)
+    return await usePost<Invigilation>(`invidetails/${inviid}`, user)
   }
 
   //
@@ -238,15 +237,10 @@ export class CollegeService {
   }
 
   // 获取指定学院，指定id的监考信息
-  @StoreCache(invisStore.currentInviS)
+  //@StoreCache(invisStore.currentInviS)
   static async getCollegeInviService(inviid: string) {
     const data = await useGet<Invigilation>(addPreUrl(`invis/${inviid}`))
-    return data as unknown as Ref<Invigilation>
-  }
-
-  //
-  static async listUserDingIdsService(userIds: string[]) {
-    return await usePost<User[]>(addPreUrl('invinotices/dingid'), userIds)
+    return shallowRef(data)
   }
 
   //

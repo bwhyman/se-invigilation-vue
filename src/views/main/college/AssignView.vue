@@ -3,10 +3,11 @@ import { createElNotificationSuccess } from '@/components/message'
 import { CollegeService } from '@/services/CollegeService'
 import { CommonService } from '@/services/CommonService'
 import { SubjectService } from '@/services/SubjectService'
+import { getCancelNotice } from '@/services/Utils'
 import { useUserStore } from '@/stores/UserStore'
 import type { Invigilation, Notice, User } from '@/types'
-import { getFinalNotice, getInitNotice } from '@/views/main/component/AssignNotice'
 import InviMessage from '@/views/main/component/InviInfo.vue'
+import { getFinalNotice, getInitNotice } from '@/views/main/subject/AssignNotice'
 import { createAssign, createAssigns, createInvis } from './AssignView'
 import DepartmentUser from './functions/finduser/DepartmentUser.vue'
 
@@ -37,9 +38,9 @@ const assignF = async () => {
   if (selectUsersR.value.length == 0 || !createUserR.value) return
 
   // 如果原监考已发送通知，则发送取消通知
-  if (inviR.value.calendarId) {
-    inviR.value.id && (await CommonService.noticeDingCancelService(inviR.value))
-  }
+  // 判断是否需要发送
+  const cancelNotice = getCancelNotice(inviR.value)
+  cancelNotice && (await CommonService.noticeDingCancelService(cancelNotice, inviR.value.id!))
 
   newInvisR.value = []
   // 预分配教师是相同专业
@@ -93,8 +94,8 @@ const closeTagF = (index: number) => {
 //
 const noticeF = async () => {
   for (const notice of assignNoticesR.value) {
-    let msg = await CommonService.noticeUsersService(notice)
-    msg && createElNotificationSuccess(`通知发送成功。编号：${msg}`)
+    await CommonService.noticeUsersService(notice)
+    createElNotificationSuccess(`通知发送成功`)
   }
 }
 </script>
