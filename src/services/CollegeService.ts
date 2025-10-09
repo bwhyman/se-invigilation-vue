@@ -150,7 +150,7 @@ export class CollegeService {
     invi.dispatcher = JSON.stringify(invi.dispatcher)
     const data = await usePatch<Invigilation>(addPreUrl('invigilations/edit'), invi)
 
-    return data as unknown as Ref<Invigilation>
+    return ref(data)
   }
 
   // 删除监考

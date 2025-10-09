@@ -10,7 +10,6 @@ import type { FormInstance, FormRules } from 'element-plus'
 
 const params = useRoute().params as { inviid: string }
 const invi = await CollegeService.getCollegeInviService(params.inviid)
-console.log(invi)
 
 const isAssigned = computed(() => invi.value && invi.value.executor)
 const unlockedR = computed(() => invi.value && !invi.value.executor)
@@ -57,7 +56,8 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   inviR.time!.starttime = formR.value.stime
   inviR.time!.endtime = formR.value.etime
 
-  invi.value = (await CollegeService.updateInviService(inviR)).value
+  const result = await CollegeService.updateInviService(inviR)
+  invi.value = result.value
   formR.value = getInit()
   createElNotificationSuccess('修改成功')
   //router.push('/college/imported')
@@ -196,7 +196,6 @@ const resetInvi = () => {
             type="date"
             format="YYYY-MM-DD"
             value-format="YYYY-MM-DD"
-            label="日期"
             placeholder="日期"
             style="width: 150px" />
         </el-form-item>
