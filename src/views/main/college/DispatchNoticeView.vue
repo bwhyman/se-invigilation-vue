@@ -6,24 +6,26 @@ import type { DispatcherNotice } from '@/types'
 const params = useRoute().params as { depid: string }
 // notice
 
-const dispatchers = await CollegeService.listDispatchersService(params.depid)
+const { data: dispatchers, suspense } = CollegeService.listDispatchersService(params.depid)
+await suspense()
 const selDisR = ref<string[]>([])
 //
-if (dispatchers.length == 1) {
-  dispatchers[0].dingUserId && selDisR.value.push(dispatchers[0].dingUserId)
+if (dispatchers.value!.length == 1) {
+  dispatchers.value![0].dingUserId && selDisR.value.push(dispatchers.value![0].dingUserId)
 }
-
+const { mutateAsync } = CollegeService.noticeDispatcherService()
 const noticeDispatchersF = async () => {
   const message = `已下发新监考信息，请及时分配。`
   const notice: DispatcherNotice = {
     dingIds: selDisR.value.join(','),
     message: message
   }
-  const result = await CollegeService.noticeDispatcherService(notice)
+
+  const result = await mutateAsync(notice)
   if (result?.errcode != 0) {
     throw '发送钉钉通知错误，请重新尝试'
   }
-  createElNotificationSuccess(`发送通知成功。task_id: ${result.task_id}`)
+  createElNotificationSuccess(`通知发送成功`)
   router.push('/college/imported')
 }
 </script>

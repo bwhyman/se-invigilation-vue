@@ -2,8 +2,10 @@
 import { createElNotificationSuccess } from '@/components/message'
 import { CollegeService } from '@/services/CollegeService'
 import type { Department } from '@/types'
-const deps = await CollegeService.listDepartmentsService()
-const departmentR = ref(deps.value)
+//
+const { data, suspense } = CollegeService.listDepartmentsService()
+await suspense()
+const departmentR = ref<Department[]>(toRaw(data.value) ?? [])
 
 // 更新专业监考下发显示
 const btnR = ref(true)
@@ -14,13 +16,14 @@ const changeStatus = (depart: Department) => {
   depart.inviStatus = depart.inviStatus == 1 ? 0 : 1
 }
 
+//
+const { mutateAsync } = CollegeService.updateDepartmentInviStatusService()
 const updateUserInviStatus = async () => {
   const deps: Department[] = []
-  departmentR.value.forEach((e) => {
+  departmentR.value!.forEach((e) => {
     deps.push({ id: e.id, inviStatus: e.inviStatus })
   })
-
-  departmentR.value = (await CollegeService.updateDepartmentInviStatusService(deps)).value
+  await mutateAsync(deps)
   createElNotificationSuccess('更新成功')
 }
 </script>
@@ -33,7 +36,7 @@ const updateUserInviStatus = async () => {
       <el-button type="success" @click="updateUserInviStatus" :disabled="btnR">提交</el-button>
     </el-col>
     <el-col style="margin-bottom: 5px">
-      <template v-for="(depart, index) of departmentR" :key="index">
+      <template v-for="depart of departmentR" :key="depart.id">
         <el-switch
           inline-prompt
           size="large"

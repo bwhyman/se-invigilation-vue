@@ -5,24 +5,24 @@ import { SubjectService } from '@/services/SubjectService'
 import type { Invigilation, Page } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 
-const inviS = ref<Invigilation[]>([])
-const total = await SubjectService.getTotalsService(ASSIGN)
-
+const { data: totalR, suspense } = SubjectService.getTotalsService(ASSIGN)
+await suspense()
 const pageR = ref<Page>({
-  currentpage: 0,
-  total: total,
+  currentpage: 1,
+  total: totalR.value,
   url: '/subject/assigned'
 })
-const route = useRoute()
-let params: { page?: string }
+const { data: invisR } = SubjectService.listAssignedsService(
+  computed(() => pageR.value.currentpage!)
+)
 
+const route = useRoute()
 watch(
   () => route.params,
-  async () => {
-    params = route.params
+  () => {
+    let params = route.params
     if (params.page === undefined) return
-    const cpage = params.page ? parseInt(params.page) : 1
-    inviS.value = await SubjectService.listInvisService(ASSIGN, cpage)
+    const cpage = params.page ? parseInt(params.page as string) : 1
     pageR.value.currentpage = cpage
   },
   { immediate: true }
@@ -35,7 +35,7 @@ const editF = (invi: Invigilation) => {
 <template>
   <el-row class="my-row">
     <el-col>
-      <InviTable :invis="inviS" :page="pageR" :show-executor="true">
+      <InviTable :invis="invisR" :page="pageR" :show-executor="true">
         <template #action="action">
           <el-button type="primary" @click="editF(action.invi)">分配</el-button>
         </template>

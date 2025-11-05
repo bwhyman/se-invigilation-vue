@@ -2,14 +2,13 @@
 import { createElNotificationSuccess } from '@/components/message'
 import { SubjectService } from '@/services/SubjectService'
 
-const comment = await SubjectService.getDepartmentCommentService()
-const commentR = ref(comment)
-const sendF = async () => {
-  if (commentR.value.length == 0) {
-    throw '备注信息为空'
-  }
+const { data: comments, suspense } = SubjectService.getCommentService()
+const { mutateAsync } = SubjectService.addCommentService()
+await suspense()
 
-  await SubjectService.addDepartmentCommentService(commentR.value)
+const commentR = ref(toValue(comments))
+const sendF = async () => {
+  await mutateAsync(commentR.value ?? '')
   createElNotificationSuccess('备注信息已保存')
 }
 </script>

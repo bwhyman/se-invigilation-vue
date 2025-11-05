@@ -3,10 +3,12 @@ import { createElNotificationSuccess } from '@/components/message'
 import { SubjectService } from '@/services/SubjectService'
 import type { User } from '@/types'
 
-const usersS = await SubjectService.listUsersService()
+const { data: usersR, suspense } = SubjectService.listUsersService()
+const { mutateAsync } = SubjectService.updateUsersInviStatuService()
+await suspense()
 //
 const btnR = ref(true)
-const userStatusR = ref<User[]>(usersS.value)
+const userStatusR = ref<User[]>(toRaw(usersR.value ?? []))
 //
 const activeC = computed(() => (status: number) => status == 1)
 const changeStatus = (user: User) => {
@@ -20,7 +22,7 @@ const updateUserInviStatus = async () => {
   userStatusR.value.forEach((u) => {
     users.push({ id: u.id, inviStatus: u.inviStatus })
   })
-  await SubjectService.updateUsersInviStatuService(users)
+  await mutateAsync(users)
   createElNotificationSuccess('更新成功')
   btnR.value = true
 }

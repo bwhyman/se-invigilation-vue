@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
 import { CollegeService } from '@/services/CollegeService'
+import { CommonService } from '@/services/CommonService'
 import { ROLES } from '@/services/Const'
-import { useUserStore } from '@/stores/UserStore'
 import type { Department, User, UserDepartment } from '@/types'
 import DepartmentUser from './finduser/DepartmentUser.vue'
 
@@ -12,25 +12,28 @@ const exposeR = ref<{
 }>()
 const userR = ref<User>()
 const departmentR = ref<Department>()
-const departmentsR = ref<Department[]>([])
-const userS = useUserStore().userS
+
+const { data: currentOpUserR, suspense: suspGetUserInfo } = CommonService.getUserInfoService()
+await suspGetUserInfo()
+const { data: departmentsR } = CollegeService.listDepartmentsService()
 watch(
   () => exposeR.value?.selectUser,
-  async () => {
+  () => {
     if (!exposeR.value?.selectUser) return
-    userR.value = JSON.parse(JSON.stringify(exposeR.value?.selectUser))
-    departmentsR.value = (await CollegeService.listDepartmentsService()).value
+    userR.value = toRaw(exposeR.value?.selectUser)
   }
 )
 //
+const { mutateAsync: mubResetpwd } = CollegeService.resetPasswordService()
 const resetPasswordF = async () => {
   if (!userR.value) return
-  await CollegeService.resetPasswordService(userR.value.account!)
+  await mubResetpwd(userR.value.account!)
   createElNotificationSuccess('密码重置成功')
   clearSelect()
 }
 
 //
+const { mutateAsync: mutRemoveUser } = CollegeService.removeUserService()
 const removeUserF = () => {
   if (!userR.value || !userR.value.id) {
     throw '用户为空，请选择用户'
@@ -40,15 +43,16 @@ const removeUserF = () => {
     cancelButtonText: 'Cancel',
     type: 'warning'
   }).then(async () => {
-    userR.value?.id && (await CollegeService.removeUserService(userR.value.id))
+    userR.value?.id && (await mutRemoveUser(userR.value.id))
     createElNotificationSuccess('用户移除成功')
     clearSelect()
   })
 }
 
 //
+const { mutateAsync: mutUpdateUser } = CollegeService.updateUserSerivce()
 const updateUserInfoF = async () => {
-  if (!userR.value || !userR.value?.id || !userS.value) return
+  if (!userR.value || !userR.value?.id || !currentOpUserR.value) return
 
   const user: User = {
     id: userR.value.id,
@@ -58,18 +62,18 @@ const updateUserInfoF = async () => {
   }
   userR.value.dingUserId && (user.dingUserId = userR.value.dingUserId)
   userR.value.dingUnionId && (user.dingUnionId = userR.value.dingUnionId)
-  const depart = departmentsR.value.find((d) => d.id == departmentR.value?.id)
+  const depart = departmentsR.value!.find((d) => d.id == departmentR.value?.id)
   if (depart) {
     const dep: UserDepartment = {
-      collId: userS.value.department?.collId,
-      collegeName: userS.value.department?.collegeName,
+      collId: currentOpUserR.value.department?.collId,
+      collegeName: currentOpUserR.value.department?.collegeName,
       depId: depart.id,
       departmentName: depart.name
     }
     user.department = dep
   }
 
-  await CollegeService.updateUserSerivce(userR.value.id, user)
+  await mutUpdateUser(user)
   createElNotificationSuccess('用户更新成功')
   clearSelect()
 }
@@ -79,13 +83,20 @@ function clearSelect() {
   userR.value = undefined
 }
 
-const selectDingtalkF = async (number: string) => {
-  if (!userR.value || !number) {
+//
+const enabledR = ref(false)
+const { data: dingUser, suspense } = CollegeService.getDingUserService(
+  computed(() => userR.value?.mobile),
+  enabledR
+)
+const selectDingtalkF = async () => {
+  if (!userR.value || !userR.value.mobile) {
     throw '手机号为空'
   }
-  const dingUser = await CollegeService.getDingUserService(number)
-  userR.value.dingUserId = dingUser.userid
-  userR.value.dingUnionId = dingUser.unionid
+  enabledR.value = true
+  await suspense()
+  userR.value.dingUserId = dingUser.value!.userid
+  userR.value.dingUnionId = dingUser.value!.unionid!
 }
 </script>
 <template>
@@ -144,7 +155,7 @@ const selectDingtalkF = async (number: string) => {
           <el-col :span="4">
             <el-button
               type="success"
-              @click="selectDingtalkF(userR.mobile!)"
+              @click="selectDingtalkF"
               v-if="!userR.dingUserId || !userR.dingUnionId">
               基于手机号更新用户钉钉数据
             </el-button>

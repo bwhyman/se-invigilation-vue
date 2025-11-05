@@ -5,12 +5,12 @@ import { Lock } from '@element-plus/icons-vue'
 
 const showPasswordR = ref(false)
 const pwdM = ref({ p1: '', p2: '' })
-
+const { mutateAsync } = CommonService.updateSelfPassword()
 const resetPwd = async () => {
   if (!pwdM.value.p1 || !(pwdM.value.p1 == pwdM.value.p2)) {
     throw '2次输入密码不同'
   }
-  await CommonService.updateSelfPassword(pwdM.value.p1)
+  await mutateAsync(pwdM.value.p1)
   createElNotificationSuccess('密码更新成功')
   pwdM.value.p2 = pwdM.value.p1 = ''
 

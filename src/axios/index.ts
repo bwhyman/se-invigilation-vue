@@ -1,5 +1,3 @@
-import router from '@/router'
-import { useUserStore } from '@/stores/UserStore'
 import type { ResultVO } from '@/types'
 import axios from 'axios'
 
@@ -20,52 +18,55 @@ axios.interceptors.request.use(
 )
 
 // 递归实现反序列化为JS对象
-const parseObject = (data: any) => {
-  let newValue = data
+function parseObject(data: unknown): unknown {
+  if (typeof data !== 'object' || data === null) {
+    return data
+  }
+  //
+  if (Array.isArray(data)) {
+    return data.map((item) => parseObject(item))
+  }
 
-  for (const [key, value] of Object.entries(data)) {
-    if (value instanceof Array) {
-      value.forEach((d) => {
-        parseObject(d)
-      })
-    }
-    if (typeof value == 'object') {
-      parseObject(value)
-    }
+  const obj = data as Record<string, unknown>
+  const result: Record<string, unknown> = {}
 
-    if (typeof value == 'string' && (value.includes('{"') || value.includes('['))) {
-      try {
-        newValue = JSON.parse(value)
-        if (typeof newValue == 'object') {
-          data[key] = parseObject(newValue)
+  for (const [key, value] of Object.entries(obj)) {
+    let parsedValue: unknown = value
+    if (Array.isArray(value)) {
+      parsedValue = value.map((item) => parseObject(item))
+    } else if (value !== null && typeof value === 'object') {
+      parsedValue = parseObject(value)
+    }
+    //
+    else if (typeof value === 'string') {
+      if (value.startsWith('{"') || value.startsWith('[')) {
+        try {
+          const jsonParsed = JSON.parse(value)
+          parsedValue = parseObject(jsonParsed)
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (_e) {
+          parsedValue = value
         }
-      } catch (error) {
-        //
       }
     }
+    result[key] = parsedValue
   }
-  return newValue
+  return result
 }
 
 axios.interceptors.response.use(
   (resp) => {
-    if (resp.config.responseType == 'blob') {
+    if (resp.config.responseType === 'blob') {
       return resp
     }
 
-    const data: ResultVO<{}> = resp.data
-    if (data.code < 300) {
-      parseObject(resp.data)
+    const data: ResultVO<any> = resp.data
+    if (data.code === 200) {
+      resp.data = parseObject(resp.data)
       return resp
     }
-    if (data.code == 401 || data.code == 403) {
-      useUserStore().clear()
-      router.push('/login')
-    }
-    if (data.code >= 400) {
-      return Promise.reject(data.message)
-    }
-    return resp
+
+    return Promise.reject(data.message)
   },
   // 全局处理异常信息。即，http状态码不是200
   (error) => {

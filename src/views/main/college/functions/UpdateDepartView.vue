@@ -3,25 +3,27 @@ import { createElNotificationSuccess } from '@/components/message'
 import { CollegeService } from '@/services/CollegeService'
 import type { Department, UserDepartment } from '@/types'
 
-const departmentsR = await CollegeService.listDepartmentsService()
+const { data: departmentsR } = CollegeService.listDepartmentsService()
 const departR = ref<Department>()
 const depNameR = ref<string>()
 const selectDepartF = () => {
   depNameR.value = departR.value?.name
 }
+const { mutateAsync: mutUpdateDepName } = CollegeService.updateDepartmentNameService()
 const updateDepartNameF = async () => {
   const depart: UserDepartment = { depId: departR.value?.id, departmentName: depNameR.value }
-  console.log(depart)
-  await CollegeService.updateDepartmentNameService(depart)
+
+  await mutUpdateDepName(depart)
   departR.value = undefined
   createElNotificationSuccess('部门名称更新成功')
 }
 //
+const { mutateAsync: mutRemoveDep } = CollegeService.removeDepartmentService()
 const removeF = async () => {
   if (!departR.value || !departR.value.id) throw '部门为空，请选择部门'
   const depid = departR.value.id
   departR.value = undefined
-  await CollegeService.removeDepartmentService(depid)
+  await mutRemoveDep(depid)
   createElNotificationSuccess('部门移除成功')
 }
 </script>

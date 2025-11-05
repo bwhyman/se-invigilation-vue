@@ -1,51 +1,38 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
-import { CollegeService } from '@/services/CollegeService'
 import { CommonService } from '@/services/CommonService'
-import { COLLEGE_ADMIN, SUBJECT_ADMIN } from '@/services/Const'
 import { SubjectService } from '@/services/SubjectService'
 import type { User } from '@/types'
 import { getFinalNotice, getInitNotice } from './AssignNotice'
 
 const params = useRoute().params as { inviid: string }
-const role = sessionStorage.getItem('role')
-let getInvi
-if (role == COLLEGE_ADMIN) {
-  getInvi = CollegeService.getCollegeInviService(params.inviid)
-} else if (role == SUBJECT_ADMIN) {
-  getInvi = SubjectService.getInviService(params.inviid)
-}
+const { data: invigilationR, suspense: suspGetInvi } = SubjectService.getInviService(params.inviid)
+const { data: assignersR, suspense: suspListDetail } = SubjectService.listInviDetailUsersService(
+  params.inviid
+)
+await Promise.all([suspListDetail(), suspGetInvi()])
 
-const results = await Promise.all([
-  SubjectService.listInviDetailUsersService(params.inviid),
-  getInvi
-])
-
-const assigners = results[0]
-const invigilationR = results[1]
-
-const selectUsersR = ref<User[]>([...assigners])
+const selectUsersR = ref<User[]>([...assignersR.value!])
 if (!invigilationR || !invigilationR.value) {
   throw `监考信息读取错误`
 }
 
-const notice = getInitNotice(assigners, invigilationR.value)
+const notice = getInitNotice(assignersR.value!, invigilationR.value)
 
 const dingUsers: User[] = []
 const noDingUsers: User[] = []
 
-for (const us of assigners) {
+for (const us of assignersR.value!) {
   us.dingUserId ? dingUsers.push(us) : noDingUsers.push(us)
 }
-
+const { mutateAsync } = CommonService.noticeUsersService()
 const noticeAssignersF = async () => {
   if (invigilationR.value.dingNotice) {
     throw '请勿重复发送通知'
   }
   const noticeFinal = getFinalNotice(notice, selectUsersR.value)
-  await CommonService.noticeUsersService(noticeFinal)
-  //
+  await mutateAsync(noticeFinal)
   router.push('/subject/dispatched')
   createElNotificationSuccess(`通知发送成功`)
 }

@@ -1,10 +1,5 @@
 import { useDelete, useGet, usePatch, usePost, usePut } from '@/axios'
-import { useDepartmentAvgStore } from '@/stores/DepartmentAvgStore'
-import { useDepartmentsStore } from '@/stores/DepartmentStore'
-import { useInvigilationsStore } from '@/stores/InvigilationsStore'
-import { useSettingStore } from '@/stores/SettingStore'
-import { useTotalsStore } from '@/stores/TotalsStore'
-import { useUsersStore } from '@/stores/UsersStore'
+import { createElLoadingX } from '@/components/loading'
 import type {
   AssignUser,
   Department,
@@ -20,330 +15,460 @@ import type {
   User,
   UserDepartment
 } from '@/types'
-import { ELLoading, StoreCache, StoreClear, StoreMapCache } from './Decorators'
+import { querycachename } from '@/vuequery/Const'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import type { MaybeRefOrGetter } from 'vue'
+import { DISPATCH, IMPORT } from './Const'
 import { stringTimetables } from './Utils'
 
-const COLLEGE = 'college'
-
 //
-const departmentsStore = useDepartmentsStore()
-const usersStore = useUsersStore()
-const invisStore = useInvigilationsStore()
-const depTotalsStore = useTotalsStore()
-const departmentAvgStore = useDepartmentAvgStore()
-const settingStore = useSettingStore()
-
-const addPreUrl = (url: string) => `${COLLEGE}/${url}`
+const addPreUrl = (url: string) => `college/${url}`
 
 export class CollegeService {
   //
-  @StoreCache(departmentsStore.departmentsOpened)
-  static async listOpenedDepartmentsService() {
-    const data = await useGet<Department[]>(addPreUrl('departments/opened'))
-    return data as unknown as Ref<Department[]>
-  }
-
-  //
-  @StoreCache(invisStore.invigilationsImportS, true)
-  static async addInvigilationsService(invis: Invigilation[]) {
-    invis.forEach((i) => {
-      // @ts-ignore
-      i.time = JSON.stringify(i.time)
-      // @ts-ignore
-      i.course = JSON.stringify(i.course)
-      // @ts-ignore
-      i.importer = JSON.stringify(i.importer)
-      // @ts-ignore
-      i.allocator && (i.allocator = JSON.stringify(i.allocator))
-      // @ts-ignore
-      i.executor && (i.executor = JSON.stringify(i.executor))
-      // @ts-ignore
-      i.dispatcher && (i.dispatcher = JSON.stringify(i.dispatcher))
-      // @ts-ignore
-      i.department && (i.department = JSON.stringify(i.department))
+  static listOpenedDepartmentsService() {
+    return useQuery({
+      queryKey: [querycachename.openeddepartments],
+      queryFn: () => useGet<Department[]>(addPreUrl('departments/opened'))
     })
-    return await usePost<Invigilation[]>(addPreUrl('invigilations'), invis)
-  }
-
-  @StoreCache(invisStore.invigilationsImportS)
-  @ELLoading()
-  static async listImportedService() {
-    const data = await useGet<Invigilation[]>(addPreUrl('invilations/imported'))
-    return data as unknown as Ref<Invigilation[]>
-  }
-
-  static getImportedTotalService = async () => {
-    const data = await useGet<number>(addPreUrl('invigilations/imported/total'))
-    return data ?? 0
-  }
-
-  @StoreMapCache(depTotalsStore.totalsMapS)
-  static async getDepatchedTotalService(depid: string) {
-    const data = await useGet<number>(addPreUrl(`invigilations/dispatched/${depid}/total`))
-    return data ?? 0
-  }
-
-  @StoreMapCache(invisStore.invigilationsDispatchMapS)
-  @ELLoading()
-  static async listDepatchedsService(depid: string, page: number) {
-    return await useGet<Invigilation[]>(addPreUrl(`invilations/dispatched/${depid}/${page}`))
   }
 
   //
+  static addInvigilationsService() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: (invis: Invigilation[]) => {
+        invis.forEach((i) => {
+          // @ts-ignore
+          i.time = JSON.stringify(i.time)
+          // @ts-ignore
+          i.course = JSON.stringify(i.course)
+          // @ts-ignore
+          i.importer = JSON.stringify(i.importer)
+          // @ts-ignore
+          i.allocator && (i.allocator = JSON.stringify(i.allocator))
+          // @ts-ignore
+          i.executor && (i.executor = JSON.stringify(i.executor))
+          // @ts-ignore
+          i.dispatcher && (i.dispatcher = JSON.stringify(i.dispatcher))
+          // @ts-ignore
+          i.department && (i.department = JSON.stringify(i.department))
+        })
+        return usePost<Invigilation[]>(addPreUrl('invigilations'), invis)
+      },
+      onSuccess: () => qc.invalidateQueries({ queryKey: [querycachename.importeds] })
+    })
+  }
+
+  static listImportedService() {
+    return useQuery({
+      queryKey: [querycachename.importeds],
+      queryFn: () => createElLoadingX(useGet<Invigilation[]>(addPreUrl('invilations/imported')))
+    })
+  }
+
+  //
+  static getDepatchedTotalService(depid: MaybeRefOrGetter, enabled?: MaybeRefOrGetter) {
+    return useQuery({
+      queryKey: [querycachename.invitotals, depid],
+      queryFn: () => useGet<number>(addPreUrl(`invigilations/dispatched/${toValue(depid)}/total`)),
+      enabled
+    })
+  }
+
+  //
+  static listDepatchedsService(
+    depid: MaybeRefOrGetter,
+    page: MaybeRefOrGetter,
+    enabled?: MaybeRefOrGetter
+  ) {
+    return useQuery({
+      queryKey: [querycachename.dispatcheds, depid, page],
+      queryFn: () =>
+        useGet<Invigilation[]>(
+          addPreUrl(`invilations/dispatched/${toValue(depid)}/${toValue(page)}`)
+        ),
+      enabled
+    })
+  }
+
   // 清空已导入监考缓存
-  @StoreClear(invisStore.clear)
-  @StoreCache(invisStore.invigilationsImportS)
-  static async dispathInvisService(invis: Invigilation[]) {
-    invis.forEach((i) => {
-      // @ts-ignore
-      i.dispatcher && (i.dispatcher = JSON.stringify(i.dispatcher))
-      // @ts-ignore
-      i.department && (i.department = JSON.stringify(i.department))
+  static dispathInvisService() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: (invis: Invigilation[]) => {
+        invis.forEach((i) => {
+          // @ts-ignore
+          i.dispatcher && (i.dispatcher = JSON.stringify(i.dispatcher))
+          // @ts-ignore
+          i.department && (i.department = JSON.stringify(i.department))
+        })
+        return usePatch<Invigilation[]>(addPreUrl('invigilations/dispatch'), invis)
+      },
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: [querycachename.importeds] })
+        qc.invalidateQueries({ queryKey: [querycachename.dispatcheds] })
+      }
     })
-    const data = await usePatch<Invigilation[]>(addPreUrl('invigilations/dispatch'), invis)
-    return data as unknown as Ref<Invigilation[]>
   }
 
   //
-  @StoreCache(usersStore.usersS)
-  @ELLoading()
-  static async listCollegeUsersService() {
-    const data = await useGet<User[]>(addPreUrl('users'))
-    return data as unknown as Ref<User[]>
+  static listCollegeUsersService(enabled?: MaybeRefOrGetter) {
+    return useQuery({
+      queryKey: [querycachename.collegeusers],
+      queryFn: () => createElLoadingX(useGet<User[]>(addPreUrl('users'))),
+      enabled
+    })
   }
 
   //
-  @ELLoading()
-  static async addTimetablesService(timetables: Timetable[]) {
-    stringTimetables(timetables)
-    await usePost(addPreUrl('timetables'), timetables)
-    return true
+  static addTimetablesService() {
+    return useMutation({
+      mutationFn: (timetables: Timetable[]) => {
+        stringTimetables(timetables)
+        return createElLoadingX(usePost(addPreUrl('timetables'), timetables))
+      }
+    })
   }
 
   // 加载指定专业监考分配负责人
-  @StoreMapCache(usersStore.dispatchersS)
-  static async listDispatchersService(depid: string) {
-    return await useGet<User[]>(addPreUrl(`dispatchers/${depid}`))
-  }
-
-  @ELLoading()
-  static async noticeDispatcherService(notice: DispatcherNotice) {
-    return await usePost<DingNoticeResponse>(addPreUrl('dispatchnotices'), notice)
+  static listDispatchersService(depid: string) {
+    return useQuery({
+      queryKey: [querycachename.dispatchers, depid],
+      queryFn: () => useGet<User[]>(addPreUrl(`dispatchers/${depid}`))
+    })
   }
 
   //
-  @ELLoading()
-  static async addTimetableService(userid: string, timetables: Timetable[]) {
-    stringTimetables(timetables)
-    await usePost(addPreUrl(`timetables/${userid}`), timetables)
-    return true
+  static noticeDispatcherService() {
+    return useMutation({
+      mutationFn: (notice: DispatcherNotice) =>
+        usePost<DingNoticeResponse>(addPreUrl('dispatchnotices'), notice)
+    })
   }
 
   //
-  @StoreClear(invisStore.clear)
-  static async updateInviService(invi: Invigilation) {
-    // @ts-ignore
-    invi.time = JSON.stringify(invi.time)
-    // @ts-ignore
-    invi.course = JSON.stringify(invi.course)
-    // @ts-ignore
-    invi.dispatcher = JSON.stringify(invi.dispatcher)
-    const data = await usePatch<Invigilation>(addPreUrl('invigilations/edit'), invi)
+  static addTimetableService() {
+    return useMutation({
+      mutationFn: ({ userid, timetables }: { userid: string; timetables: Timetable[] }) => {
+        stringTimetables(timetables)
+        return usePost(addPreUrl(`timetables/${userid}`), timetables)
+      }
+    })
+  }
 
-    return ref(data)
+  //
+  static updateInviService() {
+    const qc = useQueryClient()
+    let status = 0
+    return useMutation({
+      mutationFn: (invi: Invigilation) => {
+        // 用于决定更新哪组数据
+        status = invi.status!
+        // @ts-ignore
+        invi.time = JSON.stringify(invi.time)
+        // @ts-ignore
+        invi.course = JSON.stringify(invi.course)
+        //
+        invi.importer = undefined
+        invi.dispatcher = undefined
+        invi.executor = undefined
+        invi.collId = undefined
+        invi.department = undefined
+        invi.dingNotice = undefined
+        invi.remark = undefined
+        return usePatch(addPreUrl('invigilations/edit'), toValue(invi))
+      },
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: [querycachename.currentinvi] })
+        if (status === IMPORT) {
+          qc.invalidateQueries({ queryKey: [querycachename.importeds] })
+        } else if (status === DISPATCH) {
+          qc.invalidateQueries({ queryKey: [querycachename.dispatcheds] })
+        }
+      }
+    })
   }
 
   // 删除监考
-  @StoreClear(invisStore.clear)
-  static async delInviService(inviid: string) {
-    await useDelete(addPreUrl(`invigilations/${inviid}`))
-    return true
+  static delInviService(status: number) {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: (inviid: string) => useDelete(addPreUrl(`invigilations/${inviid}`)),
+      onSuccess: () => {
+        if (status === IMPORT) {
+          qc.invalidateQueries({ queryKey: [querycachename.importeds] })
+        } else if (status === DISPATCH) {
+          qc.invalidateQueries({ queryKey: [querycachename.dispatcheds] })
+        }
+      }
+    })
   }
 
   // 重置监考为未下发状态，重置信息等
-  @StoreClear(invisStore.clear)
-  static async resetInviService(inviid: string) {
-    await usePut(addPreUrl(`invigilations/${inviid}/status`))
-    return true
+  static resetInviService() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: (inviid: string) => usePut(addPreUrl(`invigilations/${inviid}/status`)),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: [querycachename.importeds] })
+        qc.invalidateQueries({ queryKey: [querycachename.dispatcheds] })
+      }
+    })
   }
 
   //
-  @StoreCache(departmentsStore.departments)
-  static async listDepartmentsService() {
-    const data = await useGet<Department[]>(addPreUrl('departments'))
-    return data as unknown as Ref<Department[]>
+  static listDepartmentsService(enabled?: MaybeRefOrGetter) {
+    return useQuery({
+      queryKey: [querycachename.departments],
+      queryFn: () => useGet<Department[]>(addPreUrl('departments')),
+      enabled
+    })
   }
 
   //
-  @StoreClear(departmentsStore.clear)
-  @StoreCache(departmentsStore.departments, true)
-  static async updateDepartmentInviStatusService(departs: Department[]) {
-    const data = await usePatch<Department[]>(addPreUrl('departments/invistatus'), departs)
-    return data as unknown as Ref<Department[]>
+  static updateDepartmentInviStatusService() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: (departs: Department[]) =>
+        usePatch<Department[]>(addPreUrl('departments/invistatus'), departs),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: [querycachename.openeddepartments] })
+        qc.invalidateQueries({ queryKey: [querycachename.departments] })
+      }
+    })
   }
 
   // 学院直接分配
-  @StoreClear(invisStore.clear, departmentAvgStore.clear)
-  static async addAssignService(inviid: string, user: AssignUser) {
-    // @ts-ignore
-    user.allocator = JSON.stringify(user.allocator)
-    // @ts-ignore
-    user.executor = JSON.stringify(user.executor)
-    // @ts-ignore
-    user.dispatcher = JSON.stringify(user.dispatcher)
-    // @ts-ignore
-    user.department = JSON.stringify(user.department)
-    return await usePost<Invigilation>(`invidetails/${inviid}`, user)
+  static addAssignService() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: ({ inviid, user }: { inviid: string; user: AssignUser }) => {
+        // @ts-ignore
+        user.allocator = JSON.stringify(user.allocator)
+        // @ts-ignore
+        user.executor = JSON.stringify(user.executor)
+        // @ts-ignore
+        user.dispatcher = JSON.stringify(user.dispatcher)
+        // @ts-ignore
+        user.department = JSON.stringify(user.department)
+        return usePost<Invigilation>(`invidetails/${inviid}`, user)
+      },
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: [querycachename.importeds] })
+        qc.invalidateQueries({ queryKey: [querycachename.dispatcheds] })
+      }
+    })
   }
 
   //
-  static getUserService = async (account: string) => {
-    return await useGet<User>(addPreUrl(`users/${account}`))
-  }
-
-  //
-  @StoreCache(invisStore.invisAllS)
-  @ELLoading()
-  static async listCollegeInviDetailsService() {
-    const data = await useGet<Invigilation[]>(addPreUrl('invis/all'))
-    return data as unknown as Ref<Invigilation[]>
+  static listCollegeInviDetailsService(enabled?: MaybeRefOrGetter) {
+    return useQuery({
+      queryKey: [querycachename.collegeallinvis],
+      queryFn: () => useGet<Invigilation[]>(addPreUrl('invis/all')),
+      enabled
+    })
   }
 
   // 获取全学院每位教师监考数量
-  static listCollegeCountsService = async () => {
-    return await useGet<InviCount[]>(addPreUrl('invis/counts'))
+  static listCollegeCountsService(enabled?: MaybeRefOrGetter) {
+    return useQuery({
+      queryKey: [querycachename.collegeusersinvicounts],
+      queryFn: () => useGet<InviCount[]>(addPreUrl('invis/counts')),
+      enabled
+    })
   }
 
   // 重置指定账号密码
-  static resetPasswordService = async (account: string) => {
-    await usePut(addPreUrl(`passwords/${account}`))
-    return true
-  }
-
-  @StoreClear(usersStore.clear)
-  static async addUserService(user: User) {
-    // @ts-ignore
-    user.department = JSON.stringify(user.department)
-    await usePost(addPreUrl('users'), user)
-
-    return true
+  static resetPasswordService() {
+    return useMutation({
+      mutationFn: (account: string) => usePut(addPreUrl(`passwords/${account}`))
+    })
   }
 
   //
-  @ELLoading()
-  static async sendInviRemarkNoticeService(notice: NoticeRemark) {
-    const data = await usePost<{ request_id: string }>(addPreUrl('invinotices'), notice)
-    return data.request_id ?? ''
+  static addUserService() {
+    return useMutation({
+      mutationFn: (user: User) => {
+        // @ts-ignore
+        user.department = JSON.stringify(user.department)
+        return usePost(addPreUrl('users'), user)
+      }
+    })
+  }
+
+  //
+  static sendInviRemarkNoticeService() {
+    return useMutation({
+      mutationFn: (notice: NoticeRemark) =>
+        createElLoadingX(usePost<{ request_id: string }>(addPreUrl('invinotices'), notice))
+    })
   }
 
   // 获取指定学院，指定id的监考信息
-  //@StoreCache(invisStore.currentInviS)
-  static async getCollegeInviService(inviid: string) {
-    const data = await useGet<Invigilation>(addPreUrl(`invis/${inviid}`))
-    return shallowRef(data)
+  static getCollegeInviService(inviid: string) {
+    return useQuery({
+      queryKey: [querycachename.currentinvi],
+      queryFn: () => useGet<Invigilation>(addPreUrl(`invis/${inviid}`)),
+      gcTime: 0
+    })
   }
 
-  //
   // 清空已导入监考缓存
-  @StoreClear(invisStore.clear)
-  @StoreCache(invisStore.invigilationsImportS)
-  static async cutInviService(oldInviid: string, invi: Invigilation) {
-    // @ts-ignore
-    invi.importer = JSON.stringify(invi.importer)
-    // @ts-ignore
-    invi.course = JSON.stringify(invi.course)
-    // @ts-ignore
-    invi.time = JSON.stringify(invi.time)
-
-    const data = await usePost<Invigilation[]>(addPreUrl(`cutinvigilation/${oldInviid}`), invi)
-    return data as unknown as Ref<Invigilation[]>
+  static cutInviService() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: ({ oldInviid, invi }: { oldInviid: string; invi: Invigilation }) => {
+        // @ts-ignore
+        invi.importer = JSON.stringify(invi.importer)
+        // @ts-ignore
+        invi.course = JSON.stringify(invi.course)
+        // @ts-ignore
+        invi.time = JSON.stringify(invi.time)
+        return usePost(addPreUrl(`cutinvigilation/${oldInviid}`), invi)
+      },
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: [querycachename.importeds] })
+        qc.invalidateQueries({ queryKey: [querycachename.dispatcheds] })
+        qc.invalidateQueries({ queryKey: [querycachename.invitotals] })
+        qc.invalidateQueries({ queryKey: [querycachename.dateinvis] })
+      }
+    })
   }
 
   // 加载指定专业下全部教师
-  static async listDepartmentUsersService(depid: string) {
-    return await useGet<User[]>(addPreUrl(`department/${depid}/users`))
+  static listDepartmentUsersService(depid: MaybeRefOrGetter, enabled?: MaybeRefOrGetter) {
+    return useQuery({
+      queryKey: [querycachename.departusers, depid],
+      queryFn: () => useGet<User[]>(addPreUrl(`departments/${toValue(depid)}/users`)),
+      enabled
+    })
   }
 
   // 基于钉钉注册手机号，获取用户信息
-  @ELLoading()
-  static async getDingUserService(mobile: string) {
-    const data = await useGet<DingUser>(addPreUrl(`mobiles/${mobile}`))
-    if (!data) {
-      throw '无法查询到钉钉用户'
-    }
-    return data
+  static getDingUserService(mobile: MaybeRefOrGetter, enabled?: MaybeRefOrGetter) {
+    return useQuery({
+      queryKey: [],
+      queryFn: () => createElLoadingX(useGet<DingUser>(addPreUrl(`mobiles/${toValue(mobile)}`))),
+      enabled
+    })
   }
 
   //
-  @StoreClear(usersStore.clear)
-  static async removeUserService(uid: string) {
-    await useDelete(addPreUrl(`users/${uid}`))
-    return true
+  static removeUserService() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: (uid: string) => useDelete(addPreUrl(`users/${uid}`)),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: [querycachename.collegeusers] })
+        qc.invalidateQueries({ queryKey: [querycachename.collegeusersinvicounts] })
+        qc.invalidateQueries({ queryKey: [querycachename.departusers] })
+        qc.invalidateQueries({ queryKey: [querycachename.dingusers] })
+      }
+    })
   }
 
   //
-  @StoreClear(invisStore.clear)
-  static async removeCollegeDataService() {
-    await useDelete(addPreUrl('colleges/datareset'))
-    return true
+  static removeCollegeDataService() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: () => createElLoadingX(useDelete(addPreUrl('datareset'))),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: [querycachename.importeds] })
+        qc.invalidateQueries({ queryKey: [querycachename.dispatcheds] })
+        qc.invalidateQueries({ queryKey: [querycachename.assigneds] })
+        qc.invalidateQueries({ queryKey: [querycachename.collegeallinvis] })
+        qc.invalidateQueries({ queryKey: [querycachename.departavgs] })
+        qc.invalidateQueries({ queryKey: [querycachename.collegeusersinvicounts] })
+      }
+    })
   }
 
   //
-  @StoreCache(departmentsStore.departments, true)
-  static async removeDepartmentService(depid: string) {
-    const data = await useDelete<Department[]>(addPreUrl(`departments/${depid}`))
-    return data as unknown as Ref<Department[]>
+  static removeDepartmentService() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: (depid: string) => useDelete<Department[]>(addPreUrl(`departments/${depid}`)),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: [querycachename.departments] })
+        qc.invalidateQueries({ queryKey: [querycachename.openeddepartments] })
+      }
+    })
   }
+
   // 更新部门名称
-  @StoreCache(departmentsStore.departments, true)
-  static async updateDepartmentNameService(depart: UserDepartment) {
-    const data = await usePatch<Department[]>(addPreUrl(`departments/${depart.depId}`), depart)
-    return data as unknown as Ref<Department[]>
-  }
-
-  @StoreClear(usersStore.clear)
-  static async updateUserSerivce(udi: string, user: User) {
-    // @ts-ignore
-    user.department = JSON.stringify(user.department)
-    await usePatch(addPreUrl(`users/${user.id}`), user)
-    return true
-  }
-
-  @StoreClear(departmentsStore.clear)
-  @StoreCache(departmentsStore.departments)
-  static async addDepartmentService(depart: Department) {
-    // @ts-ignore
-    depart.college = JSON.stringify(depart.college)
-    const data = await usePost(addPreUrl('departments'), depart)
-    return data as unknown as Ref<Department[]>
-  }
-
-  @StoreCache(departmentAvgStore.depAvgS)
-  private static async getAvsInfoAPI() {
-    const data = await useGet<{
-      departmentquantity: DepartmentAvg[]
-      teacherquantity: DepartmentAvg[]
-    }>(addPreUrl('invis/avg'))
-    return data as unknown as Ref<{
-      departmentquantity: DepartmentAvg[]
-      teacherquantity: DepartmentAvg[]
-    }>
-  }
-
-  static async listDepartmentAvgsService() {
-    await CollegeService.getAvsInfoAPI()
-    return departmentAvgStore.depAvgC
+  static updateDepartmentNameService() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: (depart: UserDepartment) =>
+        usePatch<Department[]>(addPreUrl(`departments/${depart.depId}`), depart),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: [querycachename.departments] })
+        qc.invalidateQueries({ queryKey: [querycachename.openeddepartments] })
+      }
+    })
   }
 
   //
-  @StoreCache(settingStore.settingsR)
-  static async listSettingsService() {
-    const data = await useGet<Setting[]>(addPreUrl('settings'))
-    return data as unknown as Ref<Setting[]>
+  static updateUserSerivce() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: (user: User) => {
+        // @ts-ignore
+        user.department = JSON.stringify(user.department)
+        return usePatch(addPreUrl(`users/${user.id}`), user)
+      },
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: [querycachename.collegeusers] })
+        qc.invalidateQueries({ queryKey: [querycachename.departusers] })
+      }
+    })
   }
 
-  @StoreCache(settingStore.settingsR, true)
-  static async updateSettingService(setting: Setting) {
-    await usePost(addPreUrl('settings'), setting)
+  //
+  static addDepartmentService() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: (depart: Department) => {
+        // @ts-ignore
+        depart.college = JSON.stringify(depart.college)
+        return usePost(addPreUrl('departments'), depart)
+      },
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: [querycachename.departments] })
+        qc.invalidateQueries({ queryKey: [querycachename.openeddepartments] })
+      }
+    })
+  }
+
+  //
+  static listDepartmentAvgsService(enabled: MaybeRefOrGetter) {
+    return useQuery({
+      queryKey: [querycachename.departavgs],
+      queryFn: async () => {
+        const data = await useGet<{
+          departmentquantity: DepartmentAvg[]
+          teacherquantity: DepartmentAvg[]
+        }>(addPreUrl('invis/avg'))
+        const depAvgMap = new Map<string, string>()
+        data.departmentquantity.map((dep) => {
+          const teacherQuantity =
+            data.teacherquantity.find((dept) => dept.depId === dep.depId)?.teacherQuantity ?? 1
+          depAvgMap.set(dep.depId!, ((dep.departmentQuantity ?? 1) / teacherQuantity).toFixed(1))
+        })
+        return depAvgMap
+      },
+      enabled
+    })
+  }
+
+  //
+  static updateSettingService() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationKey: [querycachename.settings],
+      mutationFn: (setting: Setting) => usePost(addPreUrl('settings'), setting),
+      onSuccess: () => qc.invalidateQueries({ queryKey: [querycachename.settings] })
+    })
   }
 }

@@ -1,24 +1,39 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
 import { CollegeService } from '@/services/CollegeService'
+import { CommonService } from '@/services/CommonService'
 import { ROLES } from '@/services/Const'
-import { useUserStore } from '@/stores/UserStore'
 import type { Department, User } from '@/types'
 
-const departmentsR = ref<Department[]>([])
+const enabledR = ref(false)
+const { data: departmentsR } = CollegeService.listDepartmentsService(enabledR)
 const userR = ref<User>({})
 const departR = ref<Department>()
 
+//
+const { data: dingUserR, suspense: s2 } = CollegeService.getDingUserService(
+  computed(() => userR.value.mobile),
+  enabledR
+)
 const searchF = async () => {
-  const dingUser = await CollegeService.getDingUserService(userR.value.mobile!)
-  userR.value.name = dingUser?.name
-  userR.value.dingUserId = dingUser?.userid
-  userR.value.dingUnionId = dingUser?.unionid
-  departmentsR.value = (await CollegeService.listDepartmentsService()).value
+  enabledR.value = true
+  await s2()
+  const dingU = toRaw(dingUserR.value)
+  if (!dingU) {
+    enabledR.value = false
+    userR.value = {}
+    throw '无法查询到钉钉用户'
+  }
+  userR.value.name = dingU.name
+  userR.value.dingUserId = dingU.userid
+  userR.value.dingUnionId = dingU.unionid
 }
 
+//
+const { data: collUserR, suspense: s1 } = CommonService.getUserInfoService()
+await s1()
+const { mutateAsync: mutAddUser } = CollegeService.addUserService()
 const submitF = async () => {
-  const collUserR = useUserStore().userS
   if (!collUserR.value) return
   userR.value.department = {
     collId: collUserR.value.department?.collId,
@@ -34,8 +49,8 @@ const submitF = async () => {
   ) {
     throw '有必填项为空'
   }
-
-  await CollegeService.addUserService(userR.value)
+  //
+  await mutAddUser(userR.value)
   userR.value = {}
   createElNotificationSuccess('添加成功')
 }

@@ -3,15 +3,15 @@ import { createElNotificationSuccess } from '@/components/message'
 import { CommonService } from '@/services/CommonService'
 import { IMPORT, LOCATIONS, SUBJECT_ADMIN } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
-import { useUserStore } from '@/stores/UserStore'
 import type { Invigilation } from '@/types'
 import InviTypes from './InviTypes.vue'
-const userS = useUserStore().userS
+const { data: userR } = CommonService.getUserInfoService()
+
 const inviR = ref<Invigilation>({ course: {}, time: {} })
 const inviTypeR = ref<{ type: string }>()
-
+const { mutateAsync } = CommonService.addInviSerivce()
 const submitForm = async () => {
-  if (!userS.value) return
+  if (!userR.value) return
   if (
     !inviR.value.course?.courseName ||
     !inviR.value.course?.clazz ||
@@ -27,10 +27,10 @@ const submitForm = async () => {
     throw '请填写完整考试时间信息'
   }
 
-  inviR.value.collId = userS.value.department?.collId
+  inviR.value.collId = userR.value.department?.collId
   inviR.value.status = IMPORT
-  inviR.value.importer = stringInviTime({ id: userS.value.id, name: userS.value.name })
-  await CommonService.addInviSerivce(inviR.value)
+  inviR.value.importer = stringInviTime({ id: userR.value.id, name: userR.value.name })
+  await mutateAsync(inviR.value)
   inviR.value = { course: {}, time: {} }
   inviTypeR.value.type = ''
   createElNotificationSuccess('监考录入成功')
@@ -64,7 +64,7 @@ watch(
   <el-row class="my-row">
     <el-col>
       <el-form label-width="120px" style="width: 500px">
-        <el-form-item v-if="userS?.role === SUBJECT_ADMIN">
+        <el-form-item v-if="userR?.role === SUBJECT_ADMIN">
           <el-tag type="danger" size="large">
             用于录入随堂阶段考试等教务处系统中没有的考试。专业提交的监考，将由学院统计并统一分配。
           </el-tag>
@@ -122,8 +122,8 @@ watch(
                 v-model="inviR.time!.endtime"
                 placeholder="结束时间"
                 :start="timeSelectR.endSTime"
-                step="00:30"
                 :end="timeSelectR.endETime"
+                step="00:30"
                 style="width: 100%" />
             </el-form-item>
           </el-col>

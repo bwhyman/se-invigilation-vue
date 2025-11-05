@@ -1,16 +1,33 @@
 <script setup lang="ts">
-import { SubjectService } from '@/services/SubjectService'
 import { dayOfWeeksC, periodOfDaysC } from '@/services/ExcludeRule'
-import AddRuleDialog from './AddRuleDialog.vue'
-import { Delete } from '@element-plus/icons-vue'
-import { createDialog } from './index'
+import { SubjectService } from '@/services/SubjectService'
+import type { ExcludeRule } from '@/types'
+import { Delete, Plus } from '@element-plus/icons-vue'
+import { render } from 'vue'
 
-const excludeRules = await SubjectService.listExcludeRulesService()
+const { data: excludeRules } = SubjectService.listExcludeRulesService()
+const instance = getCurrentInstance()
+
+const openAddDialogF = () => {
+  const com = defineAsyncComponent(() => import('./AddRuleDialog.vue'))
+  const vnode = h(com)
+  vnode.appContext = instance!.appContext
+  render(vnode, document.body)
+}
+const openDelDialogF = (rule: ExcludeRule) => {
+  const com = h(
+    defineAsyncComponent(() => import('./DelRuleDialog.vue')),
+    { rule }
+  )
+  const vnode = h(com)
+  vnode.appContext = instance!.appContext
+  render(vnode, document.body)
+}
 </script>
 <template>
   <el-row class="my-row">
     <el-col>
-      <AddRuleDialog />
+      <el-button type="primary" @click="openAddDialogF" :icon="Plus" />
       <el-table :data="excludeRules">
         <el-table-column type="index" label="" width="50" />
         <el-table-column width="130" prop="teacherName" />
@@ -31,7 +48,7 @@ const excludeRules = await SubjectService.listExcludeRulesService()
         </el-table-column>
         <el-table-column width="60">
           <template #default="scope">
-            <el-button type="danger" @click="createDialog(scope.row)" :icon="Delete" circle />
+            <el-button type="danger" @click="openDelDialogF(scope.row)" :icon="Delete" circle />
           </template>
         </el-table-column>
       </el-table>

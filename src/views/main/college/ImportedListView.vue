@@ -2,23 +2,24 @@
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
+import { CommonService } from '@/services/CommonService'
 import { DISPATCH } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
-import { useUserStore } from '@/stores/UserStore'
 import type { Department, Invigilation, Page } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 import DepartmentView from './DepartmentView.vue'
 import OpterationMenuView from './operations/OpterationMenuView.vue'
 
-const inviS = await CollegeService.listImportedService()
+const { data: inviS, suspense } = CollegeService.listImportedService()
+await suspense()
 const pageR = ref<Page>({
   currentpage: 1,
-  total: inviS.value.length,
+  total: inviS.value?.length ?? 0,
   url: '',
   noPage: true
 })
 
-const user = useUserStore().userS
+const { data: user } = CommonService.getUserInfoService()
 //
 const departmentR = ref<Department>()
 const selectR = ref<Invigilation[]>([])
@@ -39,6 +40,7 @@ const buttonTypeC = computed(() => (id: string) => {
 })
 
 //
+const { mutateAsync } = CollegeService.dispathInvisService()
 const updateInvis = async () => {
   const invis: Invigilation[] = []
   selectR.value.forEach((invi) => {
@@ -54,7 +56,7 @@ const updateInvis = async () => {
   })
 
   //
-  await CollegeService.dispathInvisService(invis)
+  await mutateAsync(invis)
   createElNotificationSuccess('监考已下发')
   router.push(`/college/noticedepartments/${departmentR.value?.id}`)
 }

@@ -1,25 +1,29 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
 import { CollegeService } from '@/services/CollegeService'
-import { useUserStore } from '@/stores/UserStore'
+import { CommonService } from '@/services/CommonService'
 import type { Department } from '@/types'
 
-const departmentsR = await CollegeService.listDepartmentsService()
+const { data: departmentsR, suspense: suspListDeparts } = CollegeService.listDepartmentsService()
+const { data: createUserR, suspense: suspGetUserInfo } = CommonService.getUserInfoService()
+await Promise.all([suspGetUserInfo(), suspListDeparts()])
 const depNameR = ref<string>('')
 
+//
+const { mutateAsync } = CollegeService.addDepartmentService()
 const addDepartmentF = async () => {
   if (!depNameR.value) return
-  if (departmentsR.value.some((d) => d.name === depNameR.value)) {
+  if (departmentsR.value!.some((d) => d.name === depNameR.value)) {
     throw `${depNameR.value}, 专业已存在！`
   }
-  const collName = useUserStore().userS.value?.department?.collegeName
-  const collId = useUserStore().userS.value?.department?.collId
+  const collName = createUserR.value?.department?.collegeName
+  const collId = createUserR.value?.department?.collId
   const dep: Department = {
     name: depNameR.value,
     inviStatus: 1,
     college: { collId: collId!, collegeName: collName! }
   }
-  await CollegeService.addDepartmentService(dep)
+  await mutateAsync(dep)
   depNameR.value = ''
   createElNotificationSuccess('部门添加成功')
 }

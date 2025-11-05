@@ -6,62 +6,30 @@ import { CommonService } from '@/services/CommonService'
 import { LOCATIONS } from '@/services/Const'
 import { getCancelNotice } from '@/services/Utils'
 import type { Invigilation } from '@/types'
-import type { FormInstance, FormRules } from 'element-plus'
 
 const params = useRoute().params as { inviid: string }
-const invi = await CollegeService.getCollegeInviService(params.inviid)
-
+const { data: invi, suspense } = CollegeService.getCollegeInviService(params.inviid)
+await suspense()
 const isAssigned = computed(() => invi.value && invi.value.executor)
 const unlockedR = computed(() => invi.value && !invi.value.executor)
 if (!invi.value) {
-  throw '获取监考错误！'
+  throw '获取监考信息错误！'
 }
 
-let inviR: Invigilation = { course: {}, time: {} }
+const inviR = ref<Invigilation>(JSON.parse(JSON.stringify(invi.value)))
+const courseR = ref(inviR.value.course!)
+const timeR = ref(inviR.value.time!)
+//
+const { mutateAsync } = CollegeService.updateInviService()
+const editInviF = async () => {
+  if (!invi.value) throw '监考信息读取错误'
+  inviR.value.course = courseR.value
+  inviR.value.time = timeR.value
+  await mutateAsync(inviR.value)
 
-const getInit = () => {
-  return {
-    courseName: invi.value!.course?.courseName ?? '',
-    teacherName: invi.value!.course?.teacherName ?? '',
-    clazz: invi.value!.course?.clazz ?? '',
-    date: invi.value!.date ?? '',
-    stime: invi.value!.time?.starttime ?? '',
-    etime: invi.value!.time?.endtime ?? '',
-    location: invi.value!.course?.location ?? '',
-    amount: invi.value!.amount ?? 1
-  }
-}
-
-const formR = ref<RuleForm>(getInit())
-
-const submitForm = async (formEl: FormInstance | undefined) => {
-  let sub = false
-  if (!formEl) return
-  await formEl.validate((valid) => {
-    if (valid) {
-      sub = true
-    }
-  })
-  if (!sub) return
-
-  if (!invi.value) return
-
-  inviR.id = invi.value.id
-  inviR.course!.courseName = formR.value.courseName
-  inviR.course!.clazz = formR.value.clazz
-  inviR.course!.location = formR.value.location
-  inviR.course!.teacherName = formR.value.teacherName
-  inviR.amount = formR.value.amount
-  inviR.date = formR.value.date
-  inviR.time!.starttime = formR.value.stime
-  inviR.time!.endtime = formR.value.etime
-
-  const result = await CollegeService.updateInviService(inviR)
-  invi.value = result.value
-  formR.value = getInit()
   createElNotificationSuccess('修改成功')
   //router.push('/college/imported')
-  inviR = { course: {}, time: {} }
+  //inviR.value = { course: {}, time: {} }
 }
 
 const locations = LOCATIONS
@@ -70,79 +38,11 @@ const querySearch = (queryString: string, cb: any) => {
   cb(results)
 }
 
-interface RuleForm {
-  courseName: string
-  teacherName: string
-  clazz: string
-  date: string
-  stime: string
-  etime: string
-  location: string
-  amount: number
-}
-const ruleFormRef = ref<FormInstance>()
-const rules = reactive<FormRules<RuleForm>>({
-  courseName: [{ required: true, type: 'string', message: '必填', trigger: 'blur' }],
-  teacherName: [
-    {
-      type: 'string',
-      required: true,
-      message: '必填',
-      trigger: 'blur'
-    }
-  ],
-  clazz: [
-    {
-      type: 'string',
-      required: true,
-      message: '必填',
-      trigger: 'blur'
-    }
-  ],
-  date: [
-    {
-      type: 'date',
-      required: true,
-      message: '必填',
-      trigger: 'blur'
-    }
-  ],
-  stime: [
-    {
-      type: 'string',
-      required: true,
-      message: '必填',
-      trigger: 'change'
-    }
-  ],
-  etime: [
-    {
-      type: 'string',
-      required: true,
-      message: '必填',
-      trigger: 'change'
-    }
-  ],
-  location: [
-    {
-      type: 'string',
-      required: true,
-      message: '必填',
-      trigger: 'change'
-    }
-  ],
-  amount: [
-    {
-      type: 'number',
-      required: true,
-      message: '必填',
-      trigger: 'change'
-    }
-  ]
-})
-
 // 判断是否需要发送
 const cancelNotice = getCancelNotice(invi.value)
+
+const { mutateAsync: mutNotice } = CommonService.noticeDingCancelService()
+const { mutateAsync: mutDelInvi } = CollegeService.delInviService(invi.value.status!)
 
 const delInvi = () => {
   ElMessageBox.confirm('删除监考将不可恢复，确定删除？', 'Warning', {
@@ -150,49 +50,68 @@ const delInvi = () => {
     cancelButtonText: 'Cancel',
     type: 'warning'
   }).then(async () => {
-    cancelNotice && (await CommonService.noticeDingCancelService(cancelNotice, invi.value.id!))
-    await CollegeService.delInviService(invi.value!.id!)
+    cancelNotice && (await mutNotice({ notice: cancelNotice, inviid: invi.value.id! }))
+    await mutDelInvi(invi.value!.id!)
     createElNotificationSuccess('监考已删除')
     router.push(`/college/imported`)
   })
 }
 
+//
+const { mutateAsync: mutResetInvi } = CollegeService.resetInviService()
 const resetInvi = () => {
   ElMessageBox.confirm('确定重置监考？', 'Warning', {
     confirmButtonText: 'OK',
     cancelButtonText: 'Cancel',
     type: 'warning'
   }).then(async () => {
-    cancelNotice && (await CommonService.noticeDingCancelService(cancelNotice, invi.value.id!))
-    await CollegeService.resetInviService(invi.value!.id!)
+    cancelNotice && (await mutNotice({ notice: cancelNotice, inviid: invi.value.id! }))
+    await mutResetInvi(invi.value!.id!)
     createElNotificationSuccess('监考已重置')
     router.push(`/college/imported`)
   })
 }
+
+const timeSelectR = ref<{ endSTime?: string; endETime?: string }>({})
+
+watch(
+  () => timeR.value.starttime,
+  () => {
+    if (!timeR.value.starttime) return
+    const stime = timeR.value.starttime
+    const mins = stime.split(':')[1]
+    const hoursT = Number.parseInt(stime.split(':')[0]) + 1
+    const sHours = hoursT < 10 ? `0${hoursT}` : hoursT
+    const es = hoursT + 2
+    const eHours = es < 10 ? `0${es}` : es
+    timeSelectR.value.endSTime = `${sHours}:${mins}`
+    timeSelectR.value.endETime = `${eHours}:${mins}`
+  }
+)
 </script>
 <template>
   <el-row class="my-row">
     <el-col></el-col>
     <el-col :span="12">
-      <el-form :model="formR" label-width="120px" :rules="rules" ref="ruleFormRef">
+      <el-form label-width="120px">
         <el-form-item label="专业" v-if="invi?.department">
           <el-tag>
             {{ invi?.department?.departmentName }}
           </el-tag>
         </el-form-item>
         <el-form-item label="课程名称" prop="courseName">
-          <el-input v-model="formR.courseName" />
+          <el-input v-model="courseR.courseName" />
         </el-form-item>
         <el-form-item label="授课教师" prop="teacherName">
-          <el-input v-model="formR.teacherName" style="width: 150px" />
+          <el-input v-model="courseR.teacherName" style="width: 150px" />
         </el-form-item>
         <el-form-item label="班级" prop="clazz">
-          <el-input v-model="formR.clazz" />
+          <el-input v-model="courseR.clazz" />
         </el-form-item>
         <el-form-item label="日期" prop="date">
           <el-date-picker
             :disabled="!unlockedR"
-            v-model="formR.date"
+            v-model="inviR.date"
             type="date"
             format="YYYY-MM-DD"
             value-format="YYYY-MM-DD"
@@ -205,10 +124,10 @@ const resetInvi = () => {
             <el-form-item prop="stime">
               <el-time-select
                 :disabled="!unlockedR"
-                v-model="formR.stime"
+                v-model="timeR.starttime"
                 placeholder="开始时间"
                 start="08:00"
-                step="00:10"
+                step="00:05"
                 end="20:00"
                 style="width: 100%" />
             </el-form-item>
@@ -218,11 +137,10 @@ const resetInvi = () => {
             <el-form-item prop="etime">
               <el-time-select
                 :disabled="!unlockedR"
-                v-model="formR.etime"
-                placeholder="结束时间"
-                start="09:30"
-                step="00:10"
-                end="22:00"
+                v-model="timeR.endtime"
+                :start="timeSelectR.endSTime"
+                step="00:30"
+                :end="timeSelectR.endETime"
                 style="width: 100%" />
             </el-form-item>
           </el-col>
@@ -230,14 +148,14 @@ const resetInvi = () => {
         <el-form-item label="地点" prop="location">
           <el-autocomplete
             :disabled="!unlockedR"
-            v-model="formR.location"
+            v-model="courseR.location"
             :fetch-suggestions="querySearch"
             clearable
             style="width: 150px"
             placeholder="地点" />
         </el-form-item>
         <el-form-item label="人数" prop="amount">
-          <el-input-number v-model="formR.amount" :min="1" :max="4" :disabled="!unlockedR" />
+          <el-input-number v-model="inviR.amount" :min="1" :max="4" :disabled="!unlockedR" />
         </el-form-item>
         <div v-if="isAssigned">
           <el-form-item label="分配">
@@ -252,7 +170,7 @@ const resetInvi = () => {
           </el-tag>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submitForm(ruleFormRef)">提交</el-button>
+          <el-button type="primary" @click="editInviF">提交</el-button>
         </el-form-item>
       </el-form>
     </el-col>

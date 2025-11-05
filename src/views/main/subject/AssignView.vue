@@ -16,20 +16,22 @@ import InviMessage from '../component/InviInfo.vue'
 import AssignTable from './component/AssignTable.vue'
 
 import { createElNotificationSuccess } from '@/components/message'
-import { useUserStore } from '@/stores/UserStore'
 
 const params = useRoute().params as { inviid: string }
 
 //
 const selectedUsers = ref<InviAssignUser[]>([])
 
-const currentInvi = await SubjectService.getInviService(params.inviid)
+const { data: currentInvi, suspense: suspCurrentInviR } = SubjectService.getInviService(
+  params.inviid
+)
+await suspCurrentInviR()
 if (!currentInvi.value) {
   throw '获取监考信息错误!'
 }
 
 //
-const userR = useUserStore().userS
+const { data: userR } = CommonService.getUserInfoService()
 const assignUsersR = ref<AssignUser>({})
 //
 // 当前分配的监考信息
@@ -38,29 +40,20 @@ let dayweek = getInviDayweek(currentInvi.value.date!)
 const amountR = currentInvi.value.amount!
 
 //
-const allP = await Promise.all([
-  // 当天课表
-  SubjectService.listTimetablesService(week, dayweek),
-  // 当天监考
-  SubjectService.listDateInvisService(currentInvi.value.date!),
-  // 监考数量
-  SubjectService.listCountsService(),
-  // 全部教师
-  SubjectService.listUsersService(),
-  SubjectService.getDepartmentCommentService(),
-  SubjectService.listExcludeRulesService()
-])
+const { data: timetablesR, suspense: s1 } = SubjectService.listTimetablesService(week, dayweek)
+const { data: dateInvisR, suspense: s2 } = SubjectService.listDateInvisService(
+  currentInvi.value.date!
+)
+const { data: inviCountsS, suspense: s3 } = SubjectService.listCountsService()
+const { data: usersS, suspense: s4 } = SubjectService.listUsersService()
+const { data: departmentComment, suspense: s5 } = SubjectService.getCommentService()
+const { data: rulesR, suspense: s6 } = SubjectService.listExcludeRulesService()
 
-const timetablesR = allP[0] ?? []
-const dateInvisR = allP[1] ?? []
-const inviCountsS = allP[2] ?? []
-const usersS = allP[3] ?? []
-const departmentComment = allP[4]
-const rulesR = allP[5]
+await Promise.all([s1(), s2(), s3(), s4(), s5(), s6()])
 
 // 分别计算渲染
 const groupUsers: InviAssignUser[] = []
-const allUsers: User[] = [...usersS.value]
+const allUsers: User[] = [...usersS.value!]
 const closedUsers: User[] = []
 const confUsers: InviAssignUser[] = []
 const currentUsers: InviAssignUser[] = []
@@ -73,10 +66,10 @@ allloop: for (const user of allUsers) {
   }
 
   // 整合监考数量
-  const am = inviCountsS.value.find((ic) => ic.userId == user.id)?.count ?? 0
+  const am = inviCountsS.value!.find((ic) => ic.userId == user.id)?.count ?? 0
   // 整合课表
-  const tb = timetablesR.filter((tb) => tb.userId == user.id)
-  const excludes = rulesR.value.filter((rule) => rule.userId == user.id)
+  const tb = timetablesR.value!.filter((tb) => tb.userId == user.id)
+  const excludes = rulesR.value!.filter((rule) => rule.userId == user.id)
 
   // 无论是否冲突，均需整合数据，并展示
   const groupUser: InviAssignUser = {
@@ -88,7 +81,7 @@ allloop: for (const user of allUsers) {
     plusButton: {}
   }
   const invisTm: Invigilation[] = []
-  dateInvisR.forEach((di) => {
+  dateInvisR.value!.forEach((di) => {
     if (!di.executor) return
     di.executor.forEach((de) => {
       if (de.userId == user.id) {
@@ -173,6 +166,8 @@ confUsers.sort((x, y) => x.amount! - y.amount!)
 
 const dayweekCN = getInviChineseDayweek(currentInvi.value.date!)
 
+const { mutateAsync: mutNotice } = CommonService.noticeDingCancelService()
+const { mutateAsync: mutAddAssign } = CommonService.addAssignUsersService()
 //
 const submitUsers = async () => {
   if (selectedUsers.value.length != currentInvi.value!.amount) {
@@ -181,7 +176,7 @@ const submitUsers = async () => {
 
   // 判断是否需要发送
   const cancelNotice = getCancelNotice(currentInvi.value)
-  cancelNotice && (await CommonService.noticeDingCancelService(cancelNotice, currentInvi.value.id!))
+  cancelNotice && (await mutNotice({ notice: cancelNotice, inviid: currentInvi.value.id! }))
 
   assignUsersR.value.allocator = stringInviTime({ id: userR.value!.id, name: userR.value!.name })
   assignUsersR.value.executor = []
@@ -190,10 +185,8 @@ const submitUsers = async () => {
     assignUsersR.value.executor?.push(stringInviTime({ id: us.id, name: us.name }))
     assignUsersR.value.userIds?.push(us.id!)
   })
-
-  currentInvi.value.executor = assignUsersR.value.executor
-  await CommonService.addAssignUsersService(currentInvi.value!.id!, assignUsersR.value)
-
+  //
+  await mutAddAssign({ inviid: currentInvi.value!.id!, user: assignUsersR.value })
   createElNotificationSuccess('监考已分配')
   router.push(`/subject/notices/${params.inviid}`)
 }
@@ -227,7 +220,7 @@ watch(
         <InviMessage :invi="currentInvi" />
       </el-col>
     </el-row>
-    <el-row class="my-row" v-if="departmentComment.length > 0">
+    <el-row class="my-row" v-if="departmentComment!.length > 0">
       <el-col :span="2">
         <el-tag type="warning">备注</el-tag>
       </el-col>
@@ -244,7 +237,7 @@ watch(
         <AssignTable
           :users="currentUsers"
           :dayweek="dayweekCN"
-          :hasRules="rulesR.length > 0"
+          :hasRules="rulesR!.length > 0"
           :amount="currentInvi.amount ?? 0"
           :selectedUsers="selectedUsers"></AssignTable>
       </el-col>
@@ -262,7 +255,7 @@ watch(
         <AssignTable
           :users="groupUsers"
           :dayweek="dayweekCN"
-          :hasRules="rulesR.length > 0"
+          :hasRules="rulesR!.length > 0"
           :amount="currentInvi.amount ?? 0"
           :selectedUsers="selectedUsers"></AssignTable>
       </el-col>
@@ -274,7 +267,7 @@ watch(
         <AssignTable
           :users="confUsers"
           :dayweek="dayweekCN"
-          :hasRules="rulesR.length > 0"
+          :hasRules="rulesR!.length > 0"
           :amount="currentInvi.amount ?? 0"
           :selectedUsers="selectedUsers"></AssignTable>
       </el-col>

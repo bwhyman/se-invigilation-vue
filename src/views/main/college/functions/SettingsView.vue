@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { createElNotificationSuccess } from '@/components/message'
 import { CollegeService } from '@/services/CollegeService'
+import { CommonService } from '@/services/CommonService'
 import { SETTING_SHOWAVG } from '@/services/Const'
 import type { Setting } from '@/types'
 
-const settingsS = await CollegeService.listSettingsService()
-const showAvgR = ref(settingsS.value?.find((s) => s.skey === SETTING_SHOWAVG.name)?.svalue)
+const { data: settingstore, suspense } = CommonService.listSettingsService()
+await suspense()
 
+const showAvgR = ref(settingstore.value?.getSetting(SETTING_SHOWAVG.name)?.svalue)
+settingstore
+const { mutateAsync } = CollegeService.updateSettingService()
 const submitShowAvgF = async () => {
-  const settingId = settingsS.value?.find((s) => s.skey === SETTING_SHOWAVG.name)?.id
+  const settingId = settingstore.value?.getSetting(SETTING_SHOWAVG.name)?.id
   const setting: Setting = { id: settingId, svalue: showAvgR.value }
-  await CollegeService.updateSettingService(setting)
+  await mutateAsync(setting)
   createElNotificationSuccess('更新设置成功')
 }
 </script>

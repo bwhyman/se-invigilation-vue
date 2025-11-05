@@ -1,21 +1,15 @@
 <script setup lang="ts">
 import { CollegeService } from '@/services/CollegeService'
-import { SETTING_SHOWAVG } from '@/services/Const'
+import { CommonService } from '@/services/CommonService'
 import type { Department } from '@/types'
 
-const result = await Promise.all([
-  CollegeService.listOpenedDepartmentsService(),
-  CollegeService.listDepartmentAvgsService(),
-  CollegeService.listSettingsService()
-])
-const departmentsS = result[0]
-const avgInfos = result[1]
-const settingsS = result[2]
-const showAvgC = computed(
-  () =>
-    settingsS.value?.find((set) => set.skey == SETTING_SHOWAVG.name)?.svalue ===
-    SETTING_SHOWAVG.value
-)
+const { data: departmentsS, suspense: s1 } = CollegeService.listOpenedDepartmentsService()
+const { data: settingstore, suspense: s2 } = CommonService.listSettingsService()
+await Promise.all([s1(), s2()])
+
+const showAvgC = settingstore.value?.isShowavgC
+
+const { data: depAvgMap } = CollegeService.listDepartmentAvgsService(showAvgC)
 
 const props = defineProps<{ change: (depart: Department) => void }>()
 
@@ -27,7 +21,7 @@ if (depid) {
 }
 
 const changeF = () => {
-  const depart = departmentsS.value.find((d) => d.id == depidR.value)
+  const depart = departmentsS.value!.find((d) => d.id == depidR.value)
   props.change(depart!)
 }
 </script>
@@ -35,7 +29,7 @@ const changeF = () => {
   <el-radio-group @change="changeF" v-model="depidR">
     <el-radio-button size="large" v-for="(dep, index) of departmentsS" :key="index" :value="dep.id">
       {{ dep.name }}
-      <template v-if="showAvgC">({{ avgInfos.get(dep.id!) ?? 0 }})</template>
+      <template v-if="showAvgC">({{ depAvgMap?.get(dep.id!) ?? 0 }})</template>
     </el-radio-button>
   </el-radio-group>
 </template>

@@ -2,16 +2,17 @@
 import { createElNotificationSuccess } from '@/components/message'
 import router from '@/router'
 import { CollegeService } from '@/services/CollegeService'
+import { CommonService } from '@/services/CommonService'
 import { IMPORT } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
-import { useUserStore } from '@/stores/UserStore'
 import type { Invigilation } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 import InviTypes from '@/views/main/component/InviTypes.vue'
 
 const invisR = ref<Invigilation[]>([])
 const inviTypeR = ref<{ type: string }>()
-const userS = useUserStore().userS
+const { data: userS, suspense } = CommonService.getUserInfoService()
+await suspense()
 
 const pageR = ref<{ currentpage?: number; total?: number; url?: string }>({
   currentpage: 0,
@@ -37,11 +38,11 @@ const readInvis = async (event: Event) => {
     element.value = ''
   }
 }
-
+const { mutateAsync } = CollegeService.addInvigilationsService()
 const addInvis = async () => {
   const result = invisR.value
   invisR.value = []
-  await CollegeService.addInvigilationsService(result)
+  await mutateAsync(result)
   createElNotificationSuccess('导入成功')
   router.push('/college/imported')
 }

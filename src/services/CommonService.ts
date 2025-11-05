@@ -1,62 +1,79 @@
 import axios, { useGet, usePost } from '@/axios'
+import { createElLoadingX } from '@/components/loading'
 import router from '@/router'
-import { useInviCountsStore } from '@/stores/inviCountsStore'
-import { useInvigilationsStore } from '@/stores/InvigilationsStore'
+import { useSettingStore } from '@/stores/SettingStore'
 import { useUserStore } from '@/stores/UserStore'
-import type { AssignUser, CancelNotice, Invigilation, Notice, ResultVO, User } from '@/types'
+import type {
+  AssignUser,
+  CancelNotice,
+  Invigilation,
+  Notice,
+  ResultVO,
+  Setting,
+  User
+} from '@/types'
+import { querycachename } from '@/vuequery/Const'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import type { MaybeRefOrGetter } from 'vue'
 import { COLLEGE_ADMIN, SUBJECT_ADMIN, SUPER_ADMIN } from './Const'
-import { ELLoading, StoreClear, StoreMapCache } from './Decorators'
 
 const userStore = useUserStore()
-const invisStore = useInvigilationsStore()
-const inviCountsStore = useInviCountsStore()
 
 export class CommonService {
-  @StoreMapCache(invisStore.dateInvisMapS)
-  @ELLoading()
-  static async listInvisByDateService(sdate: string, edate: string) {
-    return await useGet<Invigilation[]>(`invis/date/${sdate}/${edate}`)
+  //
+  static listInvisByDateService(
+    sdate: MaybeRefOrGetter,
+    edate: MaybeRefOrGetter,
+    enabledR?: MaybeRefOrGetter
+  ) {
+    return useQuery({
+      queryKey: [querycachename.dateinvis, sdate, edate],
+      queryFn: () =>
+        createElLoadingX(useGet<Invigilation[]>(`invis/date/${toValue(sdate)}/${toValue(edate)}`)),
+      enabled: enabledR,
+      placeholderData: []
+    })
   }
+
   // login
   static loginService = async (user: User, freePwd: boolean) => {
     const data = { account: user.account, password: user.password, ltoken: freePwd }
-    const resp = await axios.post<ResultVO<User>>('login', data)
-    const us = resp.data.data
-    if (!us) {
-      throw '登录错误，请重新登录'
-    }
+    const resp = await axios.post<ResultVO<User>>('open/login', data)
+
     const token = resp.headers.token
     const role = resp.headers.role
-    userStore.setUserSessionStorage(us, token, role)
+    userStore.setUserSessionStorage(token, role)
 
     if (freePwd) {
       const ltoken = resp.headers.ltoken
-      us.name && userStore.setLocalStorage(us.name)
       localStorage.setItem('ltoken', ltoken)
     }
 
     router.push(this.getPath(role))
   }
 
-  //
-  static updateSelfPassword = async (pwd: string) => {
-    await usePost('passwords', { password: pwd })
+  static getUserInfoService() {
+    return useQuery({
+      queryKey: [querycachename.userinfo],
+      queryFn: () => useGet<User>('info')
+    })
+  }
+
+  static updateSelfPassword() {
+    return useMutation({
+      mutationFn: (pwd: string) => usePost('passwords', { password: pwd })
+    })
   }
 
   //
   static freePwdService = async () => {
     const ltoken = userStore.getLKoken()
-    const resp = await axios.get<ResultVO<User>>('l-login', {
+    const resp = await axios.get<ResultVO<User>>('open/l-login', {
       headers: { ltoken: ltoken }
     })
-    const us = resp.data.data
-    if (!us) {
-      throw '登录错误，请重新登录'
-    }
-    us.name && userStore.setLocalStorage(us.name)
     const token = resp.headers.token
     const role = resp.headers.role
-    userStore.setUserSessionStorage(us, token, role)
+    userStore.setUserSessionStorage(token, role)
     router.push(this.getPath(role))
   }
 
@@ -77,46 +94,80 @@ export class CommonService {
   }
 
   // 发送取消监考通知，移除监考日程
-  @ELLoading()
-  static async noticeDingCancelService(notice: CancelNotice, inviid: string) {
-    await usePost(`cancelinvinotices/${inviid}`, notice)
+  static noticeDingCancelService() {
+    return useMutation({
+      mutationFn: ({ notice, inviid }: { notice: CancelNotice; inviid: string }) =>
+        createElLoadingX(usePost(`cancelinvinotices/${inviid}`, notice))
+    })
   }
 
   // 清空已导入监考缓存
-  @StoreClear(invisStore.clear)
-  static async addInviSerivce(invi: Invigilation) {
-    // @ts-ignore
-    invi.importer = JSON.stringify(invi.importer)
-    // @ts-ignore
-    invi.course = JSON.stringify(invi.course)
-    // @ts-ignore
-    invi.time = JSON.stringify(invi.time)
-
-    await usePost(`invigilations`, invi)
-    return true
+  static addInviSerivce() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: (invi: Invigilation) => {
+        // @ts-ignore
+        invi.importer = JSON.stringify(invi.importer)
+        // @ts-ignore
+        invi.course = JSON.stringify(invi.course)
+        // @ts-ignore
+        invi.time = JSON.stringify(invi.time)
+        return usePost(`invigilations`, invi)
+      },
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: [querycachename.importeds] })
+      }
+    })
   }
 
-  @ELLoading()
-  static async noticeUsersService(notice: Notice) {
-    const data = await usePost<string>('assignnotices', notice)
-    return data ?? ''
+  //
+  static noticeUsersService() {
+    return useMutation({
+      mutationFn: (notice: Notice) => createElLoadingX(usePost('assignnotices', notice))
+    })
   }
 
   //
   // 清空当前监考缓存
   // 清空教师监考数量缓存
-  @StoreClear(invisStore.clear, inviCountsStore.clear)
-  static async addAssignUsersService(inviid: string, user: AssignUser) {
-    // @ts-ignore
-    user.allocator = JSON.stringify(user.allocator)
-    // @ts-ignore
-    user.executor = JSON.stringify(user.executor)
-    await usePost(`invidetails/${inviid}`, user)
-    return true
+  static addAssignUsersService() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: ({ inviid, user }: { inviid: string; user: AssignUser }) => {
+        // @ts-ignore
+        user.allocator = JSON.stringify(user.allocator)
+        // @ts-ignore
+        user.executor = JSON.stringify(user.executor)
+        return usePost(`invidetails/${inviid}`, user)
+      },
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: [querycachename.importeds] })
+        qc.invalidateQueries({ queryKey: [querycachename.dispatcheds] })
+        qc.invalidateQueries({ queryKey: [querycachename.assigneds] })
+        qc.invalidateQueries({ queryKey: [querycachename.userinvicounts] })
+        qc.invalidateQueries({ queryKey: [querycachename.invitotals] })
+      }
+    })
   }
 
   //
-  static async listUserDingIdsService(userIds: string[]) {
-    return await usePost<User[]>('invinotices/dingids', userIds)
+  static listUserDingIdsService(userIds: MaybeRefOrGetter, enabled?: MaybeRefOrGetter) {
+    return useQuery({
+      queryKey: [querycachename.remarkdingusers, userIds],
+      queryFn: () => usePost<User[]>('invinotices/dingids', toValue(userIds)),
+      enabled
+    })
+  }
+
+  static listSettingsService() {
+    return useQuery({
+      queryKey: [querycachename.settings],
+      queryFn: async () => {
+        const data = await useGet<Setting[]>('settings')
+        const store = useSettingStore()
+        store.settings.value = data
+        return store
+      }
+    })
   }
 }

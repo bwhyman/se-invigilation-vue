@@ -1,11 +1,17 @@
 <script setup lang="ts">
-import { CollegeService } from '@/services/CollegeService';
-import type { User } from '@/types';
+import { CollegeService } from '@/services/CollegeService'
+import type { User } from '@/types'
 
 const userR = ref<User>({})
-
+const enabledR = ref(false)
+const { data: dingUserR, suspense } = CollegeService.getDingUserService(
+  toRef(() => userR.value.mobile),
+  enabledR
+)
 const searchF = async () => {
-  const dingUser = await CollegeService.getDingUserService(userR.value.mobile!)
+  enabledR.value = true
+  await suspense()
+  const dingUser = toRaw(dingUserR.value)
   userR.value.name = dingUser?.name
   userR.value.dingUserId = dingUser?.userid
   userR.value.dingUnionId = dingUser?.unionid

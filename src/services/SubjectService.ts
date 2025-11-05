@@ -1,142 +1,158 @@
 import { useDelete, useGet, usePost } from '@/axios'
-import { useExcludeRulesStore } from '@/stores/ExcludeRuleStore'
-import { useInvigilationsStore } from '@/stores/InvigilationsStore'
-import { useSettingStore } from '@/stores/SettingStore'
-import { useTimetablesStore } from '@/stores/TimetableStore'
-import { useTotalsStore } from '@/stores/TotalsStore'
-import { useUsersStore } from '@/stores/UsersStore'
-import { useInviCountsStore } from '@/stores/inviCountsStore'
-import type { ExcludeRule, InviCount, Invigilation, Setting, Timetable, User } from '@/types'
-import { ELLoading, StoreCache, StoreClear, StoreMapCache } from './Decorators'
+import { createElLoadingX } from '@/components/loading'
+import type { ExcludeRule, InviCount, Invigilation, Timetable, User } from '@/types'
+import { querycachename } from '@/vuequery/Const'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import type { MaybeRefOrGetter } from 'vue'
 
-const SUBJECT = 'subject'
-
-const usersStore = useUsersStore()
-const timetablesStore = useTimetablesStore()
-const inviCountsStore = useInviCountsStore()
-const invisStore = useInvigilationsStore()
-const excludeRulesStore = useExcludeRulesStore()
-const totalsStore = useTotalsStore()
-const settingStore = useSettingStore()
-
-const addPreUrl = (url: string) => `${SUBJECT}/${url}`
+const addPreUrl = (url: string) => `subject/${url}`
 
 export class SubjectService {
   // 加载专业内全部教师
-  @StoreCache(usersStore.usersS)
-  static async listUsersService() {
-    const data = await useGet<User[]>(addPreUrl('users'))
-    return data as unknown as Ref<User[]>
+  static listUsersService(enabled: MaybeRefOrGetter = ref(true)) {
+    return useQuery({
+      queryKey: [querycachename.users],
+      queryFn: () => useGet<User[]>(addPreUrl('teachers')),
+      enabled: enabled
+    })
   }
 
-  @StoreCache(invisStore.invigilationsDispatchedS)
-  @ELLoading()
-  static async listDispatchedsService() {
-    return await useGet<Invigilation[]>(addPreUrl('invis/dispatcheds'))
-  }
-
-  //
-  @StoreMapCache(invisStore.invigilationsDispatchMapS)
-  @ELLoading()
-  static async listInvisService(status: number, page: number) {
-    return await useGet<Invigilation[]>(addPreUrl(`invis/status/${status}/${page}`))
+  static listDispatchedsService() {
+    return useQuery({
+      queryKey: [querycachename.dispatcheds],
+      queryFn: () => createElLoadingX(useGet<Invigilation[]>(addPreUrl('invis/dispatcheds')))
+    })
   }
 
   //
-  @StoreMapCache(totalsStore.totalsMapS)
-  static async getTotalsService(status: number) {
-    return await useGet<number>(addPreUrl(`invis/status/${status}/total`))
+  static listAssignedsService(pageR: MaybeRefOrGetter<number>) {
+    return useQuery({
+      queryKey: [querycachename.assigneds, pageR],
+      queryFn: () =>
+        createElLoadingX(useGet<Invigilation[]>(addPreUrl(`invis/assigneds/${toValue(pageR)}`)))
+    })
+  }
+
+  //
+  static getTotalsService(status: number) {
+    return useQuery({
+      queryKey: [querycachename.invitotals, status],
+      queryFn: () => useGet<number>(addPreUrl(`invis/status/${status}/total`))
+    })
   }
 
   // 改变教师状态监考状态，清空课表缓存。因为按开放教师加载的课表
-  // 清空教师，全部重新加载
-  @StoreClear(timetablesStore.clear, usersStore.clear)
-  @StoreCache(usersStore.usersS)
-  static async updateUsersInviStatuService(users: User[]) {
-    const data = await usePost<User[]>(addPreUrl('invistatus'), users)
-    return data as unknown as Ref<User[]>
+  static updateUsersInviStatuService() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: (users: User[]) => usePost<User[]>(addPreUrl('invistatus'), users),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: [querycachename.users] })
+        qc.invalidateQueries({ queryKey: [querycachename.timetables] })
+      }
+    })
   }
 
   // 加载开放状态教师课表
-  @StoreMapCache(timetablesStore.timetableMapS)
-  @ELLoading()
-  static async listTimetablesService(week: number, dayweek: number) {
-    return await useGet<Timetable[]>(addPreUrl(`timetables/weeks/${week}/dayweeks/${dayweek}`))
+  static listTimetablesService(week: number, dayweek: number) {
+    return useQuery({
+      queryKey: [querycachename.timetables, week, dayweek],
+      queryFn: () => useGet<Timetable[]>(addPreUrl(`timetables/weeks/${week}/dayweeks/${dayweek}`))
+    })
   }
 
   // 加载指定日期所有监考
-  @StoreMapCache(invisStore.dateInvisMapS)
-  @ELLoading()
-  static async listDateInvisService(date: string) {
-    return await useGet<Invigilation[]>(addPreUrl(`invis/dates/${date}`))
+  static listDateInvisService(date: string) {
+    return useQuery({
+      queryKey: [querycachename.dateinvis, date],
+      queryFn: () => useGet<Invigilation[]>(addPreUrl(`invis/dates/${date}`))
+    })
   }
 
   //专业教师监考数量
-  @StoreCache(inviCountsStore.inviCounts)
-  static async listCountsService() {
-    const data = await useGet<InviCount[]>(addPreUrl('invidetails/counts'))
-    return data as unknown as Ref<InviCount[]>
+  static listCountsService() {
+    return useQuery({
+      queryKey: [querycachename.userinvicounts],
+      queryFn: () => useGet<InviCount[]>(addPreUrl('invidetails/counts'))
+    })
   }
 
-  static listInviDetailUsersService = async (inviid: string) => {
-    return await useGet<User[]>(addPreUrl(`invidetailusers/${inviid}`))
+  //
+  static listInviDetailUsersService(inviid: MaybeRefOrGetter, enabled?: MaybeRefOrGetter) {
+    return useQuery({
+      queryKey: [querycachename.invidetailusers, inviid],
+      queryFn: () => useGet<User[]>(addPreUrl(`invidetailusers/${toValue(inviid)}`)),
+      enabled
+    })
   }
 
   // 获取指定监考信息
-  //@StoreCache(invisStore.currentInviS)
-  static async getInviService(inviid: string) {
-    const data = await useGet<Invigilation>(addPreUrl(`invis/${inviid}`))
-    return shallowRef(data)
+  static getInviService(inviid: string) {
+    return useQuery({
+      queryKey: [querycachename.currentinvi],
+      queryFn: () => useGet<Invigilation>(addPreUrl(`invis/${inviid}`)),
+      staleTime: 0
+    })
   }
 
   //
-  static getDepartmentCommentService = async () => {
-    const data = await useGet<string>(addPreUrl('comments'))
-    return data ?? ''
+  static getCommentService() {
+    return useQuery({
+      queryKey: [querycachename.comments],
+      queryFn: () => useGet<string>(addPreUrl('comments'))
+    })
   }
 
   //
-  static addDepartmentCommentService = async (comment: string) => {
-    await usePost(addPreUrl('comments'), { comment: comment })
-    return true
+  static addCommentService() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: (comment: string) => usePost(addPreUrl('comments'), { comment: comment }),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: [querycachename.comments] })
+      }
+    })
   }
 
   //
-  @StoreCache(excludeRulesStore.excludeRules)
-  static async listExcludeRulesService() {
-    const data = await useGet<ExcludeRule[]>(addPreUrl('excluderules'))
-    return data as unknown as Ref<ExcludeRule[]>
+  static listExcludeRulesService() {
+    return useQuery({
+      queryKey: [querycachename.excluderules],
+      queryFn: () => useGet<ExcludeRule[]>(addPreUrl('excluderules'))
+    })
+  }
+
+  static addExcludeRuleService() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: (rule: ExcludeRule) => {
+        // @ts-ignore
+        rule.dayweeks = JSON.stringify(rule.dayweeks)
+        // @ts-ignore
+        rule.periods = JSON.stringify(rule.periods)
+        return usePost<ExcludeRule[]>(addPreUrl('excluderules'), rule)
+      },
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: [querycachename.excluderules] })
+      }
+    })
   }
 
   //
-  @StoreCache(excludeRulesStore.excludeRules, true)
-  static async addExcludeRuleService(rule: ExcludeRule) {
-    // @ts-ignore
-    rule.dayweeks = JSON.stringify(rule.dayweeks)
-    // @ts-ignore
-    rule.periods = JSON.stringify(rule.periods)
-
-    const data = await usePost<ExcludeRule[]>(addPreUrl('excluderules'), rule)
-    return data as unknown as Ref<ExcludeRule[]>
+  static delExcludeRuleService() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: (exid: string) => useDelete<ExcludeRule[]>(addPreUrl(`excluderules/${exid}`)),
+      onSuccess: () => qc.invalidateQueries({ queryKey: [querycachename.excluderules] })
+    })
   }
 
   //
-  @StoreCache(excludeRulesStore.excludeRules, true)
-  static async delExcludeRuleService(exid: string) {
-    const data = await useDelete<ExcludeRule[]>(addPreUrl(`excluderules/${exid}`))
-    excludeRulesStore.excludeRules.value = data
-    return data as unknown as Ref<ExcludeRule[]>
-  }
-
-  static async listDepartInvisAllService() {
-    const data = await useGet<Invigilation[]>(addPreUrl('invis/all'))
-    return data
-  }
-
-  //
-  @StoreCache(settingStore.settingsR)
-  static async listSettingsService() {
-    const data = await useGet<Setting[]>(addPreUrl('settings'))
-    return data as unknown as Ref<Setting[]>
+  static listDepartInvisAllService(enabled: MaybeRefOrGetter) {
+    return useQuery({
+      queryKey: [querycachename.departallinvis],
+      queryFn: () => useGet<Invigilation[]>(addPreUrl('invis/all')),
+      enabled
+    })
   }
 }

@@ -4,7 +4,7 @@ import type { Department } from '@/types'
 
 const selectCollegeR = ref<Department>()
 defineExpose({ department: selectCollegeR })
-const collegeR = await AdminService.listCollegesService()
+const { data: collegeR } = AdminService.listCollegesService()
 </script>
 <template>
   <el-select
