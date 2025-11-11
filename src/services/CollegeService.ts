@@ -70,7 +70,7 @@ export class CollegeService {
   //
   static getDepatchedTotalService(depid: MaybeRefOrGetter, enabled?: MaybeRefOrGetter) {
     return useQuery({
-      queryKey: [querycachename.invitotals, depid],
+      queryKey: [querycachename.dispatcheds, querycachename.invitotals, depid],
       queryFn: () => useGet<number>(addPreUrl(`invigilations/dispatched/${toValue(depid)}/total`)),
       enabled
     })
@@ -305,15 +305,6 @@ export class CollegeService {
     })
   }
 
-  // 获取指定学院，指定id的监考信息
-  static getCollegeInviService(inviid: string) {
-    return useQuery({
-      queryKey: [querycachename.currentinvi],
-      queryFn: () => useGet<Invigilation>(addPreUrl(`invis/${inviid}`)),
-      gcTime: 0
-    })
-  }
-
   // 清空已导入监考缓存
   static cutInviService() {
     const qc = useQueryClient()
@@ -330,7 +321,6 @@ export class CollegeService {
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: [querycachename.importeds] })
         qc.invalidateQueries({ queryKey: [querycachename.dispatcheds] })
-        qc.invalidateQueries({ queryKey: [querycachename.invitotals] })
         qc.invalidateQueries({ queryKey: [querycachename.dateinvis] })
       }
     })

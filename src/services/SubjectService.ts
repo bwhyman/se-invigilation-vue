@@ -34,9 +34,9 @@ export class SubjectService {
   }
 
   //
-  static getTotalsService(status: number) {
+  static getAssignedTotalsService(status: number) {
     return useQuery({
-      queryKey: [querycachename.invitotals, status],
+      queryKey: [querycachename.assigneds, querycachename.invitotals, status],
       queryFn: () => useGet<number>(addPreUrl(`invis/status/${status}/total`))
     })
   }
@@ -72,7 +72,7 @@ export class SubjectService {
   //专业教师监考数量
   static listCountsService() {
     return useQuery({
-      queryKey: [querycachename.userinvicounts],
+      queryKey: [querycachename.assigneds, querycachename.userinvicounts],
       queryFn: () => useGet<InviCount[]>(addPreUrl('invidetails/counts'))
     })
   }
@@ -83,15 +83,6 @@ export class SubjectService {
       queryKey: [querycachename.invidetailusers, inviid],
       queryFn: () => useGet<User[]>(addPreUrl(`invidetailusers/${toValue(inviid)}`)),
       enabled
-    })
-  }
-
-  // 获取指定监考信息
-  static getInviService(inviid: string) {
-    return useQuery({
-      queryKey: [querycachename.currentinvi],
-      queryFn: () => useGet<Invigilation>(addPreUrl(`invis/${inviid}`)),
-      staleTime: 0
     })
   }
 

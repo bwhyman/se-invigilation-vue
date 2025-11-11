@@ -22,7 +22,7 @@ const params = useRoute().params as { inviid: string }
 //
 const selectedUsers = ref<InviAssignUser[]>([])
 
-const { data: currentInvi, suspense: suspCurrentInviR } = SubjectService.getInviService(
+const { data: currentInvi, suspense: suspCurrentInviR } = CommonService.getInviService(
   params.inviid
 )
 await suspCurrentInviR()

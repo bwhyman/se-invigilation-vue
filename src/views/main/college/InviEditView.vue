@@ -8,7 +8,7 @@ import { getCancelNotice } from '@/services/Utils'
 import type { Invigilation } from '@/types'
 
 const params = useRoute().params as { inviid: string }
-const { data: invi, suspense } = CollegeService.getCollegeInviService(params.inviid)
+const { data: invi, suspense } = CommonService.getInviService(params.inviid)
 await suspense()
 const isAssigned = computed(() => invi.value && invi.value.executor)
 const unlockedR = computed(() => invi.value && !invi.value.executor)

@@ -127,7 +127,7 @@ const scrollToTop = () => {
               class="curor"
               color="green"
               size="large"
-              :title="(scope.row as Invigilation).dingNotice?.calendars?.[0].eventId ?? ''"
+              :title="(scope.row as Invigilation).dingNotice?.calendars?.[index].eventId ?? ''"
               v-if="(scope.row as Invigilation).dingNotice?.userIds?.includes(exeUser.userId)"
               style="vertical-align: middle">
               <Bell />

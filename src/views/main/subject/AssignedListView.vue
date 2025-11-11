@@ -5,7 +5,7 @@ import { SubjectService } from '@/services/SubjectService'
 import type { Invigilation, Page } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 
-const { data: totalR, suspense } = SubjectService.getTotalsService(ASSIGN)
+const { data: totalR, suspense } = SubjectService.getAssignedTotalsService(ASSIGN)
 await suspense()
 const pageR = ref<Page>({
   currentpage: 1,

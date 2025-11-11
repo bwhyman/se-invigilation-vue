@@ -11,9 +11,7 @@ import { createAssign, createAssigns, createInvis } from './AssignView'
 import DepartmentUser from './functions/finduser/DepartmentUser.vue'
 
 const params = useRoute().params as { inviid: string }
-const { data: inviR, suspense: suspGetCollInvi } = CollegeService.getCollegeInviService(
-  params.inviid
-)
+const { data: inviR, suspense: suspGetCollInvi } = CommonService.getInviService(params.inviid)
 await suspGetCollInvi()
 if (!inviR || !inviR.value) {
   throw '获取监考信息错误!'

@@ -144,8 +144,6 @@ export class CommonService {
         qc.invalidateQueries({ queryKey: [querycachename.importeds] })
         qc.invalidateQueries({ queryKey: [querycachename.dispatcheds] })
         qc.invalidateQueries({ queryKey: [querycachename.assigneds] })
-        qc.invalidateQueries({ queryKey: [querycachename.userinvicounts] })
-        qc.invalidateQueries({ queryKey: [querycachename.invitotals] })
       }
     })
   }
@@ -168,6 +166,15 @@ export class CommonService {
         store.settings.value = data
         return store
       }
+    })
+  }
+
+  // 获取指定监考信息
+  static getInviService(inviid: string) {
+    return useQuery({
+      queryKey: [querycachename.currentinvi, inviid],
+      queryFn: () => useGet<Invigilation>(`invis/${inviid}`),
+      staleTime: 0
     })
   }
 }

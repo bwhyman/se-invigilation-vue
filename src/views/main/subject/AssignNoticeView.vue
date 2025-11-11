@@ -7,7 +7,7 @@ import type { User } from '@/types'
 import { getFinalNotice, getInitNotice } from './AssignNotice'
 
 const params = useRoute().params as { inviid: string }
-const { data: invigilationR, suspense: suspGetInvi } = SubjectService.getInviService(params.inviid)
+const { data: invigilationR, suspense: suspGetInvi } = CommonService.getInviService(params.inviid)
 const { data: assignersR, suspense: suspListDetail } = SubjectService.listInviDetailUsersService(
   params.inviid
 )
