@@ -16,7 +16,7 @@ export const getInitNotice = (users: User[], invis: Invigilation) => {
     userNames.push(u.name!)
   })
 
-  const noticeMessage = `监考时间: ${notice.date}第${week}周${dayweek} ${notice.stime}~${
+  const noticeMessage = `监考时间: ${notice.date} 第${week}周 ${dayweek} ${notice.stime}~${
     notice.etime
   }
 监考课程：${invis.course?.courseName}

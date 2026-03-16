@@ -14,26 +14,15 @@ const props = withDefaults(defineProps<Props>(), { invis: () => [] })
 
 // 表格全局每页显示个数
 let PAGESIZE = 20
-if (props.page!.noPage) {
+if (props.page?.noPage) {
   PAGESIZE = props.page?.total! + 1
 }
 
-const changePage = (n: number) => {
-  scrollToTop()
-  let path = `${props.page!.url!}`
-  if (n > 1) {
-    path = `${path}/${n}`
-  }
-
+const changePageF = (n: number) => {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+  const url = props.page!.url!
+  const path = n > 1 ? `${url}/${n}` : url
   router.push(path)
-}
-
-const scrollToTop = () => {
-  let sTop = document.documentElement.scrollTop || document.body.scrollTop
-  if (sTop > 0) {
-    window.requestAnimationFrame(scrollToTop)
-    window.scrollTo(0, sTop - sTop / 8)
-  }
 }
 </script>
 <template>
@@ -47,7 +36,7 @@ const scrollToTop = () => {
         background
         :current-page="props.page?.currentpage"
         layout="prev, pager, next"
-        @update:current-page="changePage"
+        @update:current-page="changePageF"
         :page-size="PAGESIZE"
         :total="props.page?.total!" />
     </el-col>
@@ -127,7 +116,7 @@ const scrollToTop = () => {
               class="curor"
               color="green"
               size="large"
-              :title="(scope.row as Invigilation).dingNotice?.calendars?.[index].eventId ?? ''"
+              :title="(scope.row as Invigilation).dingNotice?.calendars?.[index]?.eventId ?? ''"
               v-if="(scope.row as Invigilation).dingNotice?.userIds?.includes(exeUser.userId)"
               style="vertical-align: middle">
               <Bell />
@@ -155,7 +144,7 @@ const scrollToTop = () => {
         background
         :current-page="props.page?.currentpage"
         layout="prev, pager, next"
-        @update:current-page="changePage"
+        @update:current-page="changePageF"
         :page-size="PAGESIZE"
         :total="props.page?.total!" />
     </el-col>

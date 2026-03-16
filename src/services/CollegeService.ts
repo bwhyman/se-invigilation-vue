@@ -85,8 +85,10 @@ export class CollegeService {
     return useQuery({
       queryKey: [querycachename.dispatcheds, depid, page],
       queryFn: () =>
-        useGet<Invigilation[]>(
-          addPreUrl(`invilations/dispatched/${toValue(depid)}/${toValue(page)}`)
+        createElLoadingX(
+          useGet<Invigilation[]>(
+            addPreUrl(`invilations/dispatched/${toValue(depid)}/${toValue(page)}`)
+          )
         ),
       enabled
     })
