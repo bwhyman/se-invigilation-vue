@@ -1,18 +1,19 @@
 <script setup lang="ts">
 import { AdminService } from '@/services/AdminService'
-import { useSettingStore } from '@/stores/SettingStore'
+import { CommonService } from '@/services/CommonService'
 import type { Setting } from '@/types'
 
-const settingsR = useSettingStore().settingsR
+const { data: store } = CommonService.listSettingsService()
+const { mutateAsync } = AdminService.updateSettingService()
 
 const editF = async (setting: Setting) => {
-  await AdminService.updateSettingService({ id: setting.id, svalue: setting.svalue })
+  await mutateAsync({ id: setting.id, svalue: setting.svalue })
 }
 </script>
 <template>
   <el-row class="my-row">
     <el-col>
-      <el-table :data="settingsR">
+      <el-table :data="store?.settings">
         <el-table-column type="index" label="#" width="50" />
         <el-table-column width="150">
           <template #default="scope">

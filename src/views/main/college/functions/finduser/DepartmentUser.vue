@@ -4,7 +4,6 @@ import type { Department, User } from '@/types'
 
 const departmentR = ref<Department>()
 const userR = ref<User>()
-const usersR = ref<User[]>([])
 
 defineExpose({
   selectUser: userR,
@@ -16,11 +15,19 @@ defineExpose({
   }
 })
 
-const departmentsR = await CollegeService.listDepartmentsService()
+const { data: departmentsR, suspense } = CollegeService.listDepartmentsService()
+await suspense()
+
+const usersR = ref<User[]>([])
+const { data: depUsersR, suspense: suspListDeparts } = CollegeService.listDepartmentUsersService(
+  toRef(() => departmentR.value?.id),
+  toRef(() => !!departmentR.value?.id)
+)
 
 const departmentChangeF = async () => {
+  await suspListDeparts()
   userR.value = undefined
-  usersR.value = await CollegeService.listDepartmentUsersService(departmentR.value?.id!)
+  usersR.value = toRaw(depUsersR.value!)
 }
 </script>
 <template>

@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import router from '@/router'
+import { CommonService } from '@/services/CommonService'
 import { COLLEGE_ADMIN, SUBJECT_ADMIN } from '@/services/Const'
-import { useUserStore } from '@/stores/UserStore'
 import { Setting, Sunrise, SwitchButton } from '@element-plus/icons-vue'
 import type { Component } from 'vue'
 
 const role = sessionStorage.getItem('role')
-const user = useUserStore().userS
+const { data: userR, suspense } = CommonService.getUserInfoService()
+await suspense()
 
 let nemuComponent: Component
 
@@ -18,7 +19,6 @@ if (role == COLLEGE_ADMIN) {
 
 const logout = () => {
   sessionStorage.clear()
-  // localStorage.clear()
   window.location.href = '/'
 }
 const info = () => {
@@ -33,7 +33,7 @@ const info = () => {
         :icon="Setting"
         @click="$router.push('/settings')"
         style="margin: 10px">
-        {{ user?.name }}
+        {{ userR?.name }}
       </el-button>
     </el-col>
 

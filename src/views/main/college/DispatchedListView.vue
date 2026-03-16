@@ -7,27 +7,34 @@ import DepartmentView from './DepartmentView.vue'
 import OpterationMenuView from './operations/OpterationMenuView.vue'
 const inviS = ref<Invigilation[]>([])
 const pageR = ref<Page>({
-  currentpage: 0,
+  currentpage: 1,
   total: 0,
   url: ''
 })
 
+const paramsR = ref({ depid: '', page: 1 })
+const { data: depInvisR, suspense: s1 } = CollegeService.listDepatchedsService(
+  toRef(() => paramsR.value.depid),
+  toRef(() => paramsR.value.page),
+  toRef(() => !!paramsR.value.depid)
+)
+const { data: totalR, suspense: s2 } = CollegeService.getDepatchedTotalService(
+  toRef(() => paramsR.value.depid),
+  toRef(() => !!paramsR.value.depid)
+)
 const route = useRoute()
-let params: { depid?: string; page?: string }
 watch(
   () => route.params,
   async () => {
-    params = route.params
+    const params = route.params as { depid?: string; page?: string }
     if (!params.depid) return
     const cpage = params.page ? parseInt(params.page) : 1
-    const result = await Promise.all([
-      CollegeService.listDepatchedsService(params.depid, cpage),
-      CollegeService.getDepatchedTotalService(params.depid)
-    ])
-    inviS.value = result[0]
-    const x = result[1]
-    const depTotal = { id: params.depid, total: x }
-    pageR.value.total = depTotal?.total
+    //
+    paramsR.value = { depid: params.depid, page: cpage }
+    await Promise.all([s1(), s2()])
+    //
+    inviS.value = depInvisR.value!
+    pageR.value.total = totalR.value
     pageR.value.currentpage = cpage
     pageR.value.url = `/college/dispatched/${params.depid}`
   },

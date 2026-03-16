@@ -7,6 +7,8 @@ import FindCollege from './findcollege/FindCollegeVue.vue'
 const selectCollegeR = ref<{ department: Department }>()
 const allUsersR = ref<User[]>([])
 
+const { mutateAsync } = AdminService.addUsersService()
+
 const readUserFile2 = async (event: Event) => {
   const element = event.target as HTMLInputElement
   if (!element || !element.files) {
@@ -20,9 +22,9 @@ const readUserFile2 = async (event: Event) => {
 
 const addUsersF = async () => {
   const depart = selectCollegeR.value?.department
-  if (!depart) return
+  if (!depart) throw '部门为空'
 
-  await AdminService.addUsersService({
+  await mutateAsync({
     collId: depart.id!,
     collegeName: depart.name!,
     users: allUsersR.value

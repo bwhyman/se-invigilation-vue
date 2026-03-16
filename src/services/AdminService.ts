@@ -1,59 +1,80 @@
 import { useGet, usePatch, usePost } from '@/axios'
-import { useDepartmentsStore } from '@/stores/DepartmentStore'
-import { useSettingStore } from '@/stores/SettingStore'
-import { useUsersStore } from '@/stores/UsersStore'
 import type { Department, DingUser, Setting, User } from '@/types'
-import { StoreCache } from './Decorators'
+import { querycachename } from '@/vuequery/Const'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import type { MaybeRefOrGetter } from 'vue'
 
-const usersStore = useUsersStore()
-const departsStore = useDepartmentsStore()
-const settingStore = useSettingStore()
-
-const ADMIN = 'admin'
+const addPreUrl = (url: string) => `admin/${url}`
 
 export class AdminService {
-  @StoreCache(departsStore.collegesS, true)
-  static async addCollegeService(dep: Department) {
-    dep.root = 1
-    const data = await usePost<Department[]>(`${ADMIN}/colleges`, dep)
-    return data as unknown as Ref<Department[]>
+  //
+  static addCollegeService() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: (dep: Department) => {
+        dep.root = 1
+        return usePost(addPreUrl('colleges'), dep)
+      },
+      onSuccess: () => qc.invalidateQueries({ queryKey: [querycachename.colleges] })
+    })
   }
 
   //
-  @StoreCache(departsStore.collegesS)
-  static async listCollegesService() {
-    const data = await useGet<Department[]>(`${ADMIN}/colleges`)
-    return data as unknown as Ref<Department[]>
+  static listCollegesService() {
+    return useQuery({
+      queryKey: [querycachename.colleges],
+      queryFn: () => useGet<Department[]>(addPreUrl('colleges'))
+    })
+  }
+
+  static addUsersService() {
+    return useMutation({
+      mutationFn: ({
+        collId,
+        collegeName,
+        users
+      }: {
+        collId: string
+        collegeName: string
+        users: User[]
+      }) => usePost(addPreUrl('users'), { collId, collegeName, users })
+    })
   }
 
   //
-  static addUsersService = async (u: { collId: string; collegeName: string; users: User[] }) => {
-    console.log(u)
-
-    await usePost(`${ADMIN}/users`, u)
+  static getDingUsersService(dingdepid: MaybeRefOrGetter, enabled?: MaybeRefOrGetter) {
+    return useQuery({
+      queryKey: [querycachename.dingusers, dingdepid],
+      queryFn: () => useGet<DingUser[]>(addPreUrl(`dingusers/${toValue(dingdepid)}`)),
+      enabled
+    })
   }
 
   //
-  @StoreCache(usersStore.dingUsersS)
-  static async getDingUsersService(dingdepid: string) {
-    const data = await useGet<DingUser[]>(`${ADMIN}/dingusers/${dingdepid}`)
-    return data as unknown as Ref<DingUser[]>
+  static getCollegeUsersService(collidR: MaybeRefOrGetter, enabled?: MaybeRefOrGetter) {
+    return useQuery({
+      queryKey: [querycachename.collegeusers, collidR],
+      queryFn: () => useGet<User[]>(addPreUrl(`colleges/${toValue(collidR)}/users`)),
+      enabled
+    })
   }
 
-  @StoreCache(usersStore.usersS)
-  static async getCollegeUsersService(collid: string) {
-    const data = await useGet<User[]>(`${ADMIN}/colleges/${collid}/users`)
-    return data as unknown as Ref<User[]>
+  //
+  static addCollegeUserDingsServiceX() {
+    //await usePost(addPreUrl(`colleges/${collid}/userdings`), users)
+    return useMutation({
+      mutationFn: ({ collid, users }: { collid: string; users: User[] }) =>
+        usePost(addPreUrl(`colleges/${collid}/userdings`), users)
+    })
   }
 
-  static addCollegeUserDingsService = async (collid: string, users: User[]) => {
-    await usePost(`${ADMIN}/colleges/${collid}/userdings`, users)
-    return true
-  }
-
-  @StoreCache(settingStore.settingsR, true)
-  static async updateSettingService(setting: Setting) {
-    const data = await usePatch<Setting[]>(`${ADMIN}/settings`, setting)
-    return data as unknown as Ref<Setting[]>
+  static updateSettingService() {
+    const qc = useQueryClient()
+    return useMutation({
+      mutationFn: (setting: Setting) => usePatch(addPreUrl('settings'), setting),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: [querycachename.settings] })
+      }
+    })
   }
 }

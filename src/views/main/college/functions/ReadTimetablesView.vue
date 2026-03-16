@@ -10,25 +10,34 @@ const timetables: Timetable[] = []
 const importTimetablesR = ref<ImportTimetable[]>([])
 const sameNameR = ref(false)
 
+//
+const enabledR = ref(false)
+const { data: collUsersR, suspense: suspListCollUsers } =
+  CollegeService.listCollegeUsersService(enabledR)
+//
 const readTimetables = async (event: Event) => {
   const element = event.target as HTMLInputElement
   if (!element || !element.files) {
     return
   }
+  //
+  enabledR.value = true
+  //
   const loading = createElLoading()
   const { readTimetableExcel, readPostGTimetableExcel } = await import(
     '@/services/excel/TimetableExcel'
   )
+
   try {
     const results = await Promise.all([
-      CollegeService.listCollegeUsersService(),
+      suspListCollUsers(),
       readTimetableExcel(element.files[0]),
       readPostGTimetableExcel(element.files[0])
     ])
     users.length = 0
     timetables.length = 0
     importTimetablesR.value = []
-    users.push(...results[0].value)
+    users.push(...collUsersR.value!)
     importTimetablesR.value = results[1]
     importTimetablesR.value.push(...results[2])
   } finally {
@@ -38,6 +47,8 @@ const readTimetables = async (event: Event) => {
   console.log(importTimetablesR.value)
 }
 
+//
+const { mutateAsync } = CollegeService.addTimetablesService()
 const addTimetables = async () => {
   const importTimes = importTimetablesR.value.filter((tb) => tb.courses.length != 0)
   users.forEach((user) => {
@@ -50,7 +61,7 @@ const addTimetables = async () => {
     })
   })
   importTimetablesR.value = []
-  await CollegeService.addTimetablesService(timetables)
+  await mutateAsync(timetables)
   importTimetablesR.value = []
   createElNotificationSuccess('导入完成')
 }
@@ -67,6 +78,8 @@ const readSingleTimetable = async (event: Event) => {
   element.value = ''
 }
 
+//
+const { mutateAsync: mutAddTime } = CollegeService.addTimetableService()
 const addTimetable = async () => {
   if (!exposeR.value?.selectUser.id) {
     throw '选择教师失败'
@@ -81,7 +94,7 @@ const addTimetable = async () => {
   })
   importTimetablesR.value = []
 
-  await CollegeService.addTimetableService(exposeR.value?.selectUser?.id!, timetables)
+  await mutAddTime({ userid: exposeR.value?.selectUser?.id!, timetables })
   createElNotificationSuccess('课表导入成功')
   exposeR.value?.clear()
   exposeR.value!.selectUser! = {}

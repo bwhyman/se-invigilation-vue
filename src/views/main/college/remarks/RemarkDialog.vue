@@ -16,18 +16,27 @@ const chineseDayWeek = getInviChineseDayweek(invi.date!)
 messageR.value = `监考信息：${invi.course?.courseName} ${invi.date}第${week}周${chineseDayWeek} ${invi.time?.starttime}。
 请提前20分钟在大厅取卷，监考结束请送至`
 
-let userids: string[] = []
+const useridsR = ref<string[]>([])
+const uids: string[] = []
 invis.forEach((invi) => {
   const ids = invi.executor?.map((exe) => exe.userId) ?? []
-  userids?.push(...ids)
+  uids.push(...ids)
 })
-userids = Array.from(new Set(userids))
+
+useridsR.value.push(...new Set(uids))
 const dialogFormVisible = ref(true)
 
 //
+const { data: usersDings, suspense } = CommonService.listUserDingIdsService(
+  useridsR,
+  toRef(() => useridsR.value.length > 0)
+)
+const { mutateAsync: mutSendInviRemark } = CollegeService.sendInviRemarkNoticeService()
 const sendF = async () => {
-  const users = await CommonService.listUserDingIdsService(userids)
-  if (users.length == 0) {
+  //enabled.value = true
+  await suspense()
+
+  if (!usersDings.value || usersDings.value.length == 0) {
     throw '获取用户钉钉账号失败'
   }
   const inviids = invis.map((i) => i.id!)
@@ -35,12 +44,12 @@ const sendF = async () => {
     throw '获取监考信息失败'
   }
   const notice: NoticeRemark = {
-    dingUserIds: users.map((u) => u.dingUserId).join(','),
+    dingUserIds: usersDings.value.map((u) => u.dingUserId).join(','),
     remark: messageR.value,
     inviIds: inviids
   }
-  const result = await CollegeService.sendInviRemarkNoticeService(notice)
-  if (result && result.length > 0) {
+  const result = await mutSendInviRemark(notice)
+  if (result && result.request_id) {
     createElNotificationSuccess(`备注通知发送成功。${result}`)
     router.go(0)
   }
@@ -55,7 +64,7 @@ const closeDialog = () => render(null, document.body)
       共涉及监考
       <el-tag>{{ invis.length }}</el-tag>
       个，教师
-      <el-tag>{{ userids.length }}</el-tag>
+      <el-tag>{{ useridsR.length }}</el-tag>
       人。
     </p>
     <el-form>

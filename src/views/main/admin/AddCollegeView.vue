@@ -4,8 +4,9 @@ import { AdminService } from '@/services/AdminService'
 import type { Department } from '@/types'
 
 const collegeR = ref<Department>({})
+const { mutateAsync } = AdminService.addCollegeService()
 const addCollegeF = async () => {
-  await AdminService.addCollegeService(collegeR.value)
+  await mutateAsync(collegeR.value)
   createElNotificationSuccess('添加成功')
   collegeR.value = {}
 }

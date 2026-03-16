@@ -4,7 +4,6 @@ import { CollegeService } from '@/services/CollegeService'
 import { CommonService } from '@/services/CommonService'
 import { SubjectService } from '@/services/SubjectService'
 import { getCancelNotice } from '@/services/Utils'
-import { useUserStore } from '@/stores/UserStore'
 import type { Invigilation, Notice, User } from '@/types'
 import InviMessage from '@/views/main/component/InviInfo.vue'
 import { getFinalNotice, getInitNotice } from '@/views/main/subject/AssignNotice'
@@ -12,8 +11,8 @@ import { createAssign, createAssigns, createInvis } from './AssignView'
 import DepartmentUser from './functions/finduser/DepartmentUser.vue'
 
 const params = useRoute().params as { inviid: string }
-
-const inviR = await CollegeService.getCollegeInviService(params.inviid)
+const { data: inviR, suspense: suspGetCollInvi } = CommonService.getInviService(params.inviid)
+await suspGetCollInvi()
 if (!inviR || !inviR.value) {
   throw '获取监考信息错误!'
 }
@@ -23,7 +22,8 @@ const selectUsersR = ref<User[]>([])
 const newInvisR = ref<Invigilation[]>([])
 const assignNoticesR = ref<Notice[]>([])
 
-const createUserR = useUserStore().userS
+const { data: createUserR, suspense: suspGetUserInfo } = CommonService.getUserInfoService()
+await suspGetUserInfo()
 watch(
   () => exposeR.value?.selectUser,
   () => {
@@ -31,8 +31,17 @@ watch(
     selectUsersR.value.push(exposeR.value?.selectUser) && exposeR.value?.clearUser()
   }
 )
-
 //
+const { mutateAsync: mutDelInvi } = CollegeService.delInviService(inviR.value.status!)
+const { mutateAsync: mutNotice } = CommonService.noticeDingCancelService()
+const { mutateAsync: mutAddInvi } = CollegeService.addInvigilationsService()
+const { mutateAsync: mutAddAssign } = CollegeService.addAssignService()
+
+const newInviR = ref('')
+const { data: assigners, suspense: suspListDetailUser } = SubjectService.listInviDetailUsersService(
+  newInviR,
+  computed(() => !!newInviR.value)
+)
 const assignF = async () => {
   let invi
   if (selectUsersR.value.length == 0 || !createUserR.value) return
@@ -40,7 +49,7 @@ const assignF = async () => {
   // 如果原监考已发送通知，则发送取消通知
   // 判断是否需要发送
   const cancelNotice = getCancelNotice(inviR.value)
-  cancelNotice && (await CommonService.noticeDingCancelService(cancelNotice, inviR.value.id!))
+  cancelNotice && (await mutNotice({ notice: cancelNotice, inviid: inviR.value.id! }))
 
   newInvisR.value = []
   // 预分配教师是相同专业
@@ -48,40 +57,42 @@ const assignF = async () => {
   const isSameDepart = selectUsersR.value.every((su) => su.department?.depId === firstDepid)
   if (isSameDepart) {
     const assignUser = createAssign(selectUsersR.value, createUserR.value)
-    invi = await CollegeService.addAssignService(inviR.value.id!, assignUser)
+    invi = await mutAddAssign({ inviid: inviR.value.id!, user: assignUser })
     invi && newInvisR.value.push(invi)
   } else {
     // 如果不相同，则创建新监考
     const newInvis = createInvis(inviR.value, createUserR.value, selectUsersR.value)
-    const invis = await CollegeService.addInvigilationsService(newInvis)
+
+    const invis = await mutAddInvi(newInvis)
     newInvisR.value = invis
     // 创建新分配
     const assigns = createAssigns(createUserR.value, selectUsersR.value, invis)
     for (let index = 0; index < assigns.length; index++) {
-      await CollegeService.addAssignService(invis[index].id!, assigns[index])
+      await mutAddAssign({ inviid: invis[index].id!, user: assigns[index] })
     }
 
     // 移除原监考
-    inviR.value.id && (await CollegeService.delInviService(inviR.value.id))
+    inviR.value.id && (await mutDelInvi(inviR.value.id))
   }
 
   selectUsersR.value = []
   // 初始化通知
   assignNoticesR.value = []
   for (const invi of newInvisR.value) {
-    const assigners = await SubjectService.listInviDetailUsersService(invi.id!)
-    const notice = getInitNotice(assigners, invi)
+    newInviR.value = invi.id!
+    await suspListDetailUser()
+
+    const notice = getInitNotice(assigners.value!, invi)
     const dingUsers: User[] = []
     const noDingUsers: User[] = []
 
-    for (const us of assigners) {
+    for (const us of assigners.value!) {
       us.dingUserId ? dingUsers.push(us) : noDingUsers.push(us)
     }
-    const noticeFinal = getFinalNotice(notice, assigners)
+    const noticeFinal = getFinalNotice(notice, assigners.value!)
     assignNoticesR.value.push(noticeFinal)
   }
-  // 重新加载个部门教师平均监考数量
-  CollegeService.listDepartmentAvgsService()
+
   createElNotificationSuccess('监考分配成功')
 }
 
@@ -90,13 +101,13 @@ const closeTagF = (index: number) => {
   selectUsersR.value.splice(index, 1)
   newInvisR.value.splice(index, 1)
 }
-
+const { mutateAsync } = CommonService.noticeUsersService()
 //
 const noticeF = async () => {
   for (const notice of assignNoticesR.value) {
-    await CommonService.noticeUsersService(notice)
-    createElNotificationSuccess(`通知发送成功`)
+    await mutateAsync(notice)
   }
+  createElNotificationSuccess(`通知发送成功`)
 }
 </script>
 <template>

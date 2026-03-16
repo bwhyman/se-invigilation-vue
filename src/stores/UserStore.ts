@@ -24,15 +24,11 @@ const decode = (str: string) => {
   return textDecoder.decode(new Uint8Array(deResult))
 }
 
-const u = sessionStorage.getItem('user')
 const userS = shallowRef<User>()
-u && (userS.value = JSON.parse(decode(u)))
 
-const setUserSessionStorage = (user: User, token: string, role: string) => {
-  userS.value = user
+const setUserSessionStorage = (token: string, role: string) => {
   sessionStorage.setItem('token', token)
   sessionStorage.setItem('role', role)
-  sessionStorage.setItem('user', encode(JSON.stringify(user)))
 }
 
 const setLocalStorage = (name: string) => {

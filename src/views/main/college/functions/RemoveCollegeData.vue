@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { CollegeService } from '@/services/CollegeService'
 import { createElNotificationSuccess } from '@/components/message'
+import { CollegeService } from '@/services/CollegeService'
 
+const { mutateAsync } = CollegeService.removeCollegeDataService()
 const removeInvisF = () => {
   ElMessageBox.confirm(`移除全部监考/课表信息将无法恢复，确定删除？`, 'Warning', {
     confirmButtonText: 'OK',
     cancelButtonText: 'Cancel',
     type: 'warning'
   }).then(async () => {
-    await CollegeService.removeCollegeDataService()
+    await mutateAsync()
     createElNotificationSuccess('移除成功')
   })
 }

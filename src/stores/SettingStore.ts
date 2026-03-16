@@ -1,12 +1,20 @@
+import { SETTING_FIRSTWEEK, SETTING_SHOWAVG } from '@/services/Const'
 import type { Setting } from '@/types'
 
-const settingsR = shallowRef<Setting[]>()
+const settings = shallowRef<Setting[]>([])
 
 const getFirstWeek = () => {
-  return settingsR.value?.find((set) => set.skey == 'firstweek')?.svalue ?? ''
+  return settings.value.find((set) => set.skey == SETTING_FIRSTWEEK)?.svalue ?? ''
 }
 
-const clear = () => (settingsR.value = undefined)
+const isShowavgC = computed(
+  () =>
+    settings.value.find((set) => set.skey == SETTING_SHOWAVG.name)?.svalue === SETTING_SHOWAVG.value
+)
 
-const store = { settingsR, getFirstWeek, clear }
+const getSetting = (key: string) => {
+  return settings.value.find((set) => set.skey === key)
+}
+
+const store = { settings, getFirstWeek, isShowavgC, getSetting }
 export const useSettingStore = () => store

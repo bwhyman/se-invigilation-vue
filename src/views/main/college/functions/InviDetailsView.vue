@@ -2,14 +2,16 @@
 import { CollegeService } from '@/services/CollegeService'
 import type { InviDetail } from '@/types'
 
+const enabledR = ref(false)
+const { data: collInviAllR, suspense: s1 } = CollegeService.listCollegeInviDetailsService(enabledR)
+const { data: collUsersCountsR, suspense: s2 } = CollegeService.listCollegeCountsService(enabledR)
 const exportF = async () => {
-  const results = await Promise.all([
-    CollegeService.listCollegeInviDetailsService(),
-    CollegeService.listCollegeCountsService()
-  ])
-  const details: InviDetail[] = results[1]
+  enabledR.value = true
+  await Promise.all([s1(), s2()])
+  //
+  const details: InviDetail[] = collUsersCountsR.value!
   const { exportInvisDetails } = await import('@/services/excel/Invis2Excel')
-  exportInvisDetails(results[0].value, details)
+  exportInvisDetails(collInviAllR.value!, details)
 }
 </script>
 <template>

@@ -7,7 +7,7 @@ import DatesPick from '@/views/main/component/DatesPick.vue'
 import InvisDetailsDate from '@/views/main/component/InvisDetailsDate.vue'
 import TotalNumber from '@/views/main/component/TotalNumber.vue'
 import { Bell, Message } from '@element-plus/icons-vue'
-import { createDialog } from './remarks'
+import { render } from 'vue'
 
 const UNDISPATCHED = 0
 const UNASSIGNED = 1
@@ -16,19 +16,27 @@ const ALL = 3
 
 //
 const inviStatusR = ref(ALL)
-// 保留不随状态改变的查询结果
-let invis: Invigilation[]
-const invisR = ref<Invigilation[]>([])
-//
 const datesVueRef = ref<{ dateRangeR: string[] }>()
 const dateRangeR = ref<string[]>([])
+// 保留不随状态改变的查询结果
+let invis: Invigilation[]
+
+const invisR = ref<Invigilation[]>([])
+const { data: invisBydateR, suspense: suspListInviByDate } = CommonService.listInvisByDateService(
+  toRef(() => dateRangeR.value[0]),
+  toRef(() => dateRangeR.value[1]),
+  toRef(() => dateRangeR.value.length > 0)
+)
+//
+
 watch(
   () => datesVueRef.value?.dateRangeR,
   async () => {
     if (!datesVueRef.value || !datesVueRef.value.dateRangeR) return
     dateRangeR.value = datesVueRef.value.dateRangeR
+    await suspListInviByDate()
     // 渲染结果
-    invis = await CommonService.listInvisByDateService(dateRangeR.value[0], dateRangeR.value[1])
+    invis = invisBydateR.value ?? []
     invisR.value = invis
   }
 )
@@ -78,7 +86,7 @@ const aggInvisR = ref<Invigilation[]>([])
 watch(
   invisR,
   () => {
-    if (inviStatusR.value != ALL || invisR.value.length == 0) {
+    if (inviStatusR.value != ALL || invisR.value!.length == 0) {
       return
     }
     aggInvisR.value = JSON.parse(JSON.stringify(invisR.value))
@@ -99,6 +107,7 @@ watch(
   { immediate: true }
 )
 
+const instance = getCurrentInstance()
 //
 const remarkTypeC = computed(
   () => (invi: Invigilation) =>
@@ -106,13 +115,17 @@ const remarkTypeC = computed(
 )
 //
 const listSameInvis = (invi: Invigilation) => {
-  const sameInvis = invisR.value.filter(
+  const sameInvis = invisR.value!.filter(
     (i) =>
       i.course?.courseName?.trim() == invi.course?.courseName?.trim() &&
       i.date == invi.date &&
       i.time?.starttime == invi.time?.starttime
   )
-  createDialog(sameInvis)
+
+  const com = defineAsyncComponent(() => import('./remarks/RemarkDialog.vue'))
+  const vnode = h(com, { invis: sameInvis })
+  vnode.appContext = instance!.appContext
+  render(vnode, document.body)
 }
 </script>
 <template>
@@ -123,7 +136,10 @@ const listSameInvis = (invi: Invigilation) => {
           <DatesPick ref="datesVueRef" />
         </el-col>
         <el-col :span="12" style="margin-bottom: 20px; text-align: right">
-          <el-button type="primary" @click="exportF" v-if="inviStatusR == ALL && invisR.length > 0">
+          <el-button
+            type="primary"
+            @click="exportF"
+            v-if="inviStatusR == ALL && invisR!.length > 0">
             导出监考表格
           </el-button>
         </el-col>
@@ -138,7 +154,7 @@ const listSameInvis = (invi: Invigilation) => {
       </el-radio-group>
     </el-col>
     <el-col>
-      <TotalNumber :total="invisR.length" />
+      <TotalNumber :total="invisR!.length" />
     </el-col>
     <el-col>
       <el-table :data="invisR">
@@ -222,7 +238,7 @@ const listSameInvis = (invi: Invigilation) => {
     </el-col>
   </el-row>
   <!--  -->
-  <InvisDetailsDate :invis="aggInvisR" v-if="inviStatusR == ALL && invisR.length > 0" />
+  <InvisDetailsDate :invis="aggInvisR" v-if="inviStatusR == ALL && invisR!.length > 0" />
 </template>
 <style scoped>
 .demo-date-picker {

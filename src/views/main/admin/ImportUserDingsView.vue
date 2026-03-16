@@ -5,30 +5,41 @@ import type { Department, User } from '@/types'
 import FindCollege from './findcollege/FindCollegeVue.vue'
 
 const selectCollegeR = ref<{ department: Department }>()
+const dingDepR = ref('')
+const collIdR = ref('')
+const enabledR = ref(false)
+const { data: collUsersR, suspense: s1 } = AdminService.getCollegeUsersService(collIdR, enabledR)
+const { data: dingUsersR, suspense: s2 } = AdminService.getDingUsersService(dingDepR, enabledR)
+
 const usersR = ref<User[]>([])
 const unkownUsersR = ref<User[]>([])
 watch(
   () => selectCollegeR.value?.department,
   async () => {
     const college = selectCollegeR.value?.department
-    if (!college) return
-    const result = await Promise.all([
-      AdminService.getCollegeUsersService(college.id!),
-      AdminService.getDingUsersService(college.dingDepid!)
-    ])
+    if (!college) throw '学院为空'
+    collIdR.value = college.id!
+    dingDepR.value = college.dingDepid!
+    enabledR.value = true
+    await Promise.all([s1(), s2()])
+    usersR.value.length = 0
+    unkownUsersR.value.length = 0
 
-    result[0].value.forEach((u) => {
-      const dingUser = result[1].value.find((us) => us.name === u.name && us.mobile === u.mobile)
-      u.dingUserId = dingUser?.userid
-      u.dingUnionId = dingUser?.unionid
-      usersR.value.push(u)
+    toRaw(collUsersR.value)!.forEach((u) => {
+      const dingUser = dingUsersR.value!.find((us) => us.name === u.name && us.mobile === u.mobile)
       if (!dingUser) {
         unkownUsersR.value.push(u)
+      } else {
+        u.dingUserId = dingUser?.userid
+        u.dingUnionId = dingUser?.unionid
+        usersR.value.push(u)
       }
     })
   }
 )
 
+//
+const { mutateAsync } = AdminService.addCollegeUserDingsServiceX()
 const addUserDingsF = async () => {
   const college = selectCollegeR.value?.department
   if (!college) return
@@ -36,7 +47,7 @@ const addUserDingsF = async () => {
   usersR.value.forEach((u) => {
     users.push({ account: u.account, dingUserId: u.dingUserId, dingUnionId: u.dingUnionId })
   })
-  await AdminService.addCollegeUserDingsService(college.id!, users)
+  await mutateAsync({ collid: college.id!, users })
   createElNotificationSuccess('添加成功')
 }
 
@@ -85,7 +96,12 @@ const showExprotC = computed(() => selectCollegeR.value?.department?.id && users
       </el-table>
     </el-col>
     <el-row>
-      <span v-for="(unUser, index) of unkownUsersR" :key="index">{{ unUser.name }};</span>
+      <el-col>以下教师提供的手机号，与钉钉群中注册不符。</el-col>
+      <el-col>
+        <span v-for="(unUser, index) of unkownUsersR" :key="index">
+          {{ unUser.name }}({{ unUser.mobile }});
+        </span>
+      </el-col>
     </el-row>
   </el-row>
 </template>

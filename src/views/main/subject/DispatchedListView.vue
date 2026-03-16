@@ -1,19 +1,15 @@
 <script setup lang="ts">
 import router from '@/router'
-import { DISPATCH } from '@/services/Const'
 import { SubjectService } from '@/services/SubjectService'
 import type { Invigilation, Page } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
+const { data: inviS, suspense: suspDis } = SubjectService.listDispatchedsService()
 
-const result = await Promise.all([
-  SubjectService.getTotalsService(DISPATCH),
-  SubjectService.listDispatchedsService()
-])
-const inviS = result[1]
-const total = result[0]
+await Promise.all([suspDis()])
+
 const pageR = ref<Page>({
   currentpage: 1,
-  total: total,
+  total: inviS.value?.length,
   url: '/subject/dispatched',
   noPage: true
 })
