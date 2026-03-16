@@ -112,7 +112,7 @@ const noticeF = async () => {
 </script>
 <template>
   <el-row class="my-row">
-    <el-col style="text-align: center">
+    <el-col style="text-align: center" v-if="inviR">
       <InviMessage :invi="inviR" />
     </el-col>
   </el-row>
