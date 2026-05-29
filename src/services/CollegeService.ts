@@ -340,7 +340,8 @@ export class CollegeService {
   // 基于钉钉注册手机号，获取用户信息
   static getDingUserService(mobile: MaybeRefOrGetter, enabled?: MaybeRefOrGetter) {
     return useQuery({
-      queryKey: [],
+      staleTime: 0,
+      queryKey: ['temp'],
       queryFn: () => createElLoadingX(useGet<DingUser>(addPreUrl(`mobiles/${toValue(mobile)}`))),
       enabled
     })

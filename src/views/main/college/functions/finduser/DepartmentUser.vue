@@ -7,7 +7,6 @@ const userR = ref<User>()
 
 defineExpose({
   selectUser: userR,
-  clearUser: () => (userR.value = undefined),
   init: () => {
     departmentR.value = undefined
     usersR.value = []

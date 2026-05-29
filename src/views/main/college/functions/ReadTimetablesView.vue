@@ -66,7 +66,7 @@ const addTimetables = async () => {
   createElNotificationSuccess('导入完成')
 }
 
-const exposeR = ref<{ selectUser: User; clear: Function }>()
+const exposeR = ref<{ selectUser: User }>()
 //
 const readSingleTimetable = async (event: Event) => {
   const element = event.target as HTMLInputElement
@@ -96,7 +96,6 @@ const addTimetable = async () => {
 
   await mutAddTime({ userid: exposeR.value?.selectUser?.id!, timetables })
   createElNotificationSuccess('课表导入成功')
-  exposeR.value?.clear()
   exposeR.value!.selectUser! = {}
 }
 </script>

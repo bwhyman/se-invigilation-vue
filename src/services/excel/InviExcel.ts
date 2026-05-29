@@ -77,8 +77,8 @@ const readInviRow = (r: any) => {
   const dateTime = r['考试时间']?.trim()
   if (dateTime) {
     const rtime = getTime(dateTime)
-    invi.time.starttime = rtime?.stime
-    invi.time.endtime = rtime?.etime
+    invi.time.starttime = getTimeFix(rtime?.stime)
+    invi.time.endtime = getTimeFix(rtime?.etime)
   }
 
   let startTime = r['开始时间'] as string | undefined
@@ -153,15 +153,17 @@ const getStartEndTime = (stime: string, etime: string) => {
 
   return rtime
 }
-// 时间补位
+// 时间补位，仅取小时与分钟
 const getTimeFix = (time: string) => {
-  const timeA = time.split(':')
+  const timeA = time.split(':', 2)
   if (timeA[0].length === 1) {
     timeA[0] = `0${timeA[0]}`
   }
   if (timeA[1].length === 1) {
     timeA[1] = `0${timeA[1]}`
   }
+  console.log(timeA)
+
   return timeA.join(':')
 }
 // 日期补位
