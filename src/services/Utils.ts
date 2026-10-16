@@ -75,3 +75,27 @@ export const getCancelNotice = (invi: Invigilation) => {
   }
   return null
 }
+
+export const getInviDateByInviWeeksAndDayOfWeek = (inviWeek: number, dayOfWeek: number) => {
+  const firstWeek = settingStore.getFirstWeek()
+
+  const base = new Date(firstWeek)
+  base.setHours(0, 0, 0, 0)
+  const diffDays = (inviWeek - 1) * 7 + (dayOfWeek - 1)
+  const target = new Date(base)
+  target.setDate(base.getDate() + diffDays)
+  return target.toISOString().slice(0, 10)
+}
+
+const inviFilePeriods = {
+  '01-02': { starttime: '08:00', endtime: '09:35' },
+  '03-04': { starttime: '10:00', endtime: '11:30' },
+  '05-06': { starttime: '13:40', endtime: '15:15' },
+  '07-08': { starttime: '15:35', endtime: '17:10' },
+  '09-10': { starttime: '18:00', endtime: '19:35' },
+  '11-12': { starttime: '20:00', endtime: '21:35' }
+}
+
+export const getInviFileTime = (period: string) => {
+  return (inviFilePeriods as Record<string, any>)[period] ?? null
+}

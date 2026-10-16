@@ -206,3 +206,8 @@ export interface ResultVO<T> {
   message?: string
   data: T
 }
+
+export interface InviFile {
+  id: number
+  name: string
+}

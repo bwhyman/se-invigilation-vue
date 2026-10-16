@@ -5,7 +5,7 @@ import { CollegeService } from '@/services/CollegeService'
 import { CommonService } from '@/services/CommonService'
 import { IMPORT } from '@/services/Const'
 import { stringInviTime } from '@/services/Utils'
-import type { Invigilation } from '@/types'
+import type { InviFile, Invigilation, Page } from '@/types'
 import InviTable from '@/views/main/component/InviTable.vue'
 import InviTypes from '@/views/main/component/InviTypes.vue'
 
@@ -14,7 +14,8 @@ const inviTypeR = ref<{ type: string }>()
 const { data: userS, suspense } = CommonService.getUserInfoService()
 await suspense()
 
-const pageR = ref<{ currentpage?: number; total?: number; url?: string }>({
+const pageR = ref<Page>({
+  noPage: true,
   currentpage: 0,
   total: 0,
   url: ''
@@ -40,15 +41,84 @@ const readInvis = async (event: Event) => {
 }
 const { mutateAsync } = CollegeService.addInvigilationsService()
 const addInvis = async () => {
+  invisR.value.forEach((invi) => {
+    invi.collId = userS.value!.department?.collId
+    invi.status = IMPORT
+    invi.importer = stringInviTime(userS.value!)
+  })
   const result = invisR.value
   invisR.value = []
   await mutateAsync(result)
   createElNotificationSuccess('导入成功')
   router.push('/college/imported')
 }
+
+//
+//
+//
+
+const inviFileR = ref<InviFile>()
+const inviFileTypes: InviFile[] = [
+  { name: '随堂考试管理', id: 1 },
+  { name: '排考结果信息', id: 2 }
+]
+
+const inviFileChangeF = () => {}
+
+const readInviFile = async (event: Event) => {
+  const element = event.target as HTMLInputElement
+  if (!element || !element.files) {
+    return
+  }
+  let result: Invigilation[] = []
+  try {
+    switch (inviFileR.value?.id) {
+      case 1: {
+        const { readSuitangkaosInviExcel } = await import('@/services/excel/Invi3Excel')
+        result = await readSuitangkaosInviExcel(element.files[0])
+        break
+      }
+      case 2: {
+        const { readPaikaojieguoInviExcel } = await import('@/services/excel/Invi3Excel')
+        result = await readPaikaojieguoInviExcel(element.files[0])
+        break
+      }
+    }
+    invisR.value = result
+    pageR.value.total = result.length
+    //console.log(result)
+  } finally {
+    element.value = ''
+  }
+}
 </script>
 <template>
   <el-row class="my-row">
+    <el-col>
+      <p>读取新版教务系统导出的，随堂考试管理等等表格。无需原来的监考表格-模板。</p>
+      <p>仍然必须选择阶段/期末考试类型才能导入系统。</p>
+      <p>随堂考试管理表格中，考试教室，如果是多个，自动拆分为独立考试。</p>
+      <p>教务表格的问题：没有监考人数量，所以默认均为2人。</p>
+      <el-select
+        v-model="inviFileR"
+        value-key="id"
+        @change="inviFileChangeF"
+        placeholder="数据来源"
+        size="large"
+        style="width: 200px; margin-right: 10px">
+        <el-option
+          v-for="inviF of inviFileTypes"
+          :key="inviF.id"
+          :label="inviF.name"
+          :value="inviF" />
+      </el-select>
+    </el-col>
+    <el-col v-if="inviFileR">
+      <input type="file" @change="readInviFile" accept=".xlsx, .xls" />
+    </el-col>
+  </el-row>
+  <el-row class="my-row">
+    <el-col>建议直接读取新版教务系统导出的表格。统一后，移除以下功能。</el-col>
     <el-col>
       <p>
         阶段/期末：在课程名称后追加`阶段/期末`，监考老师相互协调派研究生；

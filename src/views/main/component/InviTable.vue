@@ -14,9 +14,6 @@ const props = withDefaults(defineProps<Props>(), { invis: () => [] })
 
 // 表格全局每页显示个数
 let PAGESIZE = 20
-if (props.page?.noPage) {
-  PAGESIZE = props.page?.total! + 1
-}
 
 const changePageF = (n: number) => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -32,6 +29,7 @@ const changePageF = (n: number) => {
     </el-col>
     <el-col :span="20">
       <el-pagination
+        v-if="!props.page?.noPage"
         :hide-on-single-page="true"
         background
         :current-page="props.page?.currentpage"
@@ -140,6 +138,7 @@ const changePageF = (n: number) => {
     </el-col>
     <el-col :span="10">
       <el-pagination
+        v-if="!props.page?.noPage"
         :hide-on-single-page="true"
         background
         :current-page="props.page?.currentpage"
