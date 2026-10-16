@@ -6,30 +6,20 @@ import { ROLES } from '@/services/Const'
 import type { Department, User, UserDepartment } from '@/types'
 import DepartmentUser from './finduser/DepartmentUser.vue'
 
-const exposeR = ref<{
-  selectUser: User
-  init: Function
-}>()
 const userR = ref<User>()
 const departmentR = ref<Department>()
 
 const { data: currentOpUserR, suspense: suspGetUserInfo } = CommonService.getUserInfoService()
 await suspGetUserInfo()
 const { data: departmentsR } = CollegeService.listDepartmentsService()
-watch(
-  () => exposeR.value?.selectUser,
-  () => {
-    if (!exposeR.value?.selectUser) return
-    userR.value = toRaw(exposeR.value?.selectUser)
-  }
-)
-//
+
 const { mutateAsync: mubResetpwd } = CollegeService.resetPasswordService()
 const resetPasswordF = async () => {
   if (!userR.value) return
   await mubResetpwd(userR.value.account!)
   createElNotificationSuccess('密码重置成功')
-  clearSelect()
+  //
+  userR.value = undefined
 }
 
 //
@@ -45,7 +35,8 @@ const removeUserF = () => {
   }).then(async () => {
     userR.value?.id && (await mutRemoveUser(userR.value.id))
     createElNotificationSuccess('用户移除成功')
-    clearSelect()
+    //
+    userR.value = undefined
   })
 }
 
@@ -75,11 +66,7 @@ const updateUserInfoF = async () => {
 
   await mutUpdateUser(user)
   createElNotificationSuccess('用户更新成功')
-  clearSelect()
-}
-
-function clearSelect() {
-  exposeR.value?.init()
+  //
   userR.value = undefined
 }
 
@@ -98,13 +85,17 @@ const selectDingtalkF = async () => {
   userR.value.dingUserId = dingUser.value!.userid
   userR.value.dingUnionId = dingUser.value!.unionid!
 }
+
+const onSelectedUserF = (user: User) => {
+  user && (userR.value = user)
+}
 </script>
 <template>
   <el-row class="my-row" style="align-items: flex-end">
     <el-col>
-      <DepartmentUser ref="exposeR" />
+      <DepartmentUser @update:selecteduser="onSelectedUserF" />
     </el-col>
-    <template v-if="exposeR?.selectUser && userR?.id">
+    <template v-if="userR?.id">
       <el-col :span="4">
         <el-button type="danger" @click="resetPasswordF">重置密码为账号</el-button>
       </el-col>

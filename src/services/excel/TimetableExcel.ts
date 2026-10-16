@@ -9,8 +9,23 @@ export const readTimetableExcel = (file: Blob, isCollege = true) => {
       const data = e.target?.result
       const wb = XLSX.read(data, { type: 'binary' })
       const sheet = wb.Sheets[wb.SheetNames[0]]
+      console.log(sheet)
+
+      // 2026下半年启用新教务系统
+      const maxNumber = Object.keys(sheet)
+        .map((key) => {
+          const match = key.match(/^A(\d+)$/) // 匹配以 A 开头、后面全是数字的属性名
+          return match ? Number(match[1]) : null
+        })
+        .filter((n) => n !== null) // 过滤掉不匹配的
+        .reduce((max, cur) => Math.max(max, cur), -Infinity) // 取最大值
+
+      const maxRows = maxNumber
       // 每名教师
-      for (let i = 1; i <= sheet['!rows']!.length; i += 10) {
+      for (let i = 1; i <= maxRows; i += 10) {
+        if (i >= 20) {
+          i += 1
+        }
         const teach: ImportTimetable = { name: '', courses: [] }
         // 获取教师姓名
         teach.name = sheet[`A${i}`].v.replace('东北林业大学', '').replace('教师课表', '').trim()
@@ -33,17 +48,17 @@ export const readTimetableExcel = (file: Blob, isCollege = true) => {
                 sections.splice(sections.indexOf(sec), 1)
               }
             }
-
-            const len = sections.length
-            if (len % 4 != 0) {
-              reject(
-                `本科课表中，课程片段行数应为4项的倍数，学院课表：课程/班级/周/教室；个人课表：课程/周/教室/班级。<br>
-                教师：<span style="color: red">${teach.name}</span>，星期${k + 1}/${getPeriod(
-                  j - (i - 1)
-                )}节，读取到${len}行！`
-              )
-              return
-            }
+            // 取消4个一组的判断，有授课教室为空的
+            //const len = sections.length
+            // if (len % 4 != 0) {
+            //   reject(
+            //     `本科课表中，课程片段行数应为4项的倍数，学院课表：课程/班级/周/教室；个人课表：课程/周/教室/班级。<br>
+            //     教师：<span style="color: red">${teach.name}</span>，星期${k + 1}/${getPeriod(
+            //       j - (i - 1)
+            //     )}节，读取到${len}行！`
+            //   )
+            //   return
+            // }
             for (const sec of sections) {
               if (sec.trim().length == 0) {
                 sections.splice(sections.indexOf(sec), 1)
@@ -65,6 +80,8 @@ export const readTimetableExcel = (file: Blob, isCollege = true) => {
                 temp.courseName = name
                 temp.clazz = isCollege ? sections[m + 1] : sections[m + 3]
                 temp.location = isCollege ? sections[m + 3] : sections[m + 2]
+                // 授课教室为空，替换
+                temp.location = temp.location ?? '*'
                 w.course = temp
                 teach.courses.push(w)
               })

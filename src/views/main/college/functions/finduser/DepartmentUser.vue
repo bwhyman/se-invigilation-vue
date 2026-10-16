@@ -3,21 +3,10 @@ import { CollegeService } from '@/services/CollegeService'
 import type { Department, User } from '@/types'
 
 const departmentR = ref<Department>()
-const userR = ref<User>()
-
-defineExpose({
-  selectUser: userR,
-  init: () => {
-    departmentR.value = undefined
-    usersR.value = []
-    userR.value = undefined
-  }
-})
 
 const { data: departmentsR, suspense } = CollegeService.listDepartmentsService()
 await suspense()
 
-const usersR = ref<User[]>([])
 const { data: depUsersR, suspense: suspListDeparts } = CollegeService.listDepartmentUsersService(
   toRef(() => departmentR.value?.id),
   toRef(() => !!departmentR.value?.id)
@@ -25,8 +14,11 @@ const { data: depUsersR, suspense: suspListDeparts } = CollegeService.listDepart
 
 const departmentChangeF = async () => {
   await suspListDeparts()
-  userR.value = undefined
-  usersR.value = toRaw(depUsersR.value!)
+}
+// 使用交叉类型添加属性，实现多次选项相同用户，仍能发出update通知，且不影响调用类型
+const selectedUserM = defineModel<User & { _ts?: number }>('selecteduser', { default: undefined })
+const userChangeF = (user: User) => {
+  selectedUserM.value = { ...user, _ts: Date.now() }
 }
 </script>
 <template>
@@ -46,12 +38,12 @@ const departmentChangeF = async () => {
         :value="depart" />
     </el-select>
     <el-select
+      @change="userChangeF"
       value-key="id"
-      v-model="userR"
       size="large"
       v-if="departmentR?.id"
       style="width: 200px">
-      <el-option v-for="(user, index) of usersR" :key="index" :label="user.name" :value="user" />
+      <el-option v-for="(user, index) of depUsersR" :key="index" :label="user.name" :value="user" />
     </el-select>
   </div>
 </template>

@@ -17,20 +17,16 @@ if (!inviR || !inviR.value) {
   throw '获取监考信息错误!'
 }
 
-const exposeR = ref<{ selectUser: User; clearUser: Function }>()
 const selectUsersR = ref<User[]>([])
 const newInvisR = ref<Invigilation[]>([])
 const assignNoticesR = ref<Notice[]>([])
 
 const { data: createUserR, suspense: suspGetUserInfo } = CommonService.getUserInfoService()
 await suspGetUserInfo()
-watch(
-  () => exposeR.value?.selectUser,
-  () => {
-    if (!exposeR.value?.selectUser?.id || !createUserR.value) return
-    selectUsersR.value.push(exposeR.value?.selectUser) && exposeR.value?.clearUser()
-  }
-)
+//
+const onSelectedUserF = (user: User) => {
+  user && selectUsersR.value.push(user)
+}
 //
 const { mutateAsync: mutDelInvi } = CollegeService.delInviService(inviR.value.status!)
 const { mutateAsync: mutNotice } = CommonService.noticeDingCancelService()
@@ -137,7 +133,7 @@ const noticeF = async () => {
         </el-tag>
       </el-col>
       <el-col :span="10">
-        <DepartmentUser ref="exposeR" />
+        <DepartmentUser @update:selecteduser="onSelectedUserF" />
       </el-col>
       <el-col></el-col>
       <el-col>
