@@ -18,9 +18,9 @@ export const readTimetableExcel = (file: Blob, isCollege = true) => {
           return match ? Number(match[1]) : null
         })
         .filter((n) => n !== null) // 过滤掉不匹配的
-        .reduce((max, cur) => Math.max(max, cur), -Infinity) // 取最大值
+        .reduce((max, cur) => Math.max(max!, cur!), -Infinity) // 取最大值
 
-      const maxRows = maxNumber
+      const maxRows = maxNumber ?? 0
       // 每名教师
       for (let i = 1; i <= maxRows; i += 10) {
         if (i >= 20) {
