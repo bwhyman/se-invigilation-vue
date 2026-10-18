@@ -11,7 +11,7 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     env:
       BASE_DIR: /srv/se-invigilation
       SERVER_HOST: ${{ secrets.HOST }}

@@ -78,10 +78,9 @@ export const getCancelNotice = (invi: Invigilation) => {
 
 export const getInviDateByInviWeeksAndDayOfWeek = (inviWeek: number, dayOfWeek: number) => {
   const firstWeek = settingStore.getFirstWeek()
-
   const base = new Date(firstWeek)
   base.setHours(0, 0, 0, 0)
-  const diffDays = (inviWeek - 1) * 7 + (dayOfWeek - 1)
+  const diffDays = (Number(inviWeek) - 1) * 7 + Number(dayOfWeek)
   const target = new Date(base)
   target.setDate(base.getDate() + diffDays)
   return target.toISOString().slice(0, 10)

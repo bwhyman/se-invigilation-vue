@@ -56,6 +56,7 @@ const addInvis = async () => {
 //
 //
 //
+const inviFileInput = ref<HTMLElement>()
 
 const inviFileR = ref<InviFile>()
 const inviFileTypes: InviFile[] = [
@@ -63,7 +64,11 @@ const inviFileTypes: InviFile[] = [
   { name: '排考结果信息', id: 2 }
 ]
 
-const inviFileChangeF = () => {}
+const inviFileChangeF = () => {
+  nextTick(() => {
+    inviFileInput.value?.click()
+  })
+}
 
 const readInviFile = async (event: Event) => {
   const element = event.target as HTMLInputElement
@@ -114,7 +119,7 @@ const readInviFile = async (event: Event) => {
       </el-select>
     </el-col>
     <el-col v-if="inviFileR">
-      <input type="file" @change="readInviFile" accept=".xlsx, .xls" />
+      <input type="file" hidden ref="inviFileInput" @change="readInviFile" accept=".xlsx, .xls" />
     </el-col>
   </el-row>
   <el-row class="my-row">

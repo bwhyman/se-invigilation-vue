@@ -44,7 +44,7 @@ export const readTimetableExcel = (file: Blob, isCollege = true) => {
 
             const sections = (x.v.split('\n') as string[]).filter((str) => str !== '')
             for (const sec of sections) {
-              if (sec.startsWith('分组')) {
+              if (sec.startsWith('分组') || sec.startsWith('辅修上课')) {
                 sections.splice(sections.indexOf(sec), 1)
               }
             }
@@ -121,8 +121,6 @@ const getWeeks = (weeks: string, wArrays: Timetable[]) => {
 
 // 提取课表中周的具体数字
 const formatWeeks = (weeks: string) => {
-  //console.log(weeks)
-
   weeks = weeks.replaceAll('单', '').replaceAll('双', '')
   return weeks.substring(0, weeks.indexOf('周'))
 }
