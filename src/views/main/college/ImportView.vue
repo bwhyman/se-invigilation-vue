@@ -55,10 +55,9 @@ const addInvis = async () => {
 
 //
 //
-//
+// 实现对应新版教务系统
 const inviFileInput = ref<HTMLElement>()
-
-const inviFileR = ref<InviFile>()
+const inviFileR = ref<InviFile | null>()
 const inviFileTypes: InviFile[] = [
   { name: '随堂考试管理', id: 1 },
   { name: '排考结果信息', id: 2 }
@@ -91,10 +90,14 @@ const readInviFile = async (event: Event) => {
     }
     invisR.value = result
     pageR.value.total = result.length
-    //console.log(result)
   } finally {
     element.value = ''
+    inviFileR.value = undefined
   }
+}
+//
+const fileSelectCancel = () => {
+  inviFileR.value = undefined
 }
 </script>
 <template>
@@ -119,7 +122,13 @@ const readInviFile = async (event: Event) => {
       </el-select>
     </el-col>
     <el-col v-if="inviFileR">
-      <input type="file" hidden ref="inviFileInput" @change="readInviFile" accept=".xlsx, .xls" />
+      <input
+        type="file"
+        hidden
+        ref="inviFileInput"
+        @change="readInviFile"
+        @cancel="fileSelectCancel"
+        accept=".xlsx, .xls" />
     </el-col>
   </el-row>
   <el-row class="my-row">
