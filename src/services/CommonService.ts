@@ -141,6 +141,8 @@ export class CommonService {
         return usePost(`invidetails/${inviid}`, user)
       },
       onSuccess: () => {
+        // 提交后，需要移除基于日期查询的已分配监考数据
+        qc.invalidateQueries({ queryKey: [querycachename.dateinvis] })
         qc.invalidateQueries({ queryKey: [querycachename.importeds] })
         qc.invalidateQueries({ queryKey: [querycachename.dispatcheds] })
         qc.invalidateQueries({ queryKey: [querycachename.assigneds] })
